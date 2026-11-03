@@ -77,9 +77,19 @@ Operate the Gamasa plant (ERP + mobile) and present the public brand (website) f
 
 ## Product lines
 
-1. **أبواب WPC & PVC** — models e.g. D134 / D132 · H 215 cm · W 80–110 cm · from ~7100 EGP ex-factory
-2. **تجاليد WPC بديل الخشب** — e.g. 16×280 cm · from ~250 EGP
-3. **ألواح PVC فوم بورد** — décor / advertising / furniture
+1. **أبواب WPC & PVC** — 4 sizes (H 215 × W 110 / 100 / 90 / 80 cm) · leaf 4.5 cm single piece, UPVC color layer · models D134 / D132 · demo price from ~7,100 EGP (unverified — not on the site)
+2. **تجاليد WPC بديل الخشب** — 17 × 280 cm (catalog) · codes K71-1…K71-5 · demo price ~250 EGP (unverified)
+3. **ألواح PVC فوم بورد** — 122 × 244 cm · thickness 4.5 / 6 / 8 / 10 / 12 / 14 / 17 mm · décor / advertising / furniture / medical units
+
+All three share 11 finishes: C132 C160 C021 C198 C182 C115 C091 C173 C102 C3003 C8001.
+
+## Trust & claims (site)
+
+- ISO 9001 · ISO 14001 · علامة الجودة «صنع في مصر»
+- Counters: 25+ years · 100+ workers · 5000 clients · 500 projects (site-claimed, unverified)
+- Slogans: «باب أهل مصر» · «تجاليد رقم 1 في مصر»
+- Plant coordinates: 31.439146, 31.48027 · alt domain www.EGerman-pvc.com (printed on catalogs)
+- Product benefits: eco-friendly, non-flammable, insect-proof, sound-dampening, water-proof, no painting, easy install/clean, many colors
 
 ## Services (website)
 

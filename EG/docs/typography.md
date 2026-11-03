@@ -4,7 +4,7 @@
 
 | Role | Family | Notes |
 |------|--------|-------|
-| Arabic UI / marketing | Cairo / Tajawal (interim) | Live WordPress theme uses custom “header-font” / “body-font” / “custom-four” — replace with licensed self-hosted files when delivered |
+| Arabic UI / marketing | **Somar Rounded** (official, per live site `@font-face`) → Cairo fallback | Licensed — not bundled. Add files to `assets/fonts/` and uncomment the `url()` in `css/fonts.css` |
 | Latin | Poppins (matches live site body stack) | |
 | SKUs / codes | system ui-monospace / tabular | D134, D132 |
 
@@ -12,14 +12,13 @@
 
 | Token | rem | Weight |
 |-------|-----|--------|
-| Display | 2 | 700 |
-| H1 | 1.625 | 700 |
-| H2 | 1.375 | 600 |
+| Display | 2.25 | 700 |
+| H1 | 1.75 | 700 |
+| H2 | 1.375 | 700 |
 | H3 | 1.125 | 600 |
-| Title | 1 | 600 |
 | Body | 1 | 400 |
-| Secondary | 0.875 | 400–500 |
-| Caption | 0.75 | 500 |
+| Dense (ERP) | 0.875 | 400–600 |
+| Caption | 0.8125 | 500 |
 
 ## Arabic rules
 
@@ -34,4 +33,4 @@
 
 ## ERP density
 
-Body can drop to 14px in dense tables; keep headers ≥ 13px; never below 12.5px.
+Body drops to 14px in tables/forms; nothing below 13px.

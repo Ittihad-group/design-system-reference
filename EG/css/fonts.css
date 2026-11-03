@@ -1,5 +1,15 @@
 /* EG Design System — fonts.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
+   Brand Arabic face on egerman-upvc.com is "Somar Rounded" (self-hosted by the WordPress theme).
+   It is a licensed typeface, so it is NOT bundled here. Drop the licensed files into
+   assets/fonts/ (names below) and it activates; until then Cairo is the fallback.
+   Latin = Poppins (400 / 700 on the live site; 500 / 600 added for UI).
 */
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap");
 
+@font-face {
+  font-family: "Somar Rounded";
+  src: local("Somar Rounded");
+  /* When licensed files arrive, add before local():
+     url("../assets/fonts/SomarRounded.woff2") format("woff2"), */
+  font-display: swap;
+}

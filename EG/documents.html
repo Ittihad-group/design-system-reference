@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EG — قوالب المستندات والتقارير (PDF)</title>
+    <link rel="icon" href="./assets/images/logo/favicon.png" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/print.css" />
+    <style>
+      .doc-wrap { display: grid; grid-template-columns: auto minmax(260px, 1fr); gap: var(--space-8); align-items: start; padding-block: var(--space-8); border-bottom: 1px solid var(--color-border); }
+      .doc-info { position: sticky; top: 72px; display: flex; flex-direction: column; gap: var(--space-3); }
+      .doc-info h3 { margin: 0; }
+      .doc-info ul { margin: 0; padding-inline-start: 1.2em; display: grid; gap: 4px; font-size: var(--text-dense); }
+      .a4-scroll { overflow-x: auto; padding: 4px; }
+      @media (max-width: 1160px) { .doc-wrap { grid-template-columns: 1fr; } .doc-info { position: static; } }
+      .matrix td, .matrix th { white-space: normal; vertical-align: top; }
+      .matrix .chip { margin: 2px; }
+      .schem { position: relative; width: 210px; height: 297px; background: #fff; border: 1px solid var(--color-border-strong); box-shadow: var(--shadow-card); }
+      .schem div { position: absolute; inset-inline: 0; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+      .schem .z-head { top: 14px; height: 36px; background: var(--eg-navy-tint); color: var(--eg-navy); }
+      .schem .z-body { top: 56px; bottom: 44px; background: var(--eg-bg-soft); color: var(--eg-muted); }
+      .schem .z-foot { bottom: 14px; height: 24px; background: var(--eg-navy-tint); color: var(--eg-navy); }
+      .schem .m { position: absolute; inset: 14px; border: 1px dashed var(--color-focus); pointer-events: none; }
+      .ph { border-block-end: 1px dotted #999; color: #999; padding-inline: 4px; }
+      @media print { .docs-title { display: none !important; } .docs-root .container { width: auto !important; margin: 0 !important; } .docs-root { border: 0 !important; } }
+    </style>
+  </head>
+  <body>
+    <nav class="ds-nav" aria-label="Sections">
+      <div class="container">
+        <a href="./index.html" aria-label="Hub"><img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" /></a>
+        <a href="#matrix">من يحتاج PDF</a><a href="#kit">مواصفات المستند</a><a href="#templates">القوالب (6)</a>
+        <span class="grow"></span>
+        <a href="./brand.html">الهوية</a><a href="./design-system.html">المكونات</a>
+      </div>
+    </nav>
+
+    <header class="ds-hero">
+      <div class="container stack-sm">
+        <div class="t-eyebrow" style="color:#ffb3b6">المستندات والتقارير</div>
+        <h1 class="t-display" style="color:#fff">كيف تبدو ملفات PDF في نظام المصرية الألمانية</h1>
+        <p class="t-muted" style="max-width:66ch">راجعنا وحدات النظام الإحدى عشرة وحدّدنا المستندات التي تحتاج طباعة أو PDF، وجهّزنا 6 قوالب A4 تغطي كل أنواعها. كل قالب يمكن طباعته أو حفظه PDF من هنا، وله ملف PDF نموذجي جاهز.</p>
+      </div>
+    </header>
+
+    <main>
+      <!-- MATRIX -->
+      <section class="ds-section" id="matrix"><div class="container">
+        <h2 class="t-h1">أي وحدة تحتاج أي مستند؟</h2>
+        <p class="lead">حوالي 25 نوع مستند، كلها تخرج من 6 قوالب فقط (تغيير العنوان والحقول). الأولوية: "أساسي" = لازم عند التشغيل الأول.</p>
+        <div class="card card-flush"><div class="table-wrap"><table class="table matrix">
+          <thead><tr><th>الوحدة</th><th>المستندات / التقارير</th><th>القالب</th><th>الأولوية</th></tr></thead>
+          <tbody>
+            <tr><td><strong>المبيعات</strong></td><td>عرض سعر · أمر بيع · <b>فاتورة</b> · <b>إذن تسليم / شحن</b> · إيصال استلام نقدية</td><td><span class="chip chip-info chip-plain">فاتورة</span><span class="chip chip-info chip-plain">إذن</span></td><td><span class="chip chip-danger chip-plain">أساسي</span></td></tr>
+            <tr><td><strong>العملاء والموزعين</strong></td><td><b>كشف حساب عميل</b> · أعمار الديون</td><td><span class="chip chip-info chip-plain">كشف حساب</span></td><td><span class="chip chip-danger chip-plain">أساسي</span></td></tr>
+            <tr><td><strong>المخزون</strong></td><td>إذن إضافة · إذن صرف · تقرير رصيد المخزون · أصناف تحت الحد الأدنى · محضر جرد</td><td><span class="chip chip-info chip-plain">إذن</span><span class="chip chip-info chip-plain">تقرير</span></td><td><span class="chip chip-danger chip-plain">أساسي</span></td></tr>
+            <tr><td><strong>الإنتاج</strong></td><td><b>أمر تشغيل</b> · تقرير إنتاج يومي · تقرير الهدر</td><td><span class="chip chip-info chip-plain">أمر تشغيل</span><span class="chip chip-info chip-plain">تقرير</span></td><td><span class="chip chip-danger chip-plain">أساسي</span></td></tr>
+            <tr><td><strong>المشتريات</strong></td><td>أمر شراء · إذن استلام خامات</td><td><span class="chip chip-info chip-plain">فاتورة</span><span class="chip chip-info chip-plain">إذن</span></td><td><span class="chip chip-warning chip-plain">مهم</span></td></tr>
+            <tr><td><strong>الموردين</strong></td><td>كشف حساب مورد</td><td><span class="chip chip-info chip-plain">كشف حساب</span></td><td><span class="chip chip-warning chip-plain">مهم</span></td></tr>
+            <tr><td><strong>المالية</strong></td><td><b>تقرير المبيعات الشهري</b> · حركة الخزينة · سند قبض · سند صرف</td><td><span class="chip chip-info chip-plain">تقرير</span><span class="chip chip-info chip-plain">فاتورة</span></td><td><span class="chip chip-danger chip-plain">أساسي</span></td></tr>
+            <tr><td><strong>الموارد البشرية</strong></td><td><b>مفردات مرتب</b> · كشف حضور وانصراف · خطاب رسمي / شهادة</td><td><span class="chip chip-info chip-plain">مفردات مرتب</span><span class="chip chip-info chip-plain">تقرير</span></td><td><span class="chip chip-warning chip-plain">مهم</span></td></tr>
+            <tr><td><strong>لوحة التحكم</strong></td><td>ملخص تنفيذي للإدارة (شهري / أسبوعي)</td><td><span class="chip chip-info chip-plain">تقرير</span></td><td><span class="chip chip-warning chip-plain">مهم</span></td></tr>
+            <tr><td><strong>المنتجات</strong></td><td>قائمة أسعار · ورقة مواصفات الصنف (يستمر استخدام الكتالوج المطبوع الحالي)</td><td><span class="chip chip-plain">كتالوج</span></td><td><span class="chip chip-plain">لاحقاً</span></td></tr>
+            <tr><td><strong>الإعدادات</strong></td><td>لا مستندات — لكنها مصدر بيانات الترويسة (الرقم الضريبي، السجل التجاري، الختم، الشعار)</td><td>—</td><td>—</td></tr>
+          </tbody></table></div></div>
+      </div></section>
+
+      <!-- KIT -->
+      <section class="ds-section" id="kit"><div class="container">
+        <h2 class="t-h1">مواصفات المستند الموحّدة</h2>
+        <p class="lead">كل المستندات تشترك في نفس الترويسة والتذييل والألوان، فيبدو أي ملف يخرج من النظام صادراً عن المصرية الألمانية.</p>
+        <div class="grid" style="grid-template-columns:auto 1fr;gap:var(--space-8);align-items:start">
+          <div class="stack-sm" style="align-items:center"><div class="schem"><div class="z-head">ترويسة · 28mm</div><div class="z-body">المحتوى</div><div class="z-foot">تذييل · 14mm</div><span class="m"></span></div><span class="t-caption num">A4 · 210×297mm · هوامش 14mm</span></div>
+          <div class="grid grid-2">
+            <div class="card stack-sm"><h3 class="t-h3">الترويسة</h3><p class="t-dense">الشعار الأفقي الملوّن، وعنوان المستند في شارة كحلي (لغة الكتالوج)، ورقم المستند والتاريخ والحالة. خط أحمر قصير تحت الخط الكحلي كتوقيع للهوية.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">التذييل</h3><p class="t-dense">العنوان، الخط الساخن <span class="num">15536</span>، البريد والموقع، شارات ISO و«صنع في مصر»، ورقم الصفحة «1 / 3».</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">الخطوط والأحجام</h3><p class="t-dense">العنوان 14pt · النص 9.5pt · الجداول 9pt · الحد الأدنى 8pt. الأرقام لاتينية متجانسة لمحاذاة الخانات.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">صديقة للطباعة</h3><p class="t-dense">رؤوس الجداول بنسخة فاتحة من الكحلي، والكحلي الصلب فقط للعنوان وسطر الإجمالي. تُقرأ بوضوح حتى بالأبيض والأسود.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">بيانات من الإعدادات</h3><p class="t-dense">الرقم الضريبي · السجل التجاري · الختم والتوقيع · بيانات الشركة — تُدخل مرة واحدة وتظهر في كل مستند.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">حالات المستند</h3><div class="cluster"><span class="doc-status">مسودة</span><span class="doc-status info">مؤكد</span><span class="doc-status warn">جزئي</span><span class="doc-status ok">مدفوع</span><span class="doc-status bad">ملغي</span></div></div>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- TEMPLATES -->
+      <section class="docs-root" id="templates"><div class="container">
+        <div class="docs-title" style="padding-block:var(--space-8) 0"><h2 class="t-h1">القوالب الستة</h2><p class="lead" style="margin:0">بيانات النماذج تجريبية (عملاء وأرقام وأسعار افتراضية) لعرض الشكل فقط.</p></div>
+
+        <!-- 1 INVOICE -->
+        <div class="doc-wrap" data-doc="invoice">
+          <div class="a4-scroll"><section class="a4" data-ar="فاتورة مبيعات" data-en="Sales Invoice" data-no="INV-2026-0187" data-date="2026-10-25" data-status="مدفوعة جزئياً" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>العميل</h4><dl class="doc-kv"><dt>الاسم</dt><dd>مقاولات النيل</dd><dt>الرقم الضريبي</dt><dd><span class="ph">ـــــــــــــــ</span></dd><dt>العنوان</dt><dd>المنصورة – الدقهلية</dd><dt>الهاتف</dt><dd class="num">0100 000 0000</dd></dl></div>
+                <div class="doc-box"><h4>بيانات الأمر</h4><dl class="doc-kv"><dt>أمر البيع</dt><dd class="num">SO-1043</dd><dt>شروط الدفع</dt><dd>50% مقدم · 50% عند التسليم</dd><dt>التسليم</dt><dd>من المصنع – جمصة</dd><dt>المسؤول</dt><dd>قسم المبيعات</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>الصنف</th><th class="c">التشطيب</th><th class="e">الكمية</th><th class="e">سعر الوحدة</th><th class="e">الإجمالي</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>باب WPC · D134 · 90×215 سم<small class="sku">D134-C132-90</small></td><td class="c num">C132</td><td class="e num">6</td><td class="e num">7,100.00</td><td class="e num">42,600.00</td></tr>
+                <tr><td class="num">2</td><td>تجليد WPC بديل الخشب · 17×280 سم<small class="sku">K71-3</small></td><td class="c">—</td><td class="e num">40</td><td class="e num">250.00</td><td class="e num">10,000.00</td></tr>
+                <tr><td class="num">3</td><td>ألواح PVC فوم بورد · 6 مم · 122×244 سم<small class="sku">FOAM-6MM-C8001</small></td><td class="c num">C8001</td><td class="e num">12</td><td class="e num">480.00</td><td class="e num">5,760.00</td></tr>
+              </tbody></table>
+              <div class="doc-row" style="align-items:flex-start">
+                <div class="stack-sm" style="flex:1"><div class="doc-words"><b>المبلغ كتابةً:</b> فقط ثلاثة وستون ألفاً ومائتان وثلاثة جنيهات وثمانية وثمانون قرشاً لا غير.</div>
+                  <div class="doc-notes"><b>شروط:</b><ol><li>البضاعة المباعة لا ترد ولا تستبدل بعد التركيب.</li><li>الأسعار بالجنيه المصري وشاملة التعبئة.</li></ol></div></div>
+                <div class="doc-totals"><div><span>الإجمالي قبل الخصم</span><b class="num">58,360.00</b></div><div><span>خصم 5%</span><b class="num">− 2,918.00</b></div><div><span>الصافي</span><b class="num">55,442.00</b></div><div><span>ضريبة القيمة المضافة 14%</span><b class="num">7,761.88</b></div><div class="grand"><span>الإجمالي المستحق</span><span class="num">63,203.88 ج.م</span></div></div>
+              </div>
+              <div class="doc-row"><div class="doc-qr">QR<br>الفاتورة الإلكترونية</div><div class="doc-stamp">الختم</div><div class="doc-sign" style="flex:1;margin:0"><div>البائع</div><div>المستلم</div></div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">أساسي</span><h3 class="t-h2">فاتورة / مستند تجاري</h3><p class="t-dense">يُطبع عند إصدار الفاتورة ويُرسل للعميل. نفس القالب لـ: عرض سعر · أمر بيع · أمر شراء (يتغير العنوان ولون الشارة).</p><ul><li>بيانات العميل ومرجع الأمر</li><li>جدول الأصناف بالـ SKU والتشطيب</li><li>خصم وضريبة وإجمالي وكتابةً بالحروف</li><li>مكان QR للفاتورة الإلكترونية والختم</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="invoice"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/invoice.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+
+        <!-- 2 DELIVERY -->
+        <div class="doc-wrap" data-doc="delivery">
+          <div class="a4-scroll"><section class="a4" data-ar="إذن تسليم" data-en="Delivery Note" data-no="DN-2026-0092" data-date="2026-10-26" data-status="تم الشحن" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>المستلم</h4><dl class="doc-kv"><dt>العميل</dt><dd>مقاولات النيل</dd><dt>موقع التسليم</dt><dd>المنصورة – الدقهلية</dd><dt>الهاتف</dt><dd class="num">0100 000 0000</dd></dl></div>
+                <div class="doc-box"><h4>النقل</h4><dl class="doc-kv"><dt>المخزن</dt><dd>المنتج التام – جمصة</dd><dt>السائق</dt><dd>—</dd><dt>رقم السيارة</dt><dd>—</dd><dt>مرجع</dt><dd class="num">SO-1043 · INV-2026-0187</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>الصنف</th><th>SKU</th><th class="e">الكمية</th><th class="c">الوحدة</th><th>التعبئة / ملاحظات</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>باب WPC · D134 · 90×215 سم · C132</td><td class="sku">D134-C132-90</td><td class="e num">6</td><td class="c">قطعة</td><td>مغلّف · سليم</td></tr>
+                <tr><td class="num">2</td><td>تجليد WPC · 17×280 سم</td><td class="sku">K71-3</td><td class="e num">40</td><td class="c">قطعة</td><td>3 حزم</td></tr>
+                <tr><td class="num">3</td><td>فوم بورد 6 مم · C8001</td><td class="sku">FOAM-6MM-C8001</td><td class="e num">12</td><td class="c">لوح</td><td>على طبلية</td></tr>
+              </tbody><tfoot><tr><td colspan="3">الإجمالي: 3 أصناف</td><td class="e num">58</td><td colspan="2"></td></tr></tfoot></table>
+              <div class="doc-box"><h4>إقرار الاستلام</h4><p style="margin:0;font-size:9pt">استلمت البضاعة الموضحة أعلاه كاملةً وسليمةً ومطابقةً للمواصفات، وأي ملاحظات تُسجّل قبل التوقيع.</p></div>
+              <div class="doc-sign"><div>أمين المخزن</div><div>السائق</div><div>المستلم</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">أساسي</span><h3 class="t-h2">إذن (تسليم · إضافة · صرف · استلام)</h3><p class="t-dense">مستند مخزني بدون أسعار. يطبعه أمين المخزن ويوقّعه المستلم. نفس القالب لإذن الإضافة والصرف وإذن استلام الخامات من المورد.</p><ul><li>بلا أسعار — كميات ووحدات فقط</li><li>بيانات النقل والسيارة</li><li>إقرار استلام وثلاثة توقيعات</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="delivery"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/delivery.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+
+        <!-- 3 STATEMENT -->
+        <div class="doc-wrap" data-doc="statement">
+          <div class="a4-scroll"><section class="a4" data-ar="كشف حساب عميل" data-en="Customer Statement" data-no="ST-2026-10-031" data-date="2026-10-31" data-status="رصيد مستحق" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>العميل</h4><dl class="doc-kv"><dt>الاسم</dt><dd>مقاولات النيل</dd><dt>رقم العميل</dt><dd class="num">C-0058</dd><dt>الفترة</dt><dd class="num">2026-10-01 → 2026-10-31</dd></dl></div>
+                <div class="doc-box"><h4>الملخص</h4><dl class="doc-kv"><dt>رصيد افتتاحي</dt><dd class="num">12,500.00</dd><dt>إجمالي المدين</dt><dd class="num">121,954.38</dd><dt>إجمالي الدائن</dt><dd class="num">75,000.00</dd><dt>الرصيد الختامي</dt><dd class="num" style="color:var(--eg-red-deep)">59,454.38</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th>التاريخ</th><th>المستند</th><th>البيان</th><th class="e">مدين</th><th class="e">دائن</th><th class="e">الرصيد</th></tr></thead><tbody>
+                <tr><td class="num">10-01</td><td></td><td>رصيد افتتاحي</td><td class="e"></td><td class="e"></td><td class="e num">12,500.00</td></tr>
+                <tr><td class="num">10-03</td><td class="sku">INV-0171</td><td>فاتورة مبيعات</td><td class="e num">40,000.00</td><td class="e"></td><td class="e num">52,500.00</td></tr>
+                <tr><td class="num">10-07</td><td class="sku">RC-0455</td><td>إيصال قبض</td><td class="e"></td><td class="e num">20,000.00</td><td class="e num">32,500.00</td></tr>
+                <tr><td class="num">10-12</td><td class="sku">INV-0178</td><td>فاتورة مبيعات</td><td class="e num">18,750.50</td><td class="e"></td><td class="e num">51,250.50</td></tr>
+                <tr><td class="num">10-18</td><td class="sku">RC-0467</td><td>إيصال قبض</td><td class="e"></td><td class="e num">30,000.00</td><td class="e num">21,250.50</td></tr>
+                <tr><td class="num">10-25</td><td class="sku">INV-0187</td><td>فاتورة مبيعات</td><td class="e num">63,203.88</td><td class="e"></td><td class="e num">84,454.38</td></tr>
+                <tr><td class="num">10-29</td><td class="sku">RC-0480</td><td>إيصال قبض</td><td class="e"></td><td class="e num">25,000.00</td><td class="e num">59,454.38</td></tr>
+              </tbody><tfoot><tr><td colspan="3">الإجمالي</td><td class="e num">121,954.38</td><td class="e num">75,000.00</td><td class="e num">59,454.38</td></tr></tfoot></table>
+              <h3 class="doc-h">أعمار الديون</h3>
+              <table class="doc-table"><thead><tr><th class="e">0 – 30 يوم</th><th class="e">31 – 60 يوم</th><th class="e">61 – 90 يوم</th><th class="e">أكثر من 90</th><th class="e">الإجمالي</th></tr></thead><tbody><tr><td class="e num">45,454.38</td><td class="e num">14,000.00</td><td class="e num">0.00</td><td class="e num">0.00</td><td class="e num"><b>59,454.38</b></td></tr></tbody></table>
+              <div class="doc-notes">للاستفسار عن الكشف يرجى التواصل مع قسم الحسابات على الخط الساخن <span class="num">15536</span>.</div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">أساسي</span><h3 class="t-h2">كشف حساب (عميل · مورد)</h3><p class="t-dense">يُرسل شهرياً للعميل أو عند المطالبة. نفس القالب لكشف حساب المورد.</p><ul><li>رصيد افتتاحي وحركة وختامي</li><li>مدين / دائن / رصيد جارٍ</li><li>أعمار الديون في ذيل الكشف</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="statement"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/statement.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+
+        <!-- 4 REPORT -->
+        <div class="doc-wrap" data-doc="report">
+          <div class="a4-scroll"><section class="a4" data-ar="تقرير المبيعات الشهري" data-en="Monthly Sales Report" data-no="RP-2026-10" data-date="2026-11-01" data-status="نهائي" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-box"><dl class="doc-kv" style="grid-template-columns:26mm 1fr 26mm 1fr"><dt>الفترة</dt><dd>أكتوبر 2026</dd><dt>أُعدّ بواسطة</dt><dd>قسم المبيعات</dd></dl></div>
+              <div class="doc-kpis">
+                <div class="doc-kpi"><small>إجمالي المبيعات</small><b class="num">374,950</b></div>
+                <div class="doc-kpi is-red"><small>أوامر البيع</small><b class="num">14</b></div>
+                <div class="doc-kpi"><small>متوسط الأمر</small><b class="num">26,782</b></div>
+                <div class="doc-kpi"><small>نسبة المحصَّل</small><b class="num">68%</b></div>
+              </div>
+              <h3 class="doc-h">المبيعات حسب خط الإنتاج</h3>
+              <div class="doc-bars">
+                <div class="doc-bar is-top"><span>أبواب WPC &amp; PVC</span><i style="--v:100%"></i><b class="num">238,400</b></div>
+                <div class="doc-bar"><span>تجاليد WPC</span><i style="--v:40.4%"></i><b class="num">96,300</b></div>
+                <div class="doc-bar"><span>فوم بورد PVC</span><i style="--v:16.9%"></i><b class="num">40,250</b></div>
+              </div>
+              <h3 class="doc-h">أعلى العملاء</h3>
+              <table class="doc-table"><thead><tr><th>العميل</th><th class="e">الإجمالي</th><th class="e">النسبة</th></tr></thead><tbody>
+                <tr><td>العدس – سلطنة عُمان</td><td class="e num">184,500.00</td><td class="e num">49.2%</td></tr>
+                <tr><td>مقاولات النيل</td><td class="e num">63,203.88</td><td class="e num">16.9%</td></tr>
+                <tr><td>معرض الدلتا للأبواب</td><td class="e num">51,000.00</td><td class="e num">13.6%</td></tr>
+                <tr><td>شركة التعمير</td><td class="e num">41,246.12</td><td class="e num">11.0%</td></tr>
+                <tr><td>م. أحمد سمير</td><td class="e num">21,300.00</td><td class="e num">5.7%</td></tr>
+                <tr><td>عملاء آخرون</td><td class="e num">13,700.00</td><td class="e num">3.6%</td></tr>
+              </tbody><tfoot><tr><td>الإجمالي</td><td class="e num">374,950.00</td><td class="e num">100%</td></tr></tfoot></table>
+              <h3 class="doc-h">حالة الأوامر</h3>
+              <div class="cluster" style="gap:3mm"><span class="doc-status info">مؤكد · 4</span><span class="doc-status warn">قيد الإنتاج · 3</span><span class="doc-status ok">مشحون · 5</span><span class="doc-status bad">ملغي · 1</span><span class="doc-status">مسودة · 1</span></div>
+              <div class="doc-notes" style="margin-block-start:auto">جميع المبالغ بالجنيه المصري قبل ضريبة القيمة المضافة.</div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">أساسي</span><h3 class="t-h2">تقرير</h3><p class="t-dense">للإدارة والمالية. يُستخدم لكل التقارير: رصيد المخزون، أصناف تحت الحد الأدنى، إنتاج يومي، حضور، خزينة، ملخص تنفيذي.</p><ul><li>أربعة مؤشرات في الأعلى</li><li>أعمدة أفقية بسيطة (أحمر للأعلى فقط)</li><li>جدول بإجمالي وحالات بالنص واللون</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="report"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/report.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+
+        <!-- 5 WORK ORDER -->
+        <div class="doc-wrap" data-doc="workorder">
+          <div class="a4-scroll"><section class="a4" data-ar="أمر تشغيل" data-en="Work Order" data-no="WO-2026-0218" data-date="2026-10-27" data-status="قيد التنفيذ" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>المنتج</h4><dl class="doc-kv"><dt>الصنف</dt><dd>باب WPC · D134 · 90×215 سم</dd><dt>SKU</dt><dd class="sku">D134-C132-90</dd><dt>التشطيب</dt><dd class="num">C132</dd><dt>الكمية المخططة</dt><dd class="num">60 قطعة</dd></dl></div>
+                <div class="doc-box"><h4>الجدولة</h4><dl class="doc-kv"><dt>أمر البيع</dt><dd class="num">SO-1043</dd><dt>تاريخ البدء</dt><dd class="num">2026-10-27</dd><dt>التسليم المتوقع</dt><dd class="num">2026-11-05</dd><dt>خط الإنتاج</dt><dd>خط 1 · المشرف: ــــــــ</dd></dl></div>
+              </div>
+              <div class="doc-box"><h4>التقدم</h4><div class="doc-row" style="align-items:center"><div class="doc-progress" style="--v:72%;flex:1"></div><b class="num">43 / 60 · 72%</b></div></div>
+              <h3 class="doc-h">الخامات</h3>
+              <table class="doc-table"><thead><tr><th>الخامة</th><th class="e">المطلوب</th><th class="e">المصروف</th><th class="c">الوحدة</th></tr></thead><tbody>
+                <tr><td>مركّب WPC</td><td class="e num">1,150</td><td class="e num">830</td><td class="c">كجم</td></tr>
+                <tr><td>طبقة UPVC الملوّنة C132</td><td class="e num">180</td><td class="e num">130</td><td class="c">م²</td></tr>
+                <tr><td>مواد التعبئة</td><td class="e num">60</td><td class="e num">43</td><td class="c">طقم</td></tr>
+              </tbody></table>
+              <div class="doc-cols">
+                <div class="doc-box"><h4>مراحل التشغيل</h4><div style="display:grid;gap:1.2mm;font-size:9pt"><span><i class="doc-check on"></i>بثق وتشكيل الضلفة</span><span><i class="doc-check on"></i>القطع والتجهيز</span><span><i class="doc-check on"></i>تغطية طبقة اللون</span><span><i class="doc-check"></i>التجميع والتركيب</span><span><i class="doc-check"></i>فحص الجودة</span><span><i class="doc-check"></i>التعبئة</span></div></div>
+                <div class="doc-box"><h4>فحص الجودة</h4><div style="display:grid;gap:1.2mm;font-size:9pt"><span><i class="doc-check"></i>المقاس 90×215 سم مطابق</span><span><i class="doc-check"></i>سُمك الضلفة 4.5 سم</span><span><i class="doc-check"></i>اللون مطابق للتشطيب C132</span><span><i class="doc-check"></i>خلو السطح من العيوب</span></div></div>
+              </div>
+              <div class="doc-sign"><div>مشرف الإنتاج</div><div>مراقب الجودة</div><div>مدير المصنع</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">أساسي</span><h3 class="t-h2">أمر تشغيل</h3><p class="t-dense">يُطبع ويُسلَّم لخط الإنتاج. يتابع المشرف التنفيذ ويعلّم المراحل بخط اليد أو من الشاشة. المراحل والخامات المعروضة تجريبية وتُستبدل بعمليات المصنع الفعلية.</p><ul><li>المنتج والتشطيب والكمية</li><li>شريط تقدم وجدول الخامات</li><li>مراحل وفحص جودة بمربعات اختيار</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="workorder"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/workorder.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+
+        <!-- 6 PAYSLIP -->
+        <div class="doc-wrap" data-doc="payslip">
+          <div class="a4-scroll"><section class="a4" data-ar="مفردات مرتب" data-en="Payslip · Confidential" data-no="PS-2026-10-014" data-date="2026-10-31" data-status="سري" data-sc="bad" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>الموظف</h4><dl class="doc-kv"><dt>الاسم</dt><dd>أحمد محمود (نموذج)</dd><dt>الرقم الوظيفي</dt><dd class="num">EMP-014</dd><dt>القسم</dt><dd>الإنتاج</dd><dt>الوظيفة</dt><dd>فني تشغيل</dd></dl></div>
+                <div class="doc-box"><h4>الفترة والحضور</h4><dl class="doc-kv"><dt>الشهر</dt><dd>أكتوبر 2026</dd><dt>أيام العمل</dt><dd class="num">26</dd><dt>الإجازات</dt><dd class="num">2</dd><dt>الغياب</dt><dd class="num">0</dd></dl></div>
+              </div>
+              <div class="doc-cols">
+                <table class="doc-table"><thead><tr><th>الاستحقاقات</th><th class="e">المبلغ</th></tr></thead><tbody>
+                  <tr><td>الأجر الأساسي</td><td class="e num">6,000.00</td></tr><tr><td>بدل انتقال</td><td class="e num">500.00</td></tr><tr><td>حوافز إنتاج</td><td class="e num">750.00</td></tr><tr><td>ساعات إضافية</td><td class="e num">420.00</td></tr>
+                </tbody><tfoot><tr><td>إجمالي الاستحقاقات</td><td class="e num">7,670.00</td></tr></tfoot></table>
+                <table class="doc-table"><thead><tr><th>الاستقطاعات</th><th class="e">المبلغ</th></tr></thead><tbody>
+                  <tr><td>التأمينات الاجتماعية</td><td class="e num">660.00</td></tr><tr><td>ضريبة كسب العمل</td><td class="e num">85.00</td></tr><tr><td>سلفة</td><td class="e num">500.00</td></tr><tr><td>&nbsp;</td><td></td></tr>
+                </tbody><tfoot><tr><td>إجمالي الاستقطاعات</td><td class="e num">1,245.00</td></tr></tfoot></table>
+              </div>
+              <div class="doc-totals" style="width:100%"><div class="grand"><span>صافي المرتب</span><span class="num">6,425.00 ج.م</span></div></div>
+              <div class="doc-words"><b>المبلغ كتابةً:</b> فقط ستة آلاف وأربعمائة وخمسة وعشرون جنيهاً لا غير.</div>
+              <div class="doc-sign"><div>الموارد البشرية</div><div>الحسابات</div><div>توقيع الموظف</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-warning chip-plain">مهم</span><h3 class="t-h2">مفردات مرتب</h3><p class="t-dense">وثيقة سرية تُسلَّم للموظف شهرياً. تظهر شارة «سري» في الترويسة. نفس القالب لكشف الحضور والانصراف والخطابات الرسمية بعد تعديل المحتوى.</p><ul><li>الاستحقاقات والاستقطاعات جنباً إلى جنب</li><li>صافي المرتب بارز وكتابةً بالحروف</li><li>تُطبع للموظف فقط (صلاحية الموارد البشرية)</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-primary" type="button" data-print="payslip"><svg class="icon"><use href="#i-download"/></svg>طباعة / حفظ PDF</button><a class="btn btn-ghost" href="./assets/samples/payslip.pdf" target="_blank">فتح النموذج PDF</a></div></aside>
+        </div>
+      </div></section>
+    </main>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
+    <script src="./js/demo-data.js"></script>
+    <script>
+      (function () {
+        var c = EG.company;
+        document.querySelectorAll(".a4").forEach(function (a) {
+          var d = a.dataset;
+          var head = '<header class="doc-head"><div class="doc-brand"><img src="./assets/images/logo/wordmark-color.png" alt="المصرية الألمانية" /><small>الرقم الضريبي: <span class="ph">ـــــــــــــ</span> · س.ت: <span class="ph">ـــــــــــــ</span></small></div>' +
+            '<div class="doc-title"><span class="doc-pill">' + d.ar + '</span><span class="doc-en">' + d.en + '</span><dl class="doc-meta"><dt>الرقم</dt><dd class="num">' + d.no + '</dd><dt>التاريخ</dt><dd class="num">' + d.date + '</dd><dt>الحالة</dt><dd><span class="doc-status ' + d.sc + '">' + d.status + "</span></dd></dl></div></header>";
+          var foot = '<footer class="doc-foot"><div><b>' + c.shortName.ar + "</b> · " + c.address.ar + '<br>الخط الساخن <b class="num">' + c.hotline + '</b> · ' + c.email + " · egerman-upvc.com</div>" +
+            '<div class="badges">' + EG.certifications.map(function (x) { return '<img src="' + x.image + '" alt="" />'; }).join("") + '<span class="pg">' + d.pg + "</span></div></footer>";
+          a.insertAdjacentHTML("afterbegin", head + '<span class="doc-sample">نموذج تجريبي — بيانات افتراضية</span>');
+          a.insertAdjacentHTML("beforeend", foot);
+        });
+        document.querySelectorAll(".doc-wrap").forEach(function (w) { w.id = "doc-" + w.dataset.doc; });
+        function only(id) {
+          document.body.dataset.printOnly = id;
+          document.querySelectorAll(".doc-wrap").forEach(function (w) { w.classList.toggle("is-printing", w.dataset.doc === id); });
+        }
+        function clear() { delete document.body.dataset.printOnly; document.querySelectorAll(".is-printing").forEach(function (w) { w.classList.remove("is-printing"); }); }
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-print]"); if (!b) return;
+          only(b.dataset.print); window.print();
+        });
+        window.addEventListener("afterprint", clear);
+        var q = new URLSearchParams(location.search).get("doc");
+        if (q) only(q);
+      })();
+    </script>
+  </body>
+</html>

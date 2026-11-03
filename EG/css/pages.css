@@ -1,5 +1,27 @@
-/* EG Design System — pages.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+/* Styles for the live reference page only (design-system.html). */
+.ds-nav { position: sticky; top: 0; z-index: var(--z-sticky); background: var(--eg-navy-deep); }
+.ds-nav .container { display: flex; align-items: center; gap: var(--space-4); min-height: 56px; overflow-x: auto; }
+.ds-nav a { color: #dbe4f5; text-decoration: none; font-size: var(--text-dense); font-weight: 600; white-space: nowrap; padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
+.ds-nav a:hover { background: rgba(255,255,255,.1); }
+.ds-nav .grow { flex: 1; }
+.ds-hero { background: linear-gradient(135deg, var(--eg-navy) 0%, var(--eg-navy-deep) 100%); color: #fff; padding-block: var(--space-12); }
+.ds-hero .t-muted { color: #b9c7e2; }
+.ds-section { padding-block: var(--space-10); border-bottom: 1px solid var(--color-border); }
+.ds-section > .container > .t-h1 { margin-bottom: var(--space-1); }
+.ds-section .lead { color: var(--color-text-muted); margin-bottom: var(--space-6); max-width: 70ch; }
+.ds-demo { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); }
+.ds-label { font-size: var(--text-caption); font-weight: 700; color: var(--color-text-muted); margin-bottom: var(--space-3); }
+.swatch { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+.swatch-chip { height: 72px; background: var(--c); }
+.swatch-meta { padding: var(--space-2) var(--space-3); font-size: var(--text-caption); line-height: 1.5; }
+.swatch-meta strong { display: block; }
+.swatch-meta .sku { color: var(--color-text-muted); }
+.logo-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-6); display: grid; place-items: center; min-height: 160px; }
+.logo-card.on-dark { background: var(--eg-navy-deep); }
+.logo-card img { max-height: 96px; width: auto; }
+.rule-list { margin: 0; padding-inline-start: 1.2em; display: grid; gap: var(--space-2); }
+.space-bar { height: 16px; background: var(--color-secondary); border-radius: 2px; }
+.mini-app { border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+.mini-app .app { grid-template-columns: 200px 1fr; }
+.mini-app .sidebar { min-height: 380px; }
+@media (max-width: 700px) { .mini-app .app { grid-template-columns: 1fr; } .mini-app .sidebar { min-height: 0; flex-direction: row; } }

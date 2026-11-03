@@ -32,8 +32,21 @@ Files: `wordmark-color.png` (default) · `wordmark-white.png` (on dark)
 ## Color story
 
 Red = Egyptian half, urgency, primary CTA (matches live site buttons `#ED1C24`).  
-Navy = German half, structure, headings, secondary actions (`#0E2F64`).  
+Navy = German half, structure, headings, secondary actions (`#012864`).  
 Together they read as the bilingual manufacturer identity.
+
+## Slogans & claims (printed)
+
+- «باب أهل مصر» — door catalog footer
+- «تجاليد رقم 1 في مصر» — cladding / foam catalogs
+- «بكل فخر صنع في مصر» — Made-in-Egypt quality mark
+- Certifications shown: ISO 9001 · ISO 14001 · علامة الجودة (صنع في مصر)
+
+## Catalog language (reuse in UI)
+
+- Section label = full pill (navy, or red for specs) with white bold text
+- Swatch/tile shape = two large opposite corners (`--radius-brand`)
+- Brand name highlighted in red inside body copy
 
 ## Voice
 

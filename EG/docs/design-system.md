@@ -19,7 +19,7 @@
 | Token | Hex | Usage |
 |-------|-----|-------|
 | `--eg-red` / primary | `#ED1C24` | CTA, catalog, logo E |
-| `--eg-navy` / secondary | `#0E2F64` | Structure, logo G |
+| `--eg-navy` / secondary | `#012864` | Structure, logo G |
 | `--eg-bg` | `#EEEEEE` | Canvas (live site body) |
 | `--eg-surface` | `#FFFFFF` | Cards |
 | `--eg-ink` | `#141414` | Text |

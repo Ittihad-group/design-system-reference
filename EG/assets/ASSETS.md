@@ -42,4 +42,4 @@ Clear space: ≥ height of the “EG” letters around the seal. Do not recolor 
 
 ## Badges (`images/badges/`)
 
-`badge-1.png` · `badge-2.png` · `badge-3.png` — trust / certification graphics from the live site (verify meaning with client).
+`badge-1.png` ISO 14001 · `badge-2.png` ISO 9001 · `badge-3.png` Made-in-Egypt quality mark («بكل فخر صنع في مصر»).

@@ -5,131 +5,283 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EG Design System — Live Reference</title>
     <link rel="icon" href="./assets/images/logo/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./css/main.css" />
   </head>
   <body>
-    <main class="container">
-      <header class="section cluster" style="justify-content: space-between">
-        <div class="cluster">
-          <img src="./assets/images/logo/mark.png" alt="EG mark" width="56" height="56" />
-          <div>
-            <div class="t-h2">EG Design System</div>
-            <p class="t-muted" style="margin: 0">المصرية الألمانية · foundations from egerman-upvc.com</p>
-          </div>
+    <nav class="ds-nav" aria-label="Sections">
+      <div class="container">
+        <img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" />
+        <a href="#logo" data-ar="الشعار" data-en="Logo">الشعار</a>
+        <a href="#color" data-ar="الألوان" data-en="Color">الألوان</a>
+        <a href="#type" data-ar="الخطوط" data-en="Type">الخطوط</a>
+        <a href="#shape" data-ar="المسافات والشكل" data-en="Space & shape">المسافات والشكل</a>
+        <a href="#actions" data-ar="الأزرار" data-en="Buttons">الأزرار</a>
+        <a href="#forms" data-ar="النماذج" data-en="Forms">النماذج</a>
+        <a href="#data" data-ar="البيانات" data-en="Data">البيانات</a>
+        <a href="#feedback" data-ar="التنبيهات" data-en="Feedback">التنبيهات</a>
+        <a href="#shell" data-ar="هيكل النظام" data-en="App shell">هيكل النظام</a>
+        <a href="#brand" data-ar="عناصر الهوية" data-en="Brand">عناصر الهوية</a>
+        <a href="#icons" data-ar="الأيقونات" data-en="Icons">الأيقونات</a>
+        <span class="grow"></span>
+        <div class="segmented" role="group" aria-label="Language">
+          <button type="button" data-lang-toggle="ar" aria-pressed="true">ع</button>
+          <button type="button" data-lang-toggle="en" aria-pressed="false">EN</button>
         </div>
-        <div class="cluster">
-          <a class="btn btn-primary" href="https://egerman-upvc.com/" target="_blank" rel="noreferrer">الموقع الرسمي</a>
-          <a class="btn btn-ghost" href="./index.html">Hub</a>
+      </div>
+    </nav>
+
+    <header class="ds-hero">
+      <div class="container cluster" style="gap: var(--space-6)">
+        <img src="./assets/images/logo/mark.png" alt="" width="96" height="92" style="background:#fff;border-radius:50%;padding:4px" />
+        <div class="stack-sm">
+          <h1 class="t-display" style="color:#fff" data-ar="نظام تصميم المصرية الألمانية" data-en="EG Design System">نظام تصميم المصرية الألمانية</h1>
+          <p class="t-muted" data-ar="أساسيات الهوية والمكونات لنظام الشركة (ERP) والموقع والموبايل — جمصة، الدقهلية" data-en="Brand foundations and core components for the company ERP, website and mobile — Gamasa, Dakahlia">أساسيات الهوية والمكونات لنظام الشركة (ERP) والموقع والموبايل — جمصة، الدقهلية</p>
         </div>
-      </header>
+      </div>
+    </header>
 
-      <section class="section" id="logo">
-        <h2 class="t-h1">Logo</h2>
-        <p class="t-muted">Official assets in <code>assets/images/logo/</code></p>
-        <div class="cluster" style="align-items: stretch">
-          <div class="logo-card" style="flex: 1">
-            <img src="./assets/images/logo/mark.png" alt="EG seal" />
-          </div>
-          <div class="logo-card" style="flex: 2">
-            <img src="./assets/images/logo/wordmark-color.png" alt="EG wordmark color" />
-          </div>
-          <div class="logo-card on-dark" style="flex: 2">
-            <img src="./assets/images/logo/wordmark-white.png" alt="EG wordmark reverse" />
-          </div>
+    <main>
+      <!-- LOGO -->
+      <section class="ds-section" id="logo"><div class="container">
+        <h2 class="t-h1" data-ar="الشعار" data-en="Logo">الشعار</h2>
+        <p class="lead" data-ar="استخدم الملفات الرسمية فقط. لا تُعاد تلوينه ولا تُضاف له ظلال، والمسافة الآمنة = ارتفاع حرفي EG." data-en="Use official files only. Never recolor or shadow it; clear space = height of the EG letters.">استخدم الملفات الرسمية فقط. لا تُعاد تلوينه ولا تُضاف له ظلال، والمسافة الآمنة = ارتفاع حرفي EG.</p>
+        <div class="grid grid-3">
+          <div class="logo-card"><img src="./assets/images/logo/mark.png" alt="EG seal" /></div>
+          <div class="logo-card"><img src="./assets/images/logo/wordmark-color.png" alt="EG wordmark" /></div>
+          <div class="logo-card on-dark"><img src="./assets/images/logo/wordmark-white.png" alt="EG wordmark reverse" /></div>
         </div>
-      </section>
+      </div></section>
 
-      <section class="section" id="color">
-        <h2 class="t-h1">Color</h2>
-        <div class="grid-swatches" id="swatches"></div>
-      </section>
+      <!-- COLOR -->
+      <section class="ds-section" id="color"><div class="container">
+        <h2 class="t-h1" data-ar="الألوان" data-en="Color">الألوان</h2>
+        <p class="lead" data-ar="الأحمر = الإجراء والنصف المصري. الكحلي = الهيكل والثقة والنصف الألماني. القيم مقاسة من بكسلات الشعار." data-en="Red = action / the Egyptian half. Navy = structure & trust / the German half. Values measured from the logo pixels.">الأحمر = الإجراء والنصف المصري. الكحلي = الهيكل والثقة والنصف الألماني. القيم مقاسة من بكسلات الشعار.</p>
+        <div class="ds-label">Brand</div>
+        <div class="grid grid-swatches" id="sw-brand"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Neutral</div>
+        <div class="grid grid-swatches" id="sw-neutral"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Status (لون + نص دائماً)</div>
+        <div class="cluster ds-demo">
+          <span class="chip chip-success">متاح</span><span class="chip chip-warning">قريب من النفاد</span>
+          <span class="chip chip-danger">نفد</span><span class="chip chip-info">مؤكد</span><span class="chip">مسودة</span>
+        </div>
+      </div></section>
 
-      <section class="section" id="typography">
-        <h2 class="t-h1">Typography</h2>
-        <div class="stack">
+      <!-- TYPE -->
+      <section class="ds-section" id="type"><div class="container">
+        <h2 class="t-h1" data-ar="الخطوط" data-en="Typography">الخطوط</h2>
+        <p class="lead" data-ar="الخط العربي الرسمي للموقع: Somar Rounded (مرخّص، غير مضمّن — Cairo بديل مؤقت). اللاتيني: Poppins. الأرقام والأكواد بأرقام لاتينية متجانسة." data-en="Site's official Arabic face: Somar Rounded (licensed, not bundled — Cairo fallback). Latin: Poppins. Numbers and SKUs use tabular Latin figures.">الخط العربي الرسمي للموقع: Somar Rounded (مرخّص، غير مضمّن — Cairo بديل مؤقت). اللاتيني: Poppins. الأرقام والأكواد بأرقام لاتينية متجانسة.</p>
+        <div class="ds-demo stack">
           <div class="t-display"><span class="t-brand-red">المصرية</span> <span class="t-brand-navy">الألمانية</span></div>
-          <div class="t-h1">حلول WPC &amp; PVC متطورة للبناء والتشييد</div>
-          <p class="t-body">نوفر أبواب وتجاليد وألواح بتقنيات أوروبية — عزل حراري وصوتي، مقاومة للتآكل، ومظهر جمالي متين.</p>
-          <p class="t-muted">Hotline 15536 · contact@egerman-upvc.com · Gamasa Industrial Zone Phase 3</p>
+          <div class="t-h1">حلول WPC &amp; PVC للبناء والتشييد · Display 36 / H1 28</div>
+          <div class="t-h2">عنوان قسم · H2 22</div>
+          <div class="t-h3">عنوان فرعي · H3 18</div>
+          <p class="t-body">نص أساسي 16 — أبواب وتجاليد وألواح بتقنيات أوروبية، عزل حراري وصوتي ومقاومة للتآكل.</p>
+          <p class="t-dense">نص كثيف 14 — للجداول والنماذج في النظام.</p>
+          <p class="t-caption">نص مساعد 13 — الحد الأدنى للقراءة.</p>
+          <p class="t-dense"><span class="sku">D134-C132-90</span> · <span class="num">7,100 ج.م</span> · <span class="num">15536</span></p>
         </div>
-      </section>
+      </div></section>
 
-      <section class="section" id="components">
-        <h2 class="t-h1">Components (starter)</h2>
-        <div class="cluster">
-          <button class="btn btn-primary" type="button">عرض الكتالوج</button>
-          <button class="btn btn-secondary" type="button">تواصل معنا</button>
-          <button class="btn btn-ghost" type="button">تعرف المزيد</button>
-          <span class="badge-status">WPC · PVC</span>
+      <!-- SPACE & SHAPE -->
+      <section class="ds-section" id="shape"><div class="container">
+        <h2 class="t-h1" data-ar="المسافات والشكل" data-en="Space & shape">المسافات والشكل</h2>
+        <p class="lead" data-ar="شبكة 4 بكسل. الحواف 4 / 8 / 12. الشكل المميز: زاويتان كبيرتان متقابلتان مأخوذ من عيّنات الكتالوج." data-en="4px grid. Radius 4 / 8 / 12. Signature shape: two large opposite corners, taken from the catalog swatches.">شبكة 4 بكسل. الحواف 4 / 8 / 12. الشكل المميز: زاويتان كبيرتان متقابلتان مأخوذ من عيّنات الكتالوج.</p>
+        <div class="grid grid-2">
+          <div class="ds-demo stack" id="space-demo"></div>
+          <div class="ds-demo cluster" style="gap:var(--space-6)">
+            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-sm)"></div><span class="t-caption">4 · sm</span></div>
+            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-md)"></div><span class="t-caption">8 · md</span></div>
+            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-lg)"></div><span class="t-caption">12 · lg</span></div>
+            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-primary);border-radius:var(--radius-brand)"></div><span class="t-caption">brand</span></div>
+          </div>
         </div>
-      </section>
+      </div></section>
 
-      <section class="section" id="products">
-        <h2 class="t-h1">Product lines</h2>
-        <div class="cluster" id="product-cards" style="align-items: stretch"></div>
-      </section>
+      <!-- ACTIONS -->
+      <section class="ds-section" id="actions"><div class="container">
+        <h2 class="t-h1" data-ar="الأزرار" data-en="Buttons">الأزرار</h2>
+        <p class="lead" data-ar="زر أحمر واحد رئيسي في كل شاشة. الكحلي للإجراء الثانوي. ارتفاع 40 للنظام و44+ للموبايل." data-en="One red primary per screen. Navy for secondary. 40px in ERP, 44px+ on mobile.">زر أحمر واحد رئيسي في كل شاشة. الكحلي للإجراء الثانوي. ارتفاع 40 للنظام و44+ للموبايل.</p>
+        <div class="ds-demo stack">
+          <div class="cluster">
+            <button class="btn btn-primary" type="button">عرض الكتالوج</button>
+            <button class="btn btn-secondary" type="button">تواصل معنا</button>
+            <button class="btn btn-ghost" type="button">تصدير</button>
+            <button class="btn btn-danger" type="button">حذف</button>
+            <button class="btn btn-primary" type="button" disabled>معطّل</button>
+          </div>
+          <div class="cluster">
+            <button class="btn btn-primary btn-lg" type="button">كبير 48</button>
+            <button class="btn btn-primary btn-sm" type="button">صغير 32</button>
+            <button class="btn btn-primary" type="button"><svg class="icon"><use href="#i-plus"/></svg>أمر بيع جديد</button>
+            <button class="btn btn-ghost btn-icon" type="button" aria-label="Filter"><svg class="icon"><use href="#i-filter"/></svg></button>
+            <button class="btn btn-ghost btn-icon" type="button" aria-label="Download"><svg class="icon"><use href="#i-download"/></svg></button>
+          </div>
+        </div>
+      </div></section>
 
-      <section class="section" id="company">
-        <h2 class="t-h1">Company</h2>
-        <div class="card stack" id="company-card"></div>
-      </section>
+      <!-- FORMS -->
+      <section class="ds-section" id="forms"><div class="container">
+        <h2 class="t-h1" data-ar="النماذج" data-en="Forms">النماذج</h2>
+        <p class="lead" data-ar="التسمية فوق الحقل دائماً، والخطأ بنص واضح تحت الحقل وليس باللون فقط." data-en="Label always above the field; errors are explained in text, not by color alone.">التسمية فوق الحقل دائماً، والخطأ بنص واضح تحت الحقل وليس باللون فقط.</p>
+        <div class="ds-demo grid grid-3">
+          <div class="field"><label class="label" for="f1">اسم العميل <span class="req">*</span></label><input id="f1" class="input" placeholder="مثال: مقاولات النيل" /></div>
+          <div class="field"><label class="label" for="f2">الصنف</label><select id="f2" class="select"><option>أبواب WPC</option><option>تجاليد</option><option>فوم بورد</option></select></div>
+          <div class="field has-error"><label class="label" for="f3">رقم الهاتف <span class="req">*</span></label><input id="f3" class="input" value="0155" aria-invalid="true" /><span class="help">أدخل رقماً صحيحاً من 11 خانة</span></div>
+          <div class="field"><label class="label" for="f4">بحث</label><div class="input-wrap"><svg class="icon"><use href="#i-search"/></svg><input id="f4" class="input" placeholder="كود الصنف أو الاسم" /></div></div>
+          <div class="field"><label class="label" for="f5">ملاحظات</label><textarea id="f5" class="textarea"></textarea></div>
+          <div class="stack-sm">
+            <label class="check"><input type="checkbox" checked /> شامل الضريبة</label>
+            <label class="check"><input type="radio" name="r" checked /> تسليم من المصنع</label>
+            <label class="check"><input type="radio" name="r" /> شحن</label>
+            <label class="check"><span class="switch"><input type="checkbox" checked /><span></span></span> تنبيه عند النفاد</label>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- DATA -->
+      <section class="ds-section" id="data"><div class="container">
+        <h2 class="t-h1" data-ar="عرض البيانات" data-en="Data display">عرض البيانات</h2>
+        <p class="lead" data-ar="الأرقام والأسعار بمحاذاة النهاية وأرقام متجانسة. الحالة شارة بلون ونص." data-en="Numbers and prices end-aligned with tabular figures. Status is a chip with color and label.">الأرقام والأسعار بمحاذاة النهاية وأرقام متجانسة. الحالة شارة بلون ونص.</p>
+        <div class="grid grid-4" id="kpis" style="margin-bottom:var(--space-5)"></div>
+        <div class="card card-flush">
+          <div class="card-head"><h3 class="t-h3">آخر أوامر البيع</h3><div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true">الكل</button><button class="tab" role="tab" aria-selected="false">قيد الإنتاج</button><button class="tab" role="tab" aria-selected="false">مشحون</button></div></div>
+          <div class="toolbar"><div class="input-wrap"><svg class="icon"><use href="#i-search"/></svg><input class="input" placeholder="بحث برقم الأمر أو العميل" /></div><button class="btn btn-ghost" type="button"><svg class="icon"><use href="#i-filter"/></svg>تصفية</button></div>
+          <div class="table-wrap"><table class="table"><thead><tr><th><input type="checkbox" aria-label="select all" /></th><th>الأمر</th><th>العميل</th><th>التاريخ</th><th class="col-num">الإجمالي</th><th>الحالة</th></tr></thead><tbody id="orders"></tbody></table></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:var(--space-5)">
+          <div class="card stack"><h3 class="t-h3">المخزون</h3><div id="stock" class="stack"></div></div>
+          <div class="card stack"><h3 class="t-h3">حالات فارغة</h3><div class="empty"><svg class="icon icon-lg"><use href="#i-box"/></svg><strong>لا توجد أوامر بعد</strong><span class="t-muted">ابدأ بإنشاء أول أمر بيع.</span><button class="btn btn-primary btn-sm" type="button">أمر بيع جديد</button></div></div>
+        </div>
+      </div></section>
+
+      <!-- FEEDBACK -->
+      <section class="ds-section" id="feedback"><div class="container">
+        <h2 class="t-h1" data-ar="التنبيهات والنوافذ" data-en="Feedback">التنبيهات والنوافذ</h2>
+        <div class="grid grid-2">
+          <div class="stack">
+            <div class="alert alert-success"><svg class="icon"><use href="#i-check"/></svg><div>تم حفظ أمر البيع SO-1045.</div></div>
+            <div class="alert alert-warning"><svg class="icon"><use href="#i-alert"/></svg><div>الصنف K71-3 أقل من الحد الأدنى للمخزون.</div></div>
+            <div class="alert alert-danger"><svg class="icon"><use href="#i-alert"/></svg><div>تعذّر الاتصال بالخادم. أعد المحاولة.</div></div>
+            <div class="alert"><svg class="icon"><use href="#i-bell"/></svg><div>تم تحديث قائمة الأسعار.</div></div>
+          </div>
+          <div class="ds-demo stack">
+            <div class="ds-label">Progress · Toast · Modal</div>
+            <div class="stack-sm"><span class="t-dense">أمر إنتاج WO-218 — 72%</span><div class="progress" style="--value:72%"><span></span></div></div>
+            <div class="stack-sm"><span class="t-dense">استخدام المخزن — 91%</span><div class="progress is-warn" style="--value:91%"><span></span></div></div>
+            <div class="cluster">
+              <button class="btn btn-ghost" type="button" data-toast="تم الحفظ بنجاح">إظهار Toast</button>
+              <button class="btn btn-secondary" type="button" data-open-modal="demo-modal">فتح نافذة</button>
+            </div>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- SHELL -->
+      <section class="ds-section" id="shell"><div class="container">
+        <h2 class="t-h1" data-ar="هيكل النظام" data-en="App shell">هيكل النظام</h2>
+        <p class="lead" data-ar="شريط جانبي كحلي، البند الحالي أحمر، شريط علوي أبيض، محتوى على خلفية رمادية فاتحة. على الموبايل يتحول إلى شريط سفلي." data-en="Navy sidebar, current item red, white top bar, light-grey canvas. On mobile it becomes a bottom bar.">شريط جانبي كحلي، البند الحالي أحمر، شريط علوي أبيض، محتوى على خلفية رمادية فاتحة. على الموبايل يتحول إلى شريط سفلي.</p>
+        <div class="mini-app"><div class="app">
+          <aside class="sidebar">
+            <div class="sidebar-brand"><img src="./assets/images/logo/mark.png" alt="" /><span>المصرية الألمانية</span></div>
+            <nav class="nav" id="nav"></nav>
+          </aside>
+          <div class="app-main">
+            <header class="topbar"><div class="crumbs"><span>الرئيسية</span><span>/</span><span aria-current="page">لوحة التحكم</span></div><div class="cluster"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Notifications"><svg class="icon"><use href="#i-bell"/></svg></button><span class="avatar">م</span></div></header>
+            <div class="app-content"><div class="page-head"><div><h3 class="t-h2">لوحة التحكم</h3><p class="t-muted">نظرة عامة على المصنع اليوم</p></div><button class="btn btn-primary" type="button"><svg class="icon"><use href="#i-plus"/></svg>جديد</button></div>
+              <div class="grid grid-3"><div class="card kpi"><span class="kpi-label">مبيعات الشهر</span><span class="kpi-value num">374,950</span><span class="kpi-delta up">▲ 12%</span></div><div class="card kpi is-accent"><span class="kpi-label">أوامر مفتوحة</span><span class="kpi-value num">14</span></div></div>
+            </div>
+          </div>
+        </div></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Mobile bottom nav</div>
+        <div class="ds-demo" style="max-width:420px;padding:0;overflow:hidden"><div class="bottom-nav"><a href="#shell" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#shell"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#shell"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a><a href="#shell"><svg class="icon"><use href="#i-settings"/></svg>الإعدادات</a></div></div>
+      </div></section>
+
+      <!-- BRAND -->
+      <section class="ds-section" id="brand"><div class="container">
+        <h2 class="t-h1" data-ar="عناصر الهوية" data-en="Brand elements">عناصر الهوية</h2>
+        <p class="lead" data-ar="مأخوذة من الكتالوج المطبوع والموقع: شارة القسم، عيّنات التشطيبات، مزايا المنتج، الاعتمادات." data-en="Taken from the printed catalog and site: section pill, finish swatches, product benefits, certifications.">مأخوذة من الكتالوج المطبوع والموقع: شارة القسم، عيّنات التشطيبات، مزايا المنتج، الاعتمادات.</p>
+        <div class="cluster" style="margin-bottom:var(--space-5)"><span class="section-pill">الألوان المتاحة</span><span class="section-pill is-red">مواصفات الأبواب</span></div>
+        <div class="ds-label">Finishes — 11 تشطيب مشترك للأبواب والتجاليد والفوم</div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(72px,1fr))" id="finishes"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Product lines</div>
+        <div class="grid grid-3" id="products"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Benefits</div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))" id="benefits"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Certifications</div>
+        <div class="trust ds-demo" id="certs"></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">Company</div>
+        <div class="ds-demo stack" id="company"></div>
+      </div></section>
+
+      <!-- ICONS -->
+      <section class="ds-section" id="icons"><div class="container">
+        <h2 class="t-h1" data-ar="الأيقونات" data-en="Icons">الأيقونات</h2>
+        <p class="lead">24px · stroke 1.75 · currentColor. الأيقونات الاتجاهية تنقلب في RTL (<code>.icon-flip</code>).</p>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(96px,1fr))" id="icon-grid"></div>
+      </div></section>
     </main>
 
+    <div class="modal-backdrop" id="demo-modal" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+        <div class="modal-body"><h3 class="t-h3" id="mt">حذف أمر البيع؟</h3><p class="t-muted">لا يمكن التراجع عن هذا الإجراء.</p></div>
+        <div class="modal-foot"><button class="btn btn-ghost" type="button" data-close-modal>إلغاء</button><button class="btn btn-danger" type="button" data-close-modal>حذف</button></div>
+      </div>
+    </div>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
     <script src="./js/demo-data.js"></script>
     <script src="./js/i18n.js"></script>
     <script src="./js/components.js"></script>
     <script src="./js/interactions.js"></script>
     <script src="./js/motion.js"></script>
     <script>
-      (function () {
-        const swatches = [
-          ["--eg-red", "Primary / CTA"],
-          ["--eg-navy", "Secondary / structure"],
-          ["--eg-navy-deep", "Dark band"],
-          ["--eg-bg", "Background"],
-          ["--eg-bg-soft", "Soft band"],
-          ["--eg-surface", "Surface"],
-          ["--eg-ink", "Ink"],
-          ["--eg-muted", "Muted"],
-        ];
-        const root = getComputedStyle(document.documentElement);
-        const box = document.getElementById("swatches");
-        swatches.forEach(([token, label]) => {
-          const hex = root.getPropertyValue(token).trim();
-          const el = document.createElement("div");
-          el.className = "swatch";
-          el.innerHTML = `<div class="swatch-chip" style="background:${hex}"></div><div class="swatch-meta"><strong>${label}</strong><br>${token}<br>${hex}</div>`;
-          box.appendChild(el);
-        });
+      document.addEventListener("DOMContentLoaded", function () {
+        var cs = getComputedStyle(document.documentElement);
+        function sw(id, list) {
+          document.getElementById(id).innerHTML = list.map(function (x) {
+            var hex = cs.getPropertyValue(x[0]).trim();
+            return '<div class="swatch"><div class="swatch-chip" style="--c:' + hex + '"></div><div class="swatch-meta"><strong>' + x[1] + '</strong><span class="sku">' + x[0] + '</span><br><span class="sku">' + hex.toUpperCase() + "</span></div></div>";
+          }).join("");
+        }
+        sw("sw-brand", [["--eg-red", "Red · primary"], ["--eg-red-deep", "Red deep · pressed"], ["--eg-navy", "Navy · structure"], ["--eg-navy-deep", "Navy deep · sidebar"], ["--eg-navy-soft", "Navy soft · hover"], ["--eg-navy-glass", "Glass blue · seal"]]);
+        sw("sw-neutral", [["--eg-ink", "Ink"], ["--eg-muted", "Muted"], ["--eg-line", "Line"], ["--eg-bg", "Canvas"], ["--eg-bg-soft", "Soft band"], ["--eg-surface", "Surface"]]);
 
-        const products = (window.EG && EG.products) || [];
-        const pc = document.getElementById("product-cards");
-        products.forEach((p) => {
-          const el = document.createElement("article");
-          el.className = "card";
-          el.style.flex = "1";
-          el.style.minWidth = "200px";
-          el.innerHTML = `<img src="${p.image}" alt="" style="border-radius:8px;margin-bottom:12px;aspect-ratio:1;object-fit:cover;width:100%" /><div class="t-h3">${p.title.ar}</div><p class="t-muted">${(p.skuSamples || []).join(" · ")}${p.samplePrice ? " · " + p.samplePrice.ar : ""}</p>`;
-          pc.appendChild(el);
-        });
+        document.getElementById("space-demo").innerHTML = [1, 2, 3, 4, 5, 6, 8, 10].map(function (n) {
+          return '<div class="cluster"><span class="sku" style="width:64px">space-' + n + '</span><div class="space-bar" style="width:' + n * 4 + 'px"></div><span class="t-caption">' + n * 4 + "px</span></div>";
+        }).join("");
 
-        const c = EG.company;
-        document.getElementById("company-card").innerHTML = `
-          <div class="t-h2">${c.name.ar}</div>
-          <div class="t-muted">${c.name.en}</div>
-          <div>${c.address.ar}</div>
-          <div>Hotline <strong class="num">${c.hotline}</strong> · ${c.phone} · <a href="mailto:${c.email}">${c.email}</a></div>
-          <div class="cluster">
-            <a href="${c.social.facebook}" target="_blank" rel="noreferrer">Facebook</a>
-            <a href="${c.social.instagram}" target="_blank" rel="noreferrer">Instagram</a>
-            <a href="${c.social.youtube}" target="_blank" rel="noreferrer">YouTube</a>
-            <a href="${c.social.tiktok}" target="_blank" rel="noreferrer">TikTok</a>
-            <a href="${c.social.whatsapp}" target="_blank" rel="noreferrer">WhatsApp</a>
-          </div>`;
-      })();
+        var D = EG.demo;
+        document.getElementById("kpis").innerHTML =
+          '<div class="card kpi"><span class="kpi-label">مبيعات الشهر</span><span class="kpi-value num">374,950</span><span class="kpi-delta up">▲ 12% عن الشهر الماضي</span></div>' +
+          '<div class="card kpi is-accent"><span class="kpi-label">أوامر مفتوحة</span><span class="kpi-value num">14</span><span class="kpi-delta down">▼ 3 متأخرة</span></div>' +
+          '<div class="card kpi"><span class="kpi-label">أوامر إنتاج جارية</span><span class="kpi-value num">6</span></div>' +
+          '<div class="card kpi"><span class="kpi-label">أصناف تحت الحد الأدنى</span><span class="kpi-value num">2</span></div>';
+        document.getElementById("orders").innerHTML = D.orders.map(function (o) {
+          return '<tr><td><input type="checkbox" aria-label="select ' + o.id + '" /></td><td><span class="sku">' + o.id + "</span></td><td>" + o.customer + '</td><td class="num">' + o.date + '</td><td class="col-num num">' + EG.money(o.total) + "</td><td>" + EG.chip(o.status) + "</td></tr>";
+        }).join("");
+        document.getElementById("stock").innerHTML = D.stock.map(function (s) {
+          var pct = Math.min(100, Math.round(s.qty / (s.min * 2) * 100));
+          var chip = s.qty === 0 ? '<span class="chip chip-danger">نفد</span>' : s.qty < s.min ? '<span class="chip chip-warning">قريب من النفاد</span>' : '<span class="chip chip-success">متاح</span>';
+          return '<div class="stack-sm"><div class="spread"><span class="t-dense">' + s.name + ' <span class="sku">' + s.sku + "</span></span>" + chip + '</div><div class="progress' + (s.qty < s.min ? " is-warn" : "") + '" style="--value:' + pct + '%"><span></span></div></div>';
+        }).join("");
+
+        var nav = [["dashboard", "لوحة التحكم"], ["box", "المنتجات"], ["warehouse", "المخزون"], ["cart", "المبيعات"], ["factory", "الإنتاج"], ["users", "العملاء"], ["truck", "الموردين"], ["receipt", "المشتريات"], ["id", "الموارد البشرية"], ["coins", "المالية"], ["settings", "الإعدادات"]];
+        document.getElementById("nav").innerHTML = nav.map(function (n, i) { return '<a href="#shell"' + (i === 0 ? ' aria-current="page"' : "") + '><svg class="icon"><use href="#i-' + n[0] + '"/></svg><span>' + n[1] + "</span></a>"; }).join("");
+
+        document.getElementById("finishes").innerHTML = EG.finishes.map(function (f) { return '<div class="swatch-tile"><div class="tile" style="--c:' + f.hex + '"></div><span class="sku">' + f.code + "</span></div>"; }).join("");
+        document.getElementById("products").innerHTML = EG.products.map(function (p) {
+          var size = p.sizes.map(function (s) { return '<span class="num">' + s.w + "×" + s.h + "</span>"; }).join(" · ") + " سم";
+          return '<article class="card stack-sm"><img src="' + p.image + '" alt="" style="border-radius:var(--radius-md);aspect-ratio:1;object-fit:cover;width:100%" /><h3 class="t-h3">' + p.title.ar + '</h3><p class="t-muted">' + size + '</p><div class="cluster">' + p.skuSamples.map(function (k) { return '<span class="chip chip-info chip-plain sku">' + k + "</span>"; }).join("") + "</div></article>";
+        }).join("");
+        document.getElementById("benefits").innerHTML = EG.benefits.map(function (b) { return '<div class="feature"><span class="dot"><svg class="icon"><use href="#i-' + b.icon + '"/></svg></span>' + b.ar + "</div>"; }).join("");
+        document.getElementById("certs").innerHTML = EG.certifications.map(function (c) { return '<img src="' + c.image + '" alt="' + c.label.en + '" />'; }).join("");
+        var c = EG.company;
+        document.getElementById("company").innerHTML = '<div class="t-h3">' + c.name.ar + '</div><div class="t-muted">' + c.name.en + " · «" + c.tagline.ar + "»</div><div>" + c.address.ar + '</div><div class="t-dense">الخط الساخن <strong class="num">' + c.hotline + '</strong> · <span class="num">' + c.phone + '</span> · <a href="mailto:' + c.email + '">' + c.email + "</a></div>";
+
+        document.getElementById("icon-grid").innerHTML = EG.iconNames.map(function (n) { return '<div class="swatch" style="padding:var(--space-3);text-align:center"><svg class="icon icon-lg" style="margin:0 auto var(--space-2)"><use href="#i-' + n + '"/></svg><span class="t-caption sku">' + n + "</span></div>"; }).join("");
+      });
     </script>
     <script src="./js/app.js"></script>
   </body>

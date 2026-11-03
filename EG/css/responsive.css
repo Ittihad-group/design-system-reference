@@ -1,5 +1,14 @@
-/* EG Design System — responsive.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { flex-direction: row; overflow-x: auto; min-height: 0; padding: var(--space-2); }
+  .sidebar-brand span { display: none; }
+  .nav { flex-direction: row; }
+  .nav a span { display: none; }
+  .app-content { padding: var(--space-4); }
+  .topbar { padding-inline: var(--space-4); }
+}
+@media (max-width: 600px) {
+  :root { --text-display: 1.75rem; --text-h1: 1.5rem; }
+  .btn { min-height: var(--touch); }
+  .input, .select { min-height: var(--touch); }
+}

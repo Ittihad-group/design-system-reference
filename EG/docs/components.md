@@ -4,26 +4,26 @@
 
 ## Checklist
 
-- [ ] Button (primary / secondary / ghost / danger)
-- [ ] Icon button
-- [ ] Text field / textarea / select
+- [x] Button (primary / secondary / ghost / danger)
+- [x] Icon button
+- [x] Text field / textarea / select
 - [ ] Date / number inputs
-- [ ] Checkbox · radio · switch
-- [ ] Chip · badge · status pill
-- [ ] Avatar
-- [ ] Card
-- [ ] Table (sortable, selectable, sticky header)
-- [ ] Tabs · segmented control
-- [ ] Sidebar · top bar · breadcrumbs
-- [ ] Modal · drawer · bottom sheet
-- [ ] Toast · banner · inline alert
+- [x] Checkbox · radio · switch
+- [x] Chip · badge · status pill
+- [x] Avatar
+- [x] Card
+- [x] Table (sortable, selectable, sticky header)
+- [x] Tabs · segmented control
+- [x] Sidebar · top bar · breadcrumbs
+- [x] Modal · drawer · bottom sheet
+- [x] Toast · banner · inline alert
 - [ ] Pagination · page size
-- [ ] Empty state · skeleton · spinner
+- [x] Empty state · skeleton · spinner
 - [ ] File upload
-- [ ] Dropdown / menu
+- [x] Dropdown / menu
 - [ ] Tooltip
-- [ ] KPI / stat tile
-- [ ] Progress / pipeline
+- [x] KPI / stat tile
+- [x] Progress / pipeline
 
 ## Per-component template
 

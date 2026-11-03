@@ -1,5 +1,11 @@
-/* EG Design System — motion.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+/* Motion: short, functional. Press 90ms · fast 150ms · base 240ms. */
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity var(--duration-base) var(--ease-out), transform var(--duration-base) var(--ease-out); }
+.reveal.is-in { opacity: 1; transform: none; }
+@keyframes eg-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.toast, .modal { animation: eg-fade var(--duration-base) var(--ease-out); }
+.skeleton { background: linear-gradient(90deg, var(--color-neutral-tint) 25%, #f6f6f6 50%, var(--color-neutral-tint) 75%); background-size: 200% 100%; animation: eg-shimmer 1.3s linear infinite; border-radius: var(--radius-sm); min-height: 14px; }
+@keyframes eg-shimmer { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1; transform: none; }
+}

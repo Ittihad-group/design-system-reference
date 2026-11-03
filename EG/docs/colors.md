@@ -1,7 +1,7 @@
 # Colors
 
 > Source of truth: `../css/variables.css`  
-> Sampled from logo + live CTAs on [egerman-upvc.com](https://egerman-upvc.com/)
+> Measured from the logo PNG pixels and cross-checked with the live site theme ([egerman-upvc.com](https://egerman-upvc.com/))
 
 ## Primitives
 
@@ -10,8 +10,10 @@
 | `--eg-red` | `#ED1C24` | Site CTA `rgb(237, 28, 36)` · logo E |
 | `--eg-red-hot` | `#E63437` | Hover accent on site |
 | `--eg-red-deep` | `#C41218` | Pressed / text on tint |
-| `--eg-navy` | `#0E2F64` | Logo G / arcs |
-| `--eg-navy-deep` | `#081C3C` | Dark bands |
+| `--eg-navy` | `#012864` | Logo G / arcs — **corrected** from `#0E2F64` (measured: 27,501 px in mark.png; site theme uses it 24×) |
+| `--eg-navy-glass` | `#345383` | Door-glass tone inside the seal |
+| `--eg-navy-deep` | `#021A43` | Sidebar / dark bands |
+| `--eg-navy-soft` | `#0D3779` | Hover on navy (site) |
 | `--eg-bg` | `#EEEEEE` | Site body background |
 | `--eg-bg-soft` | `#F4F5F9` | Soft section band |
 | `--eg-surface` | `#FFFFFF` | Cards / sheets |
@@ -34,10 +36,16 @@
 
 | Status | Token | Notes |
 |--------|-------|-------|
-| success | `#168A45` | Stock OK / paid |
-| warning | `#D97706` | Low stock / due |
-| danger | `--eg-red` | Overdue / error |
-| info | `#2563EB` | Neutral info |
+| success | `#147A3D` | Stock OK / shipped (AA on tint) |
+| warning | `#A85A00` | Low stock / in production |
+| danger | `#C41218` | Out of stock / cancelled / error |
+| info | `#345383` | Confirmed / neutral info |
+
+Every status is a chip with a dot **and** a text label.
+
+## Product finishes
+
+11 shared finishes (C132, C160, C021, C198, C182, C115, C091, C173, C102, C3003, C8001) — swatch colors approximated from the printed catalog; tokens `--finish-c###`. Replace with lab-measured values if the factory supplies them.
 
 ## Contrast notes
 

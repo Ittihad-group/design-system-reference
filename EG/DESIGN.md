@@ -25,20 +25,20 @@ Rules: no recoloring · no drop shadows on the seal · clear space ≥ EG letter
 ## Foundations checklist
 
 - [x] Color primitives + semantic tokens (`css/variables.css`)
-- [x] Typography stacks (interim web fonts — swap when licensed files arrive)
+- [x] Typography stacks (Somar Rounded official → Cairo fallback)
 - [x] Spacing scale (4pt)
 - [x] Radius / touch targets
 - [x] Logo assets downloaded
-- [ ] Icon set
-- [ ] Motion polish
-- [ ] Licensed self-hosted fonts in `assets/fonts/`
+- [x] Icon set (`js/icons.js`, 36 icons)
+- [x] Motion tokens + reduced-motion
+- [ ] Licensed Somar Rounded files in `assets/fonts/` (needs client)
 
 ## Core palette
 
 | Role | Token | Hex |
 |------|-------|-----|
 | Primary / CTA | `--eg-red` | `#ED1C24` |
-| Secondary / structure | `--eg-navy` | `#0E2F64` |
+| Secondary / structure | `--eg-navy` | `#012864` |
 | Background | `--eg-bg` | `#EEEEEE` |
 | Surface | `--eg-surface` | `#FFFFFF` |
 | Ink | `--eg-ink` | `#141414` |

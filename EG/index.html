@@ -3,30 +3,288 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EG Design System — Hub</title>
+    <title>EG Design System — المصرية الألمانية</title>
+    <meta name="description" content="نظام تصميم المصرية الألمانية: الهوية، المقاسات، المكونات، وقوالب المستندات PDF لنظام الشركة." />
     <link rel="icon" href="./assets/images/logo/favicon.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./css/main.css" />
+    <style>
+      /* ───────── Hero ───────── */
+      .hero { position: relative; overflow: hidden; color: #fff; padding-block: var(--space-16) 120px;
+        background:
+          radial-gradient(60% 80% at 8% 0%, rgba(237, 28, 36, .28), transparent 60%),
+          radial-gradient(50% 70% at 100% 100%, rgba(52, 83, 131, .55), transparent 70%),
+          linear-gradient(135deg, var(--eg-navy) 0%, var(--eg-navy-deep) 100%); }
+      .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .06;
+        background-image: linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px);
+        background-size: 48px 48px; mask-image: linear-gradient(to bottom, #000, transparent 85%); }
+      .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr .9fr; gap: var(--space-12); align-items: center; }
+      .hero-copy { display: flex; flex-direction: column; gap: var(--space-5); align-items: flex-start; }
+      .eyebrow { display: inline-flex; gap: var(--space-2); align-items: center; padding: 4px 14px; border-radius: var(--radius-pill); background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); font-size: var(--text-caption); font-weight: 600; color: #dbe4f5; }
+      .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: var(--eg-red); }
+      .hero h1 { margin: 0; font-size: clamp(2rem, 4.2vw, 3.1rem); line-height: 1.2; color: #fff; font-weight: 700; }
+      .hero h1 em { font-style: normal; color: #ff8c91; }
+      .hero p.lead { margin: 0; color: #c1cee6; font-size: 1.0625rem; max-width: 54ch; }
+      .hero .wordmark { height: 54px; width: auto; }
+      .hero-trust { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); }
+      .hero-trust .plate { display: flex; gap: var(--space-3); align-items: center; background: #fff; padding: 6px 14px; border-radius: var(--radius-pill); }
+      .hero-trust img { height: 34px; width: auto; }
+      .hero-trust span { font-size: var(--text-caption); color: #9fb0cf; }
+
+      .hero-visual { position: relative; min-height: 400px; }
+      .hv-frame { position: absolute; inset: 0 0 36px 36px; background: #fff; border-radius: 64px 10px 64px 10px; padding: var(--space-8) var(--space-6); box-shadow: 0 30px 60px rgba(0,0,0,.35); }
+      .hv-frame img { width: 100%; height: 100%; object-fit: contain; }
+      .hv-card { position: absolute; background: #fff; color: var(--eg-ink); border-radius: var(--radius-lg); padding: 12px 14px; box-shadow: 0 14px 32px rgba(2,26,67,.28); display: flex; flex-direction: column; gap: 8px; font-size: var(--text-caption); font-weight: 700; }
+      .hv-card small { color: var(--eg-muted); font-weight: 600; }
+      .hv-colors { inset-block-start: -14px; inset-inline-start: -14px; }
+      .hv-colors div { display: flex; gap: 6px; }
+      .hv-colors i { width: 34px; height: 34px; border-radius: var(--radius-brand); display: block; }
+      .hv-fin { inset-block-end: 0; inset-inline-end: 0; }
+      .hv-fin div { display: flex; gap: 5px; }
+      .hv-fin i { width: 22px; height: 22px; border-radius: 6px 2px 6px 2px; background: var(--c); border: 1px solid rgba(0,0,0,.1); display: block; }
+
+      /* ───────── Stats ───────── */
+      .stats { position: relative; z-index: 2; margin-top: -64px; display: grid; grid-template-columns: repeat(4, 1fr); background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-float); border: 1px solid var(--color-border); }
+      .stat { padding: var(--space-6) var(--space-5); display: flex; flex-direction: column; gap: 2px; border-inline-end: 1px solid var(--color-border); }
+      .stat:last-child { border-inline-end: 0; }
+      .stat b { font-family: var(--font-en); font-size: 2.1rem; line-height: 1.1; color: var(--eg-navy); font-weight: 700; }
+      .stat b sup { font-size: 1rem; color: var(--eg-red); margin-inline-start: 2px; vertical-align: super; }
+      .stat span { color: var(--color-text-muted); font-size: var(--text-dense); }
+
+      /* ───────── Sections ───────── */
+      .sec { padding-block: var(--space-12) 0; }
+      .sec-head { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-6); max-width: 70ch; }
+      .sec-head .t-eyebrow { display: block; }
+      .sec-head h2 { margin: 0; font-size: 1.75rem; }
+      .sec-head p { margin: 0; color: var(--color-text-muted); }
+
+      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+      .step-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast); }
+      .step-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
+      .step-prev { position: relative; display: block; aspect-ratio: 16 / 10; background: var(--eg-bg-soft); border-bottom: 1px solid var(--color-border); overflow: hidden; }
+      .step-prev img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+      .step-prev.is-doc img { object-fit: cover; object-position: top; padding: 14px 40px 0; }
+      .step-n { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; width: 40px; height: 40px; display: grid; place-items: center; background: var(--eg-navy); color: #fff; font: 700 1.2rem var(--font-en); border-radius: 14px 3px 14px 3px; box-shadow: 0 6px 14px rgba(2,26,67,.3); }
+      .step-card.is-pdf .step-n { background: var(--eg-red); }
+      .step-body { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); flex: 1; }
+      .step-body h3 { margin: 0; font-size: 1.25rem; }
+      .step-body p { margin: 0; color: var(--color-text-muted); font-size: var(--text-dense); }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chips a { font-size: var(--text-caption); font-weight: 600; text-decoration: none; padding: 3px 11px; border-radius: var(--radius-pill); background: var(--color-secondary-tint); color: var(--eg-navy); transition: background var(--duration-fast), color var(--duration-fast); }
+      .chips a:hover { background: var(--eg-navy); color: #fff; }
+      .step-body .btn { margin-top: auto; align-self: stretch; }
+
+      .pdfs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); }
+      .pdf.is-all { grid-column: span 2; }
+      @media (max-width: 900px) { .pdfs { grid-template-columns: 1fr 1fr; } .pdf.is-all { grid-column: span 2; } }
+      .pdf { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md); text-decoration: none; color: inherit; transition: border-color var(--duration-fast), box-shadow var(--duration-fast); }
+      .pdf:hover { border-color: var(--eg-red); box-shadow: var(--shadow-card); }
+      .pdf .ico { width: 40px; height: 48px; flex: none; display: grid; place-items: end center; padding-bottom: 6px; background: var(--eg-red-tint); color: var(--eg-red-deep); border-radius: 4px 12px 4px 4px; font: 700 10px var(--font-en); letter-spacing: .04em; }
+      .pdf b { display: block; font-size: var(--text-dense); }
+      .pdf small { color: var(--color-text-muted); font-size: var(--text-caption); }
+      .pdf.is-all { background: var(--eg-navy); color: #fff; border-color: var(--eg-navy); }
+      .pdf.is-all small { color: #b9c7e2; } .pdf.is-all .ico { background: rgba(255,255,255,.14); color: #fff; }
+
+      .info { display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--space-5); }
+      .decision { display: flex; gap: var(--space-3); align-items: flex-start; padding-block: var(--space-3); border-bottom: 1px solid var(--color-border); }
+      .decision:last-child { border-bottom: 0; padding-block-end: 0; }
+      .decision .icon { color: var(--color-warning); margin-top: 2px; }
+      .decision strong { font-size: var(--text-dense); }
+      .hub-sw { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+      .hub-sw i { width: 34px; height: 34px; border-radius: var(--radius-brand); background: var(--c); border: 1px solid rgba(0,0,0,.08); }
+
+      /* ───────── Tech (collapsed) ───────── */
+      .tech { margin-top: var(--space-16); background: var(--eg-ink); color: #e8e8e8; padding-block: var(--space-10); }
+      .tech-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+      .tech .tag { display: inline-block; background: var(--color-primary); color: #fff; font-weight: 700; font-size: var(--text-caption); padding: 2px 10px; border-radius: var(--radius-pill); }
+      .tech h2 { margin: var(--space-2) 0 0; font-size: 1.25rem; color: #fff; }
+      .tech p { margin: 4px 0 0; color: #9aa7bd; font-size: var(--text-dense); max-width: 64ch; }
+      .tech details { margin-top: var(--space-5); border: 1px solid #2c2c2c; border-radius: var(--radius-md); }
+      .tech summary { cursor: pointer; padding: var(--space-3) var(--space-5); font-weight: 600; font-size: var(--text-dense); color: #cfe0ff; list-style: none; display: flex; justify-content: space-between; }
+      .tech summary::after { content: "＋"; } .tech details[open] summary::after { content: "－"; }
+      .tech summary::-webkit-details-marker { display: none; }
+      .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--space-6); padding: var(--space-2) var(--space-5) var(--space-6); }
+      .tech h3 { font-size: var(--text-caption); color: #9aa7bd; margin: 0 0 var(--space-2); font-weight: 700; direction: ltr; text-align: start; }
+      .tech ul { list-style: none; margin: 0; padding: 0; }
+      .tech a { font-family: var(--font-mono); font-size: .8125rem; color: #cfe0ff; text-decoration: none; padding: 3px 0; display: block; direction: ltr; text-align: start; }
+      .tech a:hover { color: #fff; text-decoration: underline; }
+
+      /* ───────── Footer ───────── */
+      .foot { background: #fff; border-top: 1px solid var(--color-border); padding-block: var(--space-10) var(--space-6); }
+      .foot-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: var(--space-8); }
+      .foot img { height: 46px; width: auto; }
+      .foot h4 { margin: 0 0 var(--space-2); font-size: var(--text-dense); color: var(--eg-navy); }
+      .foot p, .foot li { margin: 0; font-size: var(--text-dense); color: var(--color-text-muted); }
+      .foot ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+      .foot-end { margin-top: var(--space-8); padding-top: var(--space-4); border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--space-2); }
+
+      @media (max-width: 1000px) {
+        .hero-grid { grid-template-columns: 1fr; } .hero-visual { min-height: 320px; max-width: 460px; }
+        .steps { grid-template-columns: 1fr; } .info { grid-template-columns: 1fr; }
+        .stats { grid-template-columns: repeat(2, 1fr); } .stat:nth-child(2) { border-inline-end: 0; } .stat:nth-child(-n+2) { border-bottom: 1px solid var(--color-border); }
+        .foot-grid { grid-template-columns: 1fr; }
+      }
+    </style>
   </head>
   <body>
-    <main class="container section stack">
-      <div class="cluster">
-        <img src="./assets/images/logo/mark.png" alt="" width="64" height="64" />
-        <div>
-          <h1 class="t-h1" style="margin: 0">EG Design System Reference</h1>
-          <p class="t-muted" style="margin: 0">المصرية الألمانية لتصنيع منتجات WPC &amp; PVC</p>
+    <!-- ═════════ HERO ═════════ -->
+    <header class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <img class="wordmark" src="./assets/images/logo/wordmark-white.png" alt="المصرية الألمانية — WPC & PVC" />
+          <span class="eyebrow"><i></i>دليل نظام التصميم · للعرض والمراجعة</span>
+          <h1>هوية ومكونات ومستندات <em>نظام المصرية الألمانية</em> في مكان واحد</h1>
+          <p class="lead">كل ما يخص شكل نظام الشركة (ERP) والموقع والموبايل: الشعار والألوان والمقاسات، المكونات الجاهزة للتجربة، وقوالب ملفات PDF للفواتير والتقارير والأوامر.</p>
+          <div class="cluster">
+            <a class="btn btn-primary btn-lg" href="./brand.html">ابدأ الرحلة من الخطوة 1 ←</a>
+            <a class="btn btn-lg" href="./documents.html" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)">شاهد المستندات (PDF)</a>
+          </div>
+          <div class="hero-trust"><div class="plate" id="hero-certs"></div><span>معتمدة ISO · صنع في مصر</span></div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hv-frame"><img src="./assets/images/products/doors.png" alt="" /></div>
+          <div class="hv-card hv-colors"><small>ألوان الهوية</small><div><i style="background:var(--eg-red)"></i><i style="background:var(--eg-navy)"></i><i style="background:var(--eg-navy-glass)"></i></div></div>
+          <div class="hv-card hv-fin"><small>11 تشطيب</small><div id="hero-fin"></div></div>
         </div>
       </div>
-      <img src="./assets/images/logo/wordmark-color.png" alt="EG wordmark" style="max-width: 420px" />
-      <ul>
-        <li><a href="./design-system.html">Design system (live foundations)</a></li>
-        <li><a href="./PRODUCT.md">Product</a></li>
-        <li><a href="./DESIGN.md">Design</a></li>
-        <li><a href="./docs/brand.md">Brand</a></li>
-        <li><a href="./docs/colors.md">Colors</a></li>
-        <li><a href="./assets/ASSETS.md">Assets / logo inventory</a></li>
-        <li><a href="https://egerman-upvc.com/" target="_blank" rel="noreferrer">egerman-upvc.com</a></li>
-      </ul>
+    </header>
+
+    <!-- ═════════ STATS ═════════ -->
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><b class="num">11</b><span>وحدة في النظام تمت مراجعتها</span></div>
+        <div class="stat"><b class="num">25<sup>+</sup></b><span>نوع مستند وتقرير PDF</span></div>
+        <div class="stat"><b class="num">6</b><span>قوالب A4 جاهزة</span></div>
+        <div class="stat"><b class="num">3</b><span>أسطح: النظام · الموقع · الموبايل</span></div>
+      </div>
+    </div>
+
+    <main class="container">
+      <!-- ═════════ STEPS ═════════ -->
+      <section class="sec" id="journey">
+        <div class="sec-head">
+          <span class="t-eyebrow">رحلة العرض</span>
+          <h2>ثلاث خطوات تغطي كل التفاصيل</h2>
+          <p>ابدأ من الخطوة 1، وفي آخر كل صفحة زر «التالي». شريط الخطوات في أعلى كل صفحة يرجعك لأي مكان، والروابط الصغيرة تأخذك مباشرة للتفصيلة.</p>
+        </div>
+        <div class="steps">
+          <article class="step-card">
+            <a class="step-prev" href="./brand.html" aria-label="الخطوة 1"><span class="step-n">1</span><img src="./assets/previews/brand.jpg" alt="معاينة: النظام والموبايل بالهوية" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>الهوية والمقاسات</h3>
+              <p>كيف تظهر العلامة: الشعار والمساحة الآمنة، الألوان مع اختبار التباين، الخطوط، الأبعاد، والتطبيق على الموقع والنظام والموبايل.</p>
+              <div class="chips"><a href="./brand.html#logo">الشعار</a><a href="./brand.html#misuse">الاستخدام الصحيح</a><a href="./brand.html#color">الألوان</a><a href="./brand.html#type">الخطوط</a><a href="./brand.html#dimensions">المقاسات</a><a href="./brand.html#apps">التطبيقات</a></div>
+              <a class="btn btn-primary" href="./brand.html">افتح الخطوة 1</a>
+            </div>
+          </article>
+          <article class="step-card">
+            <a class="step-prev" href="./design-system.html" aria-label="الخطوة 2"><span class="step-n">2</span><img src="./assets/previews/components.jpg" alt="معاينة: جدول وتابات وحالات" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>المكونات</h3>
+              <p>كل عناصر الواجهة بشكلها الحقيقي وقابلة للتجربة، بالعربي والإنجليزي: أزرار، نماذج، جداول، شارات حالة، تنبيهات، هيكل النظام، أيقونات.</p>
+              <div class="chips"><a href="./design-system.html#actions">الأزرار</a><a href="./design-system.html#forms">النماذج</a><a href="./design-system.html#data">الجداول</a><a href="./design-system.html#feedback">التنبيهات</a><a href="./design-system.html#shell">هيكل النظام</a><a href="./design-system.html#icons">الأيقونات</a></div>
+              <a class="btn btn-primary" href="./design-system.html">افتح الخطوة 2</a>
+            </div>
+          </article>
+          <article class="step-card is-pdf">
+            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 3"><span class="step-n">3</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>المستندات والتقارير (PDF)</h3>
+              <p>أي وحدة في النظام تحتاج أي مستند، و6 قوالب A4 جاهزة تغطي حوالي 25 نوعاً، مع ملف PDF حقيقي لكل قالب.</p>
+              <div class="chips"><a href="./documents.html#matrix">أي وحدة تحتاج أي مستند؟</a><a href="./documents.html#kit">مواصفات المستند</a><a href="./documents.html#doc-invoice">الفاتورة</a><a href="./documents.html#doc-statement">كشف الحساب</a><a href="./documents.html#doc-workorder">أمر التشغيل</a></div>
+              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 3</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ═════════ PDF FILES ═════════ -->
+      <section class="sec" id="pdfs">
+        <div class="sec-head">
+          <span class="t-eyebrow">ملفات جاهزة</span>
+          <h2>نماذج PDF حقيقية تفتح مباشرة</h2>
+          <p>كل ملف صفحة A4 واحدة ببيانات تجريبية، بالشعار والترويسة والتذييل كما سيخرج من النظام.</p>
+        </div>
+        <div class="pdfs">
+          <a class="pdf" href="./assets/samples/invoice.pdf" target="_blank"><span class="ico">PDF</span><span><b>فاتورة مبيعات</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/delivery.pdf" target="_blank"><span class="ico">PDF</span><span><b>إذن تسليم</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/statement.pdf" target="_blank"><span class="ico">PDF</span><span><b>كشف حساب عميل</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/report.pdf" target="_blank"><span class="ico">PDF</span><span><b>تقرير المبيعات الشهري</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/workorder.pdf" target="_blank"><span class="ico">PDF</span><span><b>أمر تشغيل</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/payslip.pdf" target="_blank"><span class="ico">PDF</span><span><b>مفردات مرتب</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf is-all" href="./assets/samples/all-templates.pdf" target="_blank"><span class="ico">6×</span><span><b>القوالب الستة معاً</b><small>ملف واحد · 6 صفحات</small></span></a>
+        </div>
+      </section>
+
+      <!-- ═════════ INFO ═════════ -->
+      <section class="sec" id="info">
+        <div class="info">
+          <div class="card stack">
+            <h3 class="t-h3">ملخص الهوية</h3>
+            <div class="cluster">
+              <span class="chip chip-plain" style="background:var(--eg-red);color:#fff"><span class="num">#ED1C24</span>&nbsp;أحمر · الإجراء</span>
+              <span class="chip chip-plain" style="background:var(--eg-navy);color:#fff"><span class="num">#012864</span>&nbsp;كحلي · الهيكل</span>
+            </div>
+            <div class="t-caption">11 تشطيب مشترك للأبواب والتجاليد والفوم</div>
+            <div class="hub-sw" id="hub-finishes"></div>
+            <div class="t-caption">الاعتمادات</div>
+            <div class="trust" id="hub-certs"></div>
+          </div>
+          <div class="card stack-sm">
+            <h3 class="t-h3" style="margin-bottom:var(--space-2)">قرارات مطلوبة من الإدارة</h3>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>ملفات الخط الرسمي Somar Rounded</strong><div class="t-muted">الموقع يستخدمه لكنه مرخّص — نحتاج الملفات أو بديلاً معتمداً.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>صحة أرقام الشركة</strong><div class="t-muted">25 سنة · 100 عامل · 5000 عميل · 500 مشروع — منشورة على الموقع، نؤكدها قبل الاعتماد.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>الأسعار المرجعية</strong><div class="t-muted">الباب من 7,100 والتجاليد من 250 غير موجودة على الموقع.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>بيانات المستندات الرسمية</strong><div class="t-muted">الرقم الضريبي والسجل التجاري والختم، وهل الفاتورة تحتاج ربط الفاتورة الإلكترونية (QR).</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>نطاق النظام في الإصدار الأول</strong><div class="t-muted">أي الوحدات (مبيعات، مخزون، إنتاج…) تُبنى أولاً، والعملة والوحدات.</div></div></div>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <!-- ═════════ TECH (collapsed) ═════════ -->
+    <section class="tech" aria-labelledby="tech-title">
+      <div class="container">
+        <div class="tech-top"><div><span class="tag">للفريق التقني فقط · Developers</span><h2 id="tech-title">الملفات المرجعية (Markdown) والأكواد</h2><p>مواصفات مكتوبة للمطورين: التوكنز والمكونات وتفاصيل كل وحدة. ليست للعرض — تُفتح كنص في المتصفح أو محرر الأكواد.</p></div></div>
+        <details><summary><span id="tech-count">عرض الملفات</span></summary><div class="tech-grid" id="tech"></div></details>
+      </div>
+    </section>
+
+    <!-- ═════════ FOOTER ═════════ -->
+    <footer class="foot">
+      <div class="container">
+        <div class="foot-grid">
+          <div class="stack-sm"><img src="./assets/images/logo/wordmark-color.png" alt="المصرية الألمانية" /><p>المصرية الألمانية لتصنيع منتجات WPC &amp; PVC<br>«باب أهل مصر»</p></div>
+          <div><h4>تواصل</h4><ul><li>الخط الساخن <b class="num">15536</b></li><li class="num" style="direction:ltr;text-align:start">+201555515536</li><li>contact@egerman-upvc.com</li></ul></div>
+          <div><h4>المصنع</h4><ul><li>الدقهلية، جمصة — المنطقة الصناعية المرحلة الثالثة</li><li><a href="https://egerman-upvc.com/" target="_blank" rel="noreferrer">egerman-upvc.com</a></li></ul></div>
+        </div>
+        <div class="foot-end"><span class="t-caption">EG Design System · نماذج وبيانات العرض تجريبية</span><span class="t-caption">جميع الحقوق محفوظة للمصرية الألمانية</span></div>
+      </div>
+    </footer>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
+    <script src="./js/demo-data.js"></script>
+    <script>
+      var certs = EG.certifications.map(function (c) { return '<img src="' + c.image + '" alt="' + c.label.en + '" />'; }).join("");
+      document.getElementById("hero-certs").innerHTML = certs;
+      document.getElementById("hub-certs").innerHTML = EG.certifications.map(function (c) { return '<img src="' + c.image + '" alt="' + c.label.en + '" style="height:52px;width:auto" />'; }).join("");
+      document.getElementById("hub-finishes").innerHTML = EG.finishes.map(function (f) { return '<i style="--c:' + f.hex + '" title="' + f.code + '"></i>'; }).join("");
+      document.getElementById("hero-fin").innerHTML = EG.finishes.slice(0, 8).map(function (f) { return '<i style="--c:' + f.hex + '"></i>'; }).join("");
+      var groups = [
+        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "css/variables.css", "css/components.css", "css/print.css"]],
+        ["Product & content", ["docs/ia-sitemap.md", "docs/screen-inventory.md", "docs/flows.md", "docs/demo-data.md", "docs/content-voice.md", "assets/ASSETS.md", "js/demo-data.js"]],
+        ["ERP modules", ["dashboard", "products", "inventory", "sales", "production", "customers", "suppliers", "purchases", "hr", "finance", "settings"].map(function (m) { return "docs/modules/" + m + ".md"; })],
+        ["Surfaces · Delivery", ["docs/surfaces/eg-system.md", "docs/surfaces/eg-website.md", "docs/surfaces/eg-mobile.md", "docs/qa-checklist.md", "docs/handoff.md", "docs/open-questions.md"]]
+      ];
+      var total = 0;
+      document.getElementById("tech").innerHTML = groups.map(function (g) {
+        total += g[1].length;
+        return "<div><h3>" + g[0] + "</h3><ul>" + g[1].map(function (f) { return '<li><a href="./' + f + '">' + f + "</a></li>"; }).join("") + "</ul></div>";
+      }).join("");
+      document.getElementById("tech-count").textContent = "عرض الملفات (" + total + ")";
+      /* flow bar's "للمطورين" link: open the collapsed section */
+      if (location.hash === "#tech-title") document.querySelector(".tech details").open = true;
+      window.addEventListener("hashchange", function () { if (location.hash === "#tech-title") document.querySelector(".tech details").open = true; });
+    </script>
   </body>
 </html>

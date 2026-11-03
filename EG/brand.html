@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EG — دليل الهوية والمقاسات</title>
+    <link rel="icon" href="./assets/images/logo/favicon.png" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <style>
+      .tile-demo { display: grid; place-items: center; min-height: 180px; border-radius: var(--radius-lg); border: 1px solid var(--color-border); background: var(--color-surface); padding: var(--space-4); position: relative; }
+      .tile-demo img { max-height: 70px; width: auto; }
+      .verdict { position: absolute; inset-block-end: var(--space-2); inset-inline: var(--space-2); text-align: center; font-size: var(--text-caption); font-weight: 700; }
+      .verdict.ok { color: var(--color-success); } .verdict.no { color: var(--color-danger); }
+      .tile-demo.no { outline: 2px solid var(--color-danger-tint); }
+      .tile-demo.ok { outline: 2px solid var(--color-success-tint); }
+      .clear { --s: 150px; display: inline-block; padding: calc(var(--s) * .3); border: 2px dashed var(--color-focus); background: repeating-linear-gradient(45deg, #fff, #fff 8px, #f1f5ff 8px, #f1f5ff 16px); position: relative; }
+      .clear img { height: var(--s); width: auto; background: #fff; }
+      .clear::after { content: "x = ارتفاع حرفي EG"; position: absolute; inset-block-start: 4px; inset-inline-start: 8px; font-size: 11px; font-weight: 700; color: var(--color-focus); }
+      .ratio { display: flex; height: 56px; border-radius: var(--radius-md); overflow: hidden; font-size: var(--text-caption); font-weight: 700; color: #fff; }
+      .ratio div { display: grid; place-items: center; }
+      .pair { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); font-weight: 700; }
+      .pair small { font-weight: 600; opacity: .95; }
+      .meas { position: relative; background: var(--color-secondary); color: #fff; display: grid; place-items: center; font-size: 11px; font-weight: 700; border-radius: 3px; }
+      .wire { --k: .5; margin-inline: auto; position: relative; width: calc(1440px * var(--k)); height: calc(900px * var(--k)); background: var(--eg-bg); border: 1px solid var(--color-border-strong); display: flex; max-width: 100%; }
+      .wire .sb { width: calc(248px * var(--k)); background: var(--eg-navy-deep); color: #fff; font-size: 11px; padding: 6px; }
+      .wire .main { flex: 1; display: flex; flex-direction: column; }
+      .wire .tb { height: calc(60px * var(--k)); background: #fff; border-bottom: 1px solid var(--color-border); font-size: 11px; padding: 2px 8px; display: flex; align-items: center; }
+      .wire .ct { flex: 1; padding: calc(24px * var(--k)); display: grid; gap: calc(24px * var(--k)); grid-template-columns: repeat(4, 1fr); align-content: start; }
+      .wire .ct i { background: #fff; border: 1px solid var(--color-border); border-radius: 4px; height: 44px; }
+      .ctl { display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: #fff; font-weight: 700; font-size: var(--text-dense); border-radius: var(--radius-md); width: 150px; }
+      .phone { width: 250px; height: 500px; border: 8px solid var(--eg-ink); border-radius: 32px; overflow: hidden; background: #fff; display: flex; flex-direction: column; flex: none; }
+      .phone .scr { flex: 1; display: flex; flex-direction: column; }
+      .site-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); background: #fff; padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border); }
+      .site-hero { background: linear-gradient(135deg, var(--eg-navy), var(--eg-navy-deep)); color: #fff; padding: var(--space-8); display: grid; grid-template-columns: 1.2fr 1fr; gap: var(--space-6); align-items: center; }
+      .site-hero img { border-radius: var(--radius-brand); background: #fff; aspect-ratio: 4/3; object-fit: contain; }
+      @media (max-width: 700px) { .site-hero { grid-template-columns: 1fr; } .site-bar nav { display: none; } }
+    </style>
+  </head>
+  <body>
+    <nav class="ds-nav" aria-label="Sections">
+      <div class="container">
+        <a href="./index.html" aria-label="Hub"><img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" /></a>
+        <a href="#logo">الشعار</a><a href="#clear">المساحة الآمنة</a><a href="#misuse">الاستخدام الصحيح</a><a href="#color">الألوان</a><a href="#type">الخطوط</a><a href="#dimensions">المقاسات</a><a href="#catalog">لغة الكتالوج</a><a href="#apps">التطبيقات</a>
+        <span class="grow"></span>
+        <a href="./design-system.html" style="background:var(--color-primary);color:#fff">المكونات ←</a>
+      </div>
+    </nav>
+
+    <header class="ds-hero">
+      <div class="container stack-sm">
+        <div class="t-eyebrow" style="color:#ffb3b6">دليل الهوية والمقاسات</div>
+        <h1 class="t-display" style="color:#fff">المصرية الألمانية — كيف تظهر العلامة</h1>
+        <p class="t-muted" style="max-width:62ch">مرجع بصري موحّد للشعار والألوان والخطوط والمقاسات، مأخوذ من الشعار الرسمي والموقع والكتالوج المطبوع، ليُستخدم في النظام والموقع والموبايل والمطبوعات.</p>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1 LOGO -->
+      <section class="ds-section" id="logo"><div class="container">
+        <h2 class="t-h1">1 · الشعار</h2>
+        <p class="lead">ختم دائري يجمع باباً مفتوحاً وحرفي E (أحمر = مصر) و G (كحلي = ألمانيا). ثلاث نسخ رسمية فقط.</p>
+        <div class="grid grid-3">
+          <div class="stack-sm"><div class="logo-card"><img src="./assets/images/logo/mark.png" alt="" /></div><strong>الختم</strong><span class="t-muted">للأيقونات، التطبيق، الأختام، المساحات الضيقة.</span></div>
+          <div class="stack-sm"><div class="logo-card"><img src="./assets/images/logo/wordmark-color.png" alt="" /></div><strong>الشعار الأفقي — ملوّن</strong><span class="t-muted">الاستخدام الافتراضي على الخلفيات الفاتحة.</span></div>
+          <div class="stack-sm"><div class="logo-card on-dark"><img src="./assets/images/logo/wordmark-white.png" alt="" /></div><strong>الشعار الأفقي — معكوس</strong><span class="t-muted">على الكحلي أو الداكن فقط.</span></div>
+        </div>
+        <div class="grid grid-4" style="margin-top:var(--space-6)">
+          <div class="card"><span class="chip chip-plain" style="background:var(--eg-red);color:#fff">E</span><p class="t-dense" style="margin-top:var(--space-2)">أحمر — الجانب المصري</p></div>
+          <div class="card"><span class="chip chip-plain" style="background:var(--eg-navy);color:#fff">G</span><p class="t-dense" style="margin-top:var(--space-2)">كحلي — الجانب الألماني</p></div>
+          <div class="card"><span class="chip chip-plain" style="background:var(--eg-navy-glass);color:#fff">زجاج</span><p class="t-dense" style="margin-top:var(--space-2)">الباب المفتوح — الصنعة</p></div>
+          <div class="card"><span class="chip chip-plain">★</span><p class="t-dense" style="margin-top:var(--space-2)">نجوم تفصل قوسي النص</p></div>
+        </div>
+      </div></section>
+
+      <!-- 2 CLEAR SPACE -->
+      <section class="ds-section" id="clear"><div class="container">
+        <h2 class="t-h1">2 · المساحة الآمنة والحد الأدنى</h2>
+        <p class="lead">اترك حول الشعار مساحة لا تقل عن ارتفاع حرفي EG (≈ 30% من ارتفاع الختم). لا تضع أي عنصر داخلها.</p>
+        <div class="grid grid-2">
+          <div class="ds-demo" style="display:grid;place-items:center"><div class="clear"><img src="./assets/images/logo/mark.png" alt="" /></div></div>
+          <div class="ds-demo stack">
+            <div class="ds-label">الحد الأدنى للحجم (بالحجم الحقيقي)</div>
+            <div class="cluster" style="align-items:flex-end;gap:var(--space-6)">
+              <div class="stack-sm" style="align-items:center"><img src="./assets/images/logo/mark.png" alt="" style="width:32px" /><span class="t-caption num">32px ختم</span></div>
+              <div class="stack-sm" style="align-items:center"><img src="./assets/images/logo/mark.png" alt="" style="width:64px" /><span class="t-caption num">64px</span></div>
+              <div class="stack-sm" style="align-items:center"><img src="./assets/images/logo/wordmark-color.png" alt="" style="width:120px" /><span class="t-caption num">120px شعار أفقي</span></div>
+            </div>
+            <ul class="rule-list t-dense"><li>الأيقونة (favicon): <span class="num">72×75</span> من <code>favicon.png</code>.</li><li>أقل من هذه الأحجام النص العربي داخل الختم يختفي — استخدم حرفي EG فقط في الواجهة.</li></ul>
+          </div>
+        </div>
+      </div></section>
+
+      <!-- 3 MISUSE -->
+      <section class="ds-section" id="misuse"><div class="container">
+        <h2 class="t-h1">3 · الاستخدام الصحيح والخاطئ</h2>
+        <p class="lead">الشعار لا يُعدَّل. هذه أمثلة حيّة لما يجب تجنبه.</p>
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(250px,1fr))">
+          <div class="tile-demo ok"><img src="./assets/images/logo/wordmark-color.png" alt="" /><span class="verdict ok">✓ على أبيض</span></div>
+          <div class="tile-demo ok" style="background:var(--eg-navy)"><img src="./assets/images/logo/wordmark-white.png" alt="" /><span class="verdict ok" style="color:#9be3b6">✓ معكوس على كحلي</span></div>
+          <div class="tile-demo ok" style="background:var(--eg-bg)"><img src="./assets/images/logo/wordmark-color.png" alt="" /><span class="verdict ok">✓ على رمادي فاتح</span></div>
+          <div class="tile-demo no"><img src="./assets/images/logo/mark.png" alt="" style="transform:scaleX(1.5)" /><span class="verdict no">✕ لا تمدّه</span></div>
+          <div class="tile-demo no"><img src="./assets/images/logo/mark.png" alt="" style="filter:hue-rotate(140deg) saturate(1.4)" /><span class="verdict no">✕ لا تغيّر ألوانه</span></div>
+          <div class="tile-demo no"><img src="./assets/images/logo/mark.png" alt="" style="transform:rotate(18deg)" /><span class="verdict no">✕ لا تدوّره</span></div>
+          <div class="tile-demo no"><img src="./assets/images/logo/mark.png" alt="" style="filter:drop-shadow(4px 6px 5px rgba(0,0,0,.55))" /><span class="verdict no">✕ لا ظلال</span></div>
+          <div class="tile-demo no" style="background:url('./assets/images/products/cladding.png') center/cover"><img src="./assets/images/logo/wordmark-color.png" alt="" /><span class="verdict no" style="background:#fff;border-radius:4px">✕ ليس على صورة مزدحمة</span></div>
+        </div>
+      </div></section>
+
+      <!-- 4 COLOR -->
+      <section class="ds-section" id="color"><div class="container">
+        <h2 class="t-h1">4 · الألوان وكيف تُستخدم</h2>
+        <p class="lead">لونان للعلامة فقط. المحايد يحمل معظم الشاشة، الكحلي للهيكل، والأحمر للإجراء الواحد المهم.</p>
+        <div class="ds-label">نسب الاستخدام التقريبية في أي شاشة</div>
+        <div class="ratio"><div style="flex:60;background:var(--eg-bg);color:var(--eg-ink)">محايد 60%</div><div style="flex:25;background:var(--eg-navy)">كحلي 25%</div><div style="flex:10;background:var(--eg-red)">أحمر 10%</div><div style="flex:5;background:var(--eg-navy-glass)">5%</div></div>
+        <div class="ds-label" style="margin-top:var(--space-6)">تباين النص (يُحسب مباشرة من القيم — معيار WCAG)</div>
+        <div class="grid grid-3" id="pairs"></div>
+        <div class="alert alert-warning" style="margin-top:var(--space-4)"><svg class="icon"><use href="#i-alert"/></svg><div>الأبيض على الأحمر الرسمي أقل من 4.5:1 — يُستخدم للأزرار والعناوين الكبيرة والغامقة فقط، وللنص الصغير نستخدم الأحمر الغامق <span class="num">#B9141B</span>.</div></div>
+      </div></section>
+
+      <!-- 5 TYPE -->
+      <section class="ds-section" id="type"><div class="container">
+        <h2 class="t-h1">5 · الخطوط</h2>
+        <p class="lead">العربي الرسمي: Somar Rounded (الموجود في موقع الشركة). حتى وصول ملفاته المرخّصة يُستخدم Cairo. اللاتيني والأرقام: Poppins.</p>
+        <div class="grid grid-2">
+          <div class="ds-demo stack"><div class="ds-label">عربي — Somar Rounded → Cairo</div><div class="t-display"><span class="t-brand-red">المصرية</span> <span class="t-brand-navy">الألمانية</span></div><div class="t-h2">أبواب وتجاليد وألواح بتقنية أوروبية</div><p class="t-body">نوفر منتجات بجودة عالية وكفاءة استثنائية تلبي احتياجات عملائنا.</p></div>
+          <div class="ds-demo stack"><div class="ds-label">لاتيني وأرقام — Poppins</div><div class="t-display" style="font-family:var(--font-en)">Egyptian-German</div><div class="t-h2" style="font-family:var(--font-en)">WPC &amp; PVC Products</div><p class="t-body num">0123456789 · 7,100 EGP · D134-C132-90 · 15536</p></div>
+        </div>
+        <div class="ds-demo" style="margin-top:var(--space-4)"><table class="table" style="min-width:0"><thead><tr><th>الاستخدام</th><th class="col-num">الحجم</th><th>الوزن</th></tr></thead><tbody>
+          <tr><td>عنوان رئيسي Display</td><td class="col-num num">36px</td><td>700</td></tr><tr><td>H1</td><td class="col-num num">28px</td><td>700</td></tr><tr><td>H2</td><td class="col-num num">22px</td><td>700</td></tr><tr><td>H3</td><td class="col-num num">18px</td><td>600</td></tr><tr><td>نص أساسي</td><td class="col-num num">16px</td><td>400</td></tr><tr><td>جداول ونماذج النظام</td><td class="col-num num">14px</td><td>400–600</td></tr><tr><td>نص مساعد (الأدنى)</td><td class="col-num num">13px</td><td>500</td></tr></tbody></table></div>
+      </div></section>
+
+      <!-- 6 DIMENSIONS -->
+      <section class="ds-section" id="dimensions"><div class="container">
+        <h2 class="t-h1">6 · المقاسات</h2>
+        <p class="lead">كل الأبعاد على شبكة 4 بكسل. الرسومات هنا بالحجم الحقيقي بالبكسل، إلا المخطط العام فبمقياس 50%.</p>
+
+        <div class="grid grid-2">
+          <div class="ds-demo stack">
+            <div class="ds-label">ارتفاع العناصر التفاعلية</div>
+            <div class="cluster" style="align-items:flex-end;gap:var(--space-5)">
+              <div class="stack-sm" style="align-items:center"><div class="ctl" style="height:48px;width:110px">48</div><span class="t-caption">كبير · موبايل</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="ctl" style="height:44px;width:110px">44</div><span class="t-caption">لمس أدنى</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="ctl" style="height:40px;width:110px">40</div><span class="t-caption">النظام (الافتراضي)</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="ctl" style="height:32px;width:110px">32</div><span class="t-caption">مضغوط</span></div>
+            </div>
+          </div>
+          <div class="ds-demo stack">
+            <div class="ds-label">مقياس المسافات</div>
+            <div id="space"></div>
+          </div>
+          <div class="ds-demo stack">
+            <div class="ds-label">الحواف</div>
+            <div class="cluster" style="gap:var(--space-6)">
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:4px">4</div><span class="t-caption">حقول صغيرة</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:8px">8</div><span class="t-caption">أزرار وحقول</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:12px">12</div><span class="t-caption">بطاقات</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:999px">pill</div><span class="t-caption">شارات</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:var(--radius-brand);background:var(--color-primary)">brand</div><span class="t-caption">عيّنات الهوية</span></div>
+            </div>
+          </div>
+          <div class="ds-demo stack">
+            <div class="ds-label">الأيقونات</div>
+            <div class="cluster" style="gap:var(--space-6);align-items:flex-end">
+              <div class="stack-sm" style="align-items:center"><svg class="icon icon-sm"><use href="#i-box"/></svg><span class="t-caption num">16</span></div>
+              <div class="stack-sm" style="align-items:center"><svg class="icon"><use href="#i-box"/></svg><span class="t-caption num">20 · افتراضي</span></div>
+              <div class="stack-sm" style="align-items:center"><svg class="icon icon-lg"><use href="#i-box"/></svg><span class="t-caption num">24</span></div>
+              <div class="stack-sm" style="align-items:center"><svg class="icon" style="width:28px;height:28px"><use href="#i-box"/></svg><span class="t-caption num">28 · مزايا</span></div>
+            </div>
+            <p class="t-muted">خط 1.75 · يأخذ لون النص الحالي.</p>
+          </div>
+        </div>
+
+        <div class="ds-label" style="margin-top:var(--space-6)">هيكل شاشة النظام (مقياس 50%) — الأبعاد الحقيقية على الأطراف</div>
+        <div class="ds-demo" style="overflow-x:auto"><div class="wire">
+          <div class="sb">شريط جانبي<br><b class="num">248px</b></div>
+          <div class="main"><div class="tb">شريط علوي · <b class="num">&nbsp;60px</b></div><div class="ct"><i></i><i></i><i></i><i></i><i style="grid-column:span 4;height:90px"></i></div></div>
+        </div></div>
+        <div class="grid grid-4" style="margin-top:var(--space-4)">
+          <div class="card"><div class="kpi-label">الشريط الجانبي</div><div class="kpi-value num">248px</div><div class="t-caption">مطوي: 72px</div></div>
+          <div class="card"><div class="kpi-label">الشريط العلوي</div><div class="kpi-value num">60px</div></div>
+          <div class="card"><div class="kpi-label">عرض المحتوى الأقصى</div><div class="kpi-value num">1200px</div><div class="t-caption">الموقع والمراجع</div></div>
+          <div class="card"><div class="kpi-label">نقاط التحوّل</div><div class="kpi-value num">900 · 600</div><div class="t-caption">النظام يتحول لشريط علوي · الموبايل</div></div>
+        </div>
+      </div></section>
+
+      <!-- 7 CATALOG -->
+      <section class="ds-section" id="catalog"><div class="container">
+        <h2 class="t-h1">7 · لغة الكتالوج المطبوع</h2>
+        <p class="lead">عناصر مميّزة في كتالوجات الشركة نكرّرها في الواجهات حتى تبدو من نفس العائلة.</p>
+        <div class="grid grid-3">
+          <div class="ds-demo stack"><div class="ds-label">شارة القسم</div><div class="cluster"><span class="section-pill">الألوان المتاحة</span><span class="section-pill is-red">مواصفات الأبواب</span></div><p class="t-muted">كحلي للأقسام العامة، أحمر للمواصفات.</p></div>
+          <div class="ds-demo stack"><div class="ds-label">شكل العيّنة</div><div class="hub-sw" id="finishes" style="display:flex;gap:var(--space-2);flex-wrap:wrap"></div><p class="t-muted">زاويتان كبيرتان متقابلتان.</p></div>
+          <div class="ds-demo stack"><div class="ds-label">الشعارات</div><div class="t-h2" style="color:var(--eg-navy)">باب أهل مصر</div><div class="t-h3"><span class="t-brand-red">تجاليد رقم 1</span> في مصر</div><div class="trust" id="certs"></div></div>
+        </div>
+      </div></section>
+
+      <!-- 8 APPS -->
+      <section class="ds-section" id="apps"><div class="container">
+        <h2 class="t-h1">8 · التطبيق على الأسطح الثلاثة</h2>
+        <p class="lead">الموقع يتنفّس والنظام كثيف، والعلامة هي نفسها.</p>
+        <div class="ds-label">الموقع</div>
+        <div class="mini-app" style="background:#fff">
+          <div class="site-bar"><img src="./assets/images/logo/wordmark-color.png" alt="" style="height:44px;width:auto" /><nav class="cluster t-dense" style="gap:var(--space-5)"><a href="#apps">الرئيسية</a><a href="#apps">من نحن</a><a href="#apps">خدماتنا</a><a href="#apps">المنتجات</a><a href="#apps">اتصل بنا</a></nav><a class="btn btn-primary" href="#apps">عرض الكتالوج</a></div>
+          <div class="site-hero"><div class="stack"><h3 class="t-h1" style="color:#fff">نصنع أبواب WPC &amp; UPVC عالية الجودة</h3><p style="color:#c9d6ee">مقاومة للرطوبة والتآكل، مثالية للمنازل والمباني التجارية.</p><div class="cluster"><a class="btn btn-primary btn-lg" href="#apps">منتجاتنا</a><a class="btn btn-ghost btn-lg" href="#apps">تواصل معنا</a></div></div><img src="./assets/images/products/doors.png" alt="" /></div>
+        </div>
+
+        <div class="grid grid-2" style="margin-top:var(--space-6);align-items:start">
+          <div><div class="ds-label">النظام (ERP)</div>
+            <div class="mini-app"><div class="app" style="grid-template-columns:150px 1fr">
+              <aside class="sidebar" style="min-height:360px"><div class="sidebar-brand"><img src="./assets/images/logo/mark.png" alt="" style="width:32px;height:32px" /><span class="t-dense">المصرية الألمانية</span></div><nav class="nav" id="nav"></nav></aside>
+              <div class="app-main"><header class="topbar" style="padding-inline:var(--space-4)"><span class="t-dense"><strong>المبيعات</strong></span><span class="avatar" style="width:30px;height:30px">م</span></header>
+                <div class="app-content" style="padding:var(--space-4);gap:var(--space-3)"><div class="grid" style="grid-template-columns:1fr 1fr"><div class="card kpi" style="padding:var(--space-3)"><span class="kpi-label">مبيعات الشهر</span><span class="kpi-value num" style="font-size:1.25rem">374,950</span></div><div class="card kpi is-accent" style="padding:var(--space-3)"><span class="kpi-label">أوامر مفتوحة</span><span class="kpi-value num" style="font-size:1.25rem">14</span></div></div>
+                  <div class="card card-flush"><table class="table" style="min-width:0"><tbody id="orders"></tbody></table></div></div></div></div></div>
+          </div>
+          <div><div class="ds-label">الموبايل</div>
+            <div class="cluster" style="align-items:flex-start;gap:var(--space-5)">
+              <div class="phone"><div class="scr" style="background:#fff;place-items:center;justify-content:center;align-items:center;gap:var(--space-4)"><img src="./assets/images/logo/mark.png" alt="" style="width:120px" /><div class="t-h3" style="color:var(--eg-navy)">المصرية الألمانية</div><div class="t-caption">باب أهل مصر</div></div></div>
+              <div class="phone"><div class="scr" style="background:var(--eg-bg)"><div class="topbar" style="height:52px;padding-inline:var(--space-4)"><strong class="t-dense">الرئيسية</strong><span class="avatar" style="width:28px;height:28px">م</span></div><div class="stack" style="padding:var(--space-3);gap:var(--space-2);flex:1"><div class="card kpi" style="padding:var(--space-3)"><span class="kpi-label">مبيعات اليوم</span><span class="kpi-value num" style="font-size:1.25rem">42,300</span></div><div class="card kpi is-accent" style="padding:var(--space-3)"><span class="kpi-label">أوامر الإنتاج</span><span class="kpi-value num" style="font-size:1.25rem">6</span></div><button class="btn btn-primary" type="button">أمر بيع جديد</button></div><div class="bottom-nav"><a href="#apps" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#apps"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#apps"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a></div></div></div>
+            </div></div>
+        </div>
+      </div></section>
+    </main>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
+    <script src="./js/demo-data.js"></script>
+    <script src="./js/components.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var cs = getComputedStyle(document.documentElement);
+        function hex(v) { return cs.getPropertyValue(v).trim(); }
+        function lum(h) { var c = [1, 3, 5].map(function (i) { var x = parseInt(h.substr(i, 2), 16) / 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; }
+        function ratio(a, b) { var l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + .05) / (Math.min(l1, l2) + .05); }
+        var pairs = [["أبيض على أحمر", "#ffffff", "--eg-red"], ["أبيض على كحلي", "#ffffff", "--eg-navy"], ["أبيض على كحلي داكن", "#ffffff", "--eg-navy-deep"], ["أحمر على أبيض", "--eg-red", "#ffffff"], ["كحلي على أبيض", "--eg-navy", "#ffffff"], ["نص على الخلفية", "--eg-ink", "--eg-bg"], ["أحمر غامق على أحمر فاتح", "--eg-red-deep", "--eg-red-tint"], ["كحلي على كحلي فاتح", "--eg-navy", "--eg-navy-tint"], ["نص ثانوي على أبيض", "--eg-muted", "#ffffff"]];
+        document.getElementById("pairs").innerHTML = pairs.map(function (p) {
+          var fg = p[1][0] === "#" ? p[1] : hex(p[1]), bg = p[2][0] === "#" ? p[2] : hex(p[2]);
+          var r = ratio(fg, bg), lvl = r >= 7 ? "AAA" : r >= 4.5 ? "AA" : r >= 3 ? "كبير فقط" : "مرفوض";
+          return '<div class="pair" style="background:' + bg + ";color:" + fg + ";border:1px solid var(--color-border)\"><span>" + p[0] + '</span><small class="num">' + r.toFixed(2) + ":1 · " + lvl + "</small></div>";
+        }).join("");
+        document.getElementById("space").innerHTML = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16].map(function (n) { return '<div class="cluster" style="gap:var(--space-3);flex-wrap:nowrap"><span class="sku" style="width:92px;flex:none;white-space:nowrap">space-' + n + '</span><div class="space-bar" style="width:' + n * 4 + 'px;flex:none"></div><span class="t-caption num">' + n * 4 + "px</span></div>"; }).join("");
+        document.getElementById("finishes").innerHTML = EG.finishes.slice(0, 6).map(function (f) { return '<div class="swatch-tile" style="width:52px"><div class="tile" style="--c:' + f.hex + '"></div><span class="sku">' + f.code + "</span></div>"; }).join("");
+        document.getElementById("certs").innerHTML = EG.certifications.map(function (c) { return '<img src="' + c.image + '" alt="' + c.label.en + '" style="height:48px" />'; }).join("");
+        var nav = [["dashboard", "لوحة التحكم"], ["box", "المنتجات"], ["warehouse", "المخزون"], ["cart", "المبيعات"], ["factory", "الإنتاج"], ["users", "العملاء"]];
+        document.getElementById("nav").innerHTML = nav.map(function (n) { return '<a href="#apps"' + (n[0] === "cart" ? ' aria-current="page"' : "") + ' style="min-height:36px;font-size:12px"><svg class="icon icon-sm"><use href="#i-' + n[0] + '"/></svg><span>' + n[1] + "</span></a>"; }).join("");
+        document.getElementById("orders").innerHTML = EG.demo.orders.slice(0, 4).map(function (o) { return '<tr><td><span class="sku">' + o.id + '</span></td><td class="col-num num">' + EG.money(o.total) + "</td><td>" + EG.chip(o.status) + "</td></tr>"; }).join("");
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+/* EG Design System — print.css
+   A4 document templates (invoice, delivery note, statement, report, work order, payslip).
+   Specs: A4 210×297mm · margins 14mm · body 9.5pt · tables 9pt · nothing below 8pt.
+   Print-safe: light table headers (navy tint) instead of solid ink blocks; only the
+   title pill and the grand-total row use solid navy. Grayscale still readable. */
+
+@page { size: A4; margin: 0; }
+
+.a4 {
+  width: 210mm; height: 297mm; padding: 14mm; margin: 0 auto;
+  background: #fff; color: var(--eg-ink); position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 5mm;
+  font-size: 9.5pt; line-height: 1.55; box-shadow: 0 2px 16px rgba(2, 26, 67, .18);
+  break-after: page; page-break-after: always;
+}
+.a4 *, .a4 *::before { box-sizing: border-box; }
+.a4 .num { font-family: var(--font-en); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+
+/* —— Header —— */
+.doc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8mm; padding-block-end: 4mm; position: relative; border-block-end: 1.2mm solid var(--eg-navy); }
+.doc-head::after { content: ""; position: absolute; inset-inline-start: 0; inset-block-end: -1.2mm; width: 34mm; height: 1.2mm; background: var(--eg-red); }
+.doc-brand img { height: 16mm; width: auto; }
+.doc-brand small { display: block; margin-block-start: 1mm; font-size: 8pt; color: var(--eg-muted); }
+.doc-title { text-align: end; display: flex; flex-direction: column; align-items: flex-end; gap: 1.5mm; }
+.doc-pill { display: inline-block; background: var(--eg-navy); color: #fff; font-weight: 700; font-size: 14pt; padding: 1mm 7mm; border-radius: 99px; line-height: 1.5; }
+.doc-pill.is-red { background: var(--eg-red); }
+.doc-en { font-family: var(--font-en); font-size: 8.5pt; color: var(--eg-muted); letter-spacing: .04em; text-transform: uppercase; direction: ltr; }
+.doc-meta { display: grid; grid-template-columns: auto auto; gap: 0 4mm; font-size: 8.5pt; text-align: start; }
+.doc-meta dt { color: var(--eg-muted); } .doc-meta dd { margin: 0; font-weight: 700; }
+.doc-sample { position: absolute; inset-block-start: 3mm; inset-inline-end: 14mm; font-size: 7.5pt; color: #b0b0b0; }
+
+/* —— Blocks —— */
+.doc-body { flex: 1; display: flex; flex-direction: column; gap: 5mm; min-height: 0; }
+.doc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+.doc-box { border: .3mm solid var(--eg-line-strong); border-radius: 2mm; padding: 3mm 4mm; }
+.doc-box h4 { margin: 0 0 1.5mm; font-size: 8pt; font-weight: 700; color: var(--eg-navy); letter-spacing: 0; }
+.doc-box h4::before { content: ""; display: inline-block; width: 2mm; height: 2mm; background: var(--eg-red); border-radius: 50%; margin-inline-end: 1.5mm; }
+.doc-kv { display: grid; grid-template-columns: 26mm 1fr; gap: .6mm 3mm; font-size: 9pt; }
+.doc-kv dt { color: var(--eg-muted); } .doc-kv dd { margin: 0; font-weight: 600; }
+.doc-h { margin: 0; font-size: 10.5pt; font-weight: 700; color: var(--eg-navy); }
+
+.doc-table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+.doc-table th { background: var(--eg-navy-tint); color: var(--eg-navy); text-align: start; font-size: 8.5pt; font-weight: 700; padding: 1.8mm 2.5mm; border-block: .3mm solid var(--eg-navy); }
+.doc-table td { padding: 1.8mm 2.5mm; border-block-end: .2mm solid var(--eg-line); vertical-align: top; }
+.doc-table .e { text-align: end; } .doc-table .c { text-align: center; }
+.doc-table tfoot td { font-weight: 700; border-block-end: 0; background: var(--eg-bg-soft); }
+.doc-table small { display: block; color: var(--eg-muted); font-size: 8pt; }
+.doc-table .sku { font-family: var(--font-mono); font-size: 8.5pt; direction: ltr; unicode-bidi: isolate; }
+
+.doc-totals { margin-inline-start: auto; width: 78mm; border: .3mm solid var(--eg-line-strong); border-radius: 2mm; overflow: hidden; font-size: 9.5pt; }
+.doc-totals div { display: flex; justify-content: space-between; padding: 1.6mm 4mm; border-block-end: .2mm solid var(--eg-line); }
+.doc-totals .grand { background: var(--eg-navy); color: #fff; font-weight: 700; font-size: 11pt; border: 0; }
+.doc-words { font-size: 9pt; border-inline-start: 1.2mm solid var(--eg-red); padding: 1.5mm 3mm; background: var(--eg-bg-soft); }
+
+.doc-notes { font-size: 8.5pt; color: var(--eg-muted); }
+.doc-notes ol { margin: 1mm 0 0; padding-inline-start: 4.5mm; }
+
+.doc-sign { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8mm; margin-block-start: auto; padding-block-start: 4mm; }
+.doc-sign div { border-block-start: .3mm solid var(--eg-ink); padding-block-start: 1.5mm; text-align: center; font-size: 8.5pt; color: var(--eg-muted); min-height: 14mm; }
+.doc-stamp { width: 28mm; height: 28mm; border: .4mm dashed var(--eg-line-strong); border-radius: 50%; display: grid; place-items: center; font-size: 8pt; color: #aaa; flex: none; }
+.doc-qr { width: 24mm; height: 24mm; border: .3mm dashed var(--eg-line-strong); display: grid; place-items: center; text-align: center; font-size: 7.5pt; color: #aaa; flex: none; }
+.doc-row { display: flex; gap: 5mm; align-items: flex-end; justify-content: space-between; }
+
+.doc-status { display: inline-block; font-size: 8pt; font-weight: 700; padding: .3mm 3mm; border-radius: 99px; background: var(--color-neutral-tint); color: var(--color-neutral); }
+.doc-status.ok { background: var(--color-success-tint); color: var(--color-success); }
+.doc-status.warn { background: var(--color-warning-tint); color: var(--color-warning); }
+.doc-status.bad { background: var(--color-danger-tint); color: var(--color-danger); }
+.doc-status.info { background: var(--color-info-tint); color: var(--eg-navy); }
+
+/* —— Report pieces —— */
+.doc-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
+.doc-kpi { border: .3mm solid var(--eg-line-strong); border-inline-start: 1.2mm solid var(--eg-navy); border-radius: 2mm; padding: 2.5mm 3mm; }
+.doc-kpi.is-red { border-inline-start-color: var(--eg-red); }
+.doc-kpi small { display: block; color: var(--eg-muted); font-size: 8pt; }
+.doc-kpi b { font-size: 14pt; line-height: 1.2; }
+.doc-bars { display: grid; gap: 2mm; }
+.doc-bar { display: grid; grid-template-columns: 34mm 1fr 24mm; gap: 3mm; align-items: center; font-size: 9pt; }
+.doc-bar i { display: block; height: 4.5mm; background: var(--eg-navy-tint); border-radius: 1mm; position: relative; }
+.doc-bar i::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--v); background: var(--eg-navy); border-radius: 1mm; }
+.doc-bar.is-top i::after { background: var(--eg-red); }
+.doc-progress { height: 3mm; background: var(--eg-navy-tint); border-radius: 99px; overflow: hidden; }
+.doc-progress::after { content: ""; display: block; height: 100%; width: var(--v); background: var(--eg-navy); }
+.doc-check { display: inline-block; width: 3.5mm; height: 3.5mm; border: .35mm solid var(--eg-ink); border-radius: .8mm; vertical-align: -0.6mm; margin-inline-end: 1.5mm; }
+.doc-check.on { background: var(--eg-navy); border-color: var(--eg-navy); }
+
+/* —— Footer —— */
+.doc-foot { display: flex; justify-content: space-between; align-items: center; gap: 6mm; padding-block-start: 3mm; border-block-start: .3mm solid var(--eg-navy); font-size: 8pt; color: var(--eg-muted); }
+.doc-foot b { color: var(--eg-ink); }
+.doc-foot .badges { display: flex; gap: 2mm; align-items: center; }
+.doc-foot .badges img { height: 8mm; width: auto; }
+.doc-foot .pg { font-family: var(--font-en); direction: ltr; white-space: nowrap; }
+
+/* —— Print: only the documents, one per page —— */
+@media print {
+  html, body { background: #fff !important; }
+  body > :not(main), main > :not(.doc-wrap):not(.docs-root) { display: none !important; }
+  .docs-root { padding: 0 !important; }
+  .doc-wrap { display: block !important; padding: 0 !important; margin: 0 !important; }
+  .doc-wrap .doc-info, .doc-wrap .doc-actions { display: none !important; }
+  .a4-scroll { padding: 0 !important; overflow: visible !important; }
+  .a4 { box-shadow: none; margin: 0; height: 296.5mm; break-after: auto; page-break-after: auto; }
+  body:not([data-print-only]) .doc-wrap + .doc-wrap .a4 { break-before: page; page-break-before: always; }
+  body[data-print-only] .doc-wrap:not(.is-printing) { display: none !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
