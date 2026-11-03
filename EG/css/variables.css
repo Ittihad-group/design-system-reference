@@ -1,5 +1,88 @@
 /* EG Design System — variables.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
+   Source of truth for tokens.
+   Brand sampled from https://egerman-upvc.com/ + official logo assets.
 */
 
+:root {
+  /* —— Brand primitives (from logo + site CTAs) —— */
+  --eg-red: #ed1c24;          /* CTA / E / المصرية — site rgb(237,28,36) */
+  --eg-red-hot: #e63437;      /* hover accent seen on site */
+  --eg-red-deep: #c41218;     /* pressed / ink on light */
+  --eg-navy: #0e2f64;         /* G / الألمانية / seal arcs */
+  --eg-navy-deep: #081c3c;    /* dark surfaces */
+  --eg-navy-soft: #1a4580;    /* hover on navy */
+
+  --eg-black: #0a0a0a;
+  --eg-ink: #141414;
+  --eg-muted: #5c5c5c;
+  --eg-line: #e0e0e0;
+  --eg-bg: #eeeeee;           /* site body */
+  --eg-bg-soft: #f4f5f9;      /* about band */
+  --eg-surface: #ffffff;
+  --eg-white: #ffffff;
+
+  /* —— Semantic —— */
+  --color-primary: var(--eg-red);
+  --color-primary-hover: var(--eg-red-hot);
+  --color-primary-ink: var(--eg-red-deep);
+  --color-secondary: var(--eg-navy);
+  --color-secondary-hover: var(--eg-navy-soft);
+
+  --color-bg: var(--eg-bg);
+  --color-bg-alt: var(--eg-bg-soft);
+  --color-surface: var(--eg-surface);
+  --color-text: var(--eg-ink);
+  --color-text-muted: var(--eg-muted);
+  --color-border: var(--eg-line);
+  --color-on-primary: var(--eg-white);
+  --color-on-secondary: var(--eg-white);
+
+  --color-success: #168a45;
+  --color-warning: #d97706;
+  --color-danger: var(--eg-red);
+  --color-info: #2563eb;
+
+  /* —— Type —— */
+  /* Live site uses custom theme fonts + Poppins for Latin.
+     Stacks below are interim until licensed files land in assets/fonts/. */
+  --font-ar: "Cairo", "Tajawal", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --font-en: "Poppins", "Outfit", system-ui, sans-serif;
+  --font-display: var(--font-ar);
+
+  --text-display: 2rem;
+  --text-h1: 1.625rem;
+  --text-h2: 1.375rem;
+  --text-h3: 1.125rem;
+  --text-title: 1rem;
+  --text-body: 1rem;
+  --text-secondary: 0.875rem;
+  --text-caption: 0.75rem;
+
+  --lh-ar: 1.7;
+  --lh-en: 1.55;
+
+  /* —— Space / shape (4pt) —— */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+
+  --shadow-float: 0 12px 32px rgba(8, 28, 60, 0.14);
+
+  --touch: 44px;
+  --touch-lg: 48px;
+
+  /* —— Assets —— */
+  --logo-mark: url("../assets/images/logo/mark.png");
+  --logo-wordmark: url("../assets/images/logo/wordmark-color.png");
+  --logo-wordmark-rev: url("../assets/images/logo/wordmark-white.png");
+}

@@ -1,5 +1,8 @@
-/* EG Design System — typography.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+.t-display { font-size: var(--text-display); font-weight: 700; color: var(--color-secondary); }
+.t-h1 { font-size: var(--text-h1); font-weight: 700; }
+.t-h2 { font-size: var(--text-h2); font-weight: 600; }
+.t-h3 { font-size: var(--text-h3); font-weight: 600; }
+.t-body { font-size: var(--text-body); font-weight: 400; }
+.t-muted { color: var(--color-text-muted); font-size: var(--text-secondary); }
+.t-brand-red { color: var(--color-primary); }
+.t-brand-navy { color: var(--color-secondary); }

@@ -1,5 +1,16 @@
-/* EG Design System — reset.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-ar);
+  font-size: var(--text-body);
+  line-height: var(--lh-ar);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+html[lang="en"] body {
+  font-family: var(--font-en);
+  line-height: var(--lh-en);
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--color-secondary); }

@@ -4,26 +4,133 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EG Design System — Live Reference</title>
+    <link rel="icon" href="./assets/images/logo/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./css/main.css" />
   </head>
   <body>
-    <main>
-      <h1>Design System</h1>
-      <p>Empty live reference. Sections to fill:</p>
-      <section id="foundations"><h2>Foundations</h2></section>
-      <section id="color"><h2>Color</h2></section>
-      <section id="typography"><h2>Typography</h2></section>
-      <section id="spacing"><h2>Spacing & radius</h2></section>
-      <section id="components"><h2>Components</h2></section>
-      <section id="patterns"><h2>Patterns</h2></section>
-      <section id="motion"><h2>Motion</h2></section>
-      <section id="rtl"><h2>RTL & accessibility</h2></section>
+    <main class="container">
+      <header class="section cluster" style="justify-content: space-between">
+        <div class="cluster">
+          <img src="./assets/images/logo/mark.png" alt="EG mark" width="56" height="56" />
+          <div>
+            <div class="t-h2">EG Design System</div>
+            <p class="t-muted" style="margin: 0">المصرية الألمانية · foundations from egerman-upvc.com</p>
+          </div>
+        </div>
+        <div class="cluster">
+          <a class="btn btn-primary" href="https://egerman-upvc.com/" target="_blank" rel="noreferrer">الموقع الرسمي</a>
+          <a class="btn btn-ghost" href="./index.html">Hub</a>
+        </div>
+      </header>
+
+      <section class="section" id="logo">
+        <h2 class="t-h1">Logo</h2>
+        <p class="t-muted">Official assets in <code>assets/images/logo/</code></p>
+        <div class="cluster" style="align-items: stretch">
+          <div class="logo-card" style="flex: 1">
+            <img src="./assets/images/logo/mark.png" alt="EG seal" />
+          </div>
+          <div class="logo-card" style="flex: 2">
+            <img src="./assets/images/logo/wordmark-color.png" alt="EG wordmark color" />
+          </div>
+          <div class="logo-card on-dark" style="flex: 2">
+            <img src="./assets/images/logo/wordmark-white.png" alt="EG wordmark reverse" />
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="color">
+        <h2 class="t-h1">Color</h2>
+        <div class="grid-swatches" id="swatches"></div>
+      </section>
+
+      <section class="section" id="typography">
+        <h2 class="t-h1">Typography</h2>
+        <div class="stack">
+          <div class="t-display"><span class="t-brand-red">المصرية</span> <span class="t-brand-navy">الألمانية</span></div>
+          <div class="t-h1">حلول WPC &amp; PVC متطورة للبناء والتشييد</div>
+          <p class="t-body">نوفر أبواب وتجاليد وألواح بتقنيات أوروبية — عزل حراري وصوتي، مقاومة للتآكل، ومظهر جمالي متين.</p>
+          <p class="t-muted">Hotline 15536 · contact@egerman-upvc.com · Gamasa Industrial Zone Phase 3</p>
+        </div>
+      </section>
+
+      <section class="section" id="components">
+        <h2 class="t-h1">Components (starter)</h2>
+        <div class="cluster">
+          <button class="btn btn-primary" type="button">عرض الكتالوج</button>
+          <button class="btn btn-secondary" type="button">تواصل معنا</button>
+          <button class="btn btn-ghost" type="button">تعرف المزيد</button>
+          <span class="badge-status">WPC · PVC</span>
+        </div>
+      </section>
+
+      <section class="section" id="products">
+        <h2 class="t-h1">Product lines</h2>
+        <div class="cluster" id="product-cards" style="align-items: stretch"></div>
+      </section>
+
+      <section class="section" id="company">
+        <h2 class="t-h1">Company</h2>
+        <div class="card stack" id="company-card"></div>
+      </section>
     </main>
+
     <script src="./js/demo-data.js"></script>
     <script src="./js/i18n.js"></script>
     <script src="./js/components.js"></script>
     <script src="./js/interactions.js"></script>
     <script src="./js/motion.js"></script>
+    <script>
+      (function () {
+        const swatches = [
+          ["--eg-red", "Primary / CTA"],
+          ["--eg-navy", "Secondary / structure"],
+          ["--eg-navy-deep", "Dark band"],
+          ["--eg-bg", "Background"],
+          ["--eg-bg-soft", "Soft band"],
+          ["--eg-surface", "Surface"],
+          ["--eg-ink", "Ink"],
+          ["--eg-muted", "Muted"],
+        ];
+        const root = getComputedStyle(document.documentElement);
+        const box = document.getElementById("swatches");
+        swatches.forEach(([token, label]) => {
+          const hex = root.getPropertyValue(token).trim();
+          const el = document.createElement("div");
+          el.className = "swatch";
+          el.innerHTML = `<div class="swatch-chip" style="background:${hex}"></div><div class="swatch-meta"><strong>${label}</strong><br>${token}<br>${hex}</div>`;
+          box.appendChild(el);
+        });
+
+        const products = (window.EG && EG.products) || [];
+        const pc = document.getElementById("product-cards");
+        products.forEach((p) => {
+          const el = document.createElement("article");
+          el.className = "card";
+          el.style.flex = "1";
+          el.style.minWidth = "200px";
+          el.innerHTML = `<img src="${p.image}" alt="" style="border-radius:8px;margin-bottom:12px;aspect-ratio:1;object-fit:cover;width:100%" /><div class="t-h3">${p.title.ar}</div><p class="t-muted">${(p.skuSamples || []).join(" · ")}${p.samplePrice ? " · " + p.samplePrice.ar : ""}</p>`;
+          pc.appendChild(el);
+        });
+
+        const c = EG.company;
+        document.getElementById("company-card").innerHTML = `
+          <div class="t-h2">${c.name.ar}</div>
+          <div class="t-muted">${c.name.en}</div>
+          <div>${c.address.ar}</div>
+          <div>Hotline <strong class="num">${c.hotline}</strong> · ${c.phone} · <a href="mailto:${c.email}">${c.email}</a></div>
+          <div class="cluster">
+            <a href="${c.social.facebook}" target="_blank" rel="noreferrer">Facebook</a>
+            <a href="${c.social.instagram}" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="${c.social.youtube}" target="_blank" rel="noreferrer">YouTube</a>
+            <a href="${c.social.tiktok}" target="_blank" rel="noreferrer">TikTok</a>
+            <a href="${c.social.whatsapp}" target="_blank" rel="noreferrer">WhatsApp</a>
+          </div>`;
+      })();
+    </script>
     <script src="./js/app.js"></script>
   </body>
 </html>

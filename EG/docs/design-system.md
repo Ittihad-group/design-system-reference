@@ -1,22 +1,16 @@
 # EG Design System — Written Spec
 
-> Live page: `../design-system.html` · Tokens: `../css/variables.css` · Status: scaffold
+> Live: `../design-system.html` · Tokens: `../css/variables.css` · Brand site: https://egerman-upvc.com/
 
 ## 0. File map
 
 | Path | Role | Status |
 |------|------|--------|
-| `css/variables.css` | Tokens only | empty |
-| `css/reset.css` | Reset | empty |
-| `css/fonts.css` | @font-face | empty |
-| `css/typography.css` | Type roles | empty |
-| `css/layout.css` | Layout primitives | empty |
-| `css/components.css` | Components | empty |
-| `css/pages.css` | Page compositions | empty |
-| `css/motion.css` | Motion | empty |
-| `css/responsive.css` | Breakpoints | empty |
-| `css/main.css` | Entry imports | wired |
-| `js/*.js` | Behaviour | empty stubs |
+| `assets/images/logo/*` | Official mark / wordmarks | filled |
+| `css/variables.css` | Tokens | filled (v0 foundations) |
+| `css/components.css` | Starter components | partial |
+| `js/demo-data.js` | Company + products seed | filled |
+| `docs/brand.md` · `colors.md` · `typography.md` | Specs | filled |
 
 ## 1. Foundations
 
@@ -24,102 +18,34 @@
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `--color-primary` | TBD | |
-| `--color-primary-ink` | TBD | |
-| `--color-navy` / brand | TBD | |
-| `--color-bg` | TBD | |
-| `--color-surface` | TBD | |
-| `--color-text` | TBD | |
-| `--color-muted` | TBD | |
-| `--color-border` | TBD | |
-| `--color-success` | TBD | |
-| `--color-warning` | TBD | |
-| `--color-danger` | TBD | |
-| `--color-info` | TBD | |
+| `--eg-red` / primary | `#ED1C24` | CTA, catalog, logo E |
+| `--eg-navy` / secondary | `#0E2F64` | Structure, logo G |
+| `--eg-bg` | `#EEEEEE` | Canvas (live site body) |
+| `--eg-surface` | `#FFFFFF` | Cards |
+| `--eg-ink` | `#141414` | Text |
 
-Rules:
-
-- [ ] Semantic tokens only in components (no raw hex outside variables.css)
-- [ ] Contrast AA documented
-- [ ] Status = color + icon/text
+Rules: semantic tokens in components only · status = color + label · white-on-red for large controls.
 
 ### 1.2 Typography
 
-| Role | Size | Weight | Line-height | Notes |
-|------|------|--------|-------------|-------|
-| Display | TBD | | | |
-| H1 | TBD | | | |
-| H2 | TBD | | | |
-| H3 | TBD | | | |
-| Title | TBD | | | |
-| Body | TBD | | | |
-| Secondary | TBD | | | |
-| Caption | TBD | | | |
-
-Fonts:
-
-- Arabic:
-- Latin:
-- Numerals: Latin tabular in both langs
+- AR interim: Cairo · EN: Poppins (live Latin stack)
+- Scale: Display 2rem → Caption 0.75rem
+- LH AR 1.7 / EN 1.55 · Latin tabular numerals
 
 ### 1.3 Spacing & shape
 
-- Scale (4pt):
-- Radius:
-- Border:
-- Shadow policy:
-- Touch target:
+4pt scale · radius 4/8/12 · touch 44/48 · float shadow for overlays only
 
-### 1.4 Icons
+### 1.4 Logo
 
--
+See `../assets/ASSETS.md` and `brand.md`.
 
-## 2. Components
+## 2. Components (starter shipped)
 
-| Component | Sizes | States | Notes |
-|-----------|-------|--------|-------|
-| Button | | default / hover / focus / disabled / loading | |
-| Input | | | |
-| Select | | | |
-| Checkbox / Radio / Switch | | | |
-| Chip / Badge | | | |
-| Table | | | ERP-critical |
-| Card | | | |
-| Tabs | | | |
-| Sidebar / Nav | | | |
-| Modal / Sheet | | | |
-| Toast | | | |
-| Pagination | | | |
-| Empty / Error / Loading | | | |
+Button primary/secondary/ghost · status chip · logo cards · product cards (in live page)
 
-## 3. Patterns
+Remaining inventory: see `components.md`.
 
-- Filter + table + row actions
-- Form wizard / multi-step
-- KPI strip
-- Status pipeline (order / work order)
-- Bilingual toggle
+## 3–7
 
-## 4. Motion
-
-- Duration scale:
-- Easing:
-- Enter / exit:
-- Reduced motion:
-
-## 5. RTL & i18n
-
-- Logical properties only (`inline-start/end`)
-- `js/i18n.js` owns `lang` / `dir`
-- Numbers / currency / dates rules:
-
-## 6. Accessibility
-
-- Focus ring:
-- Landmarks:
-- Tables headers:
-- Forms labels:
-
-## 7. Surfaces divergence
-
-See `surfaces/eg-system.md`, `surfaces/eg-website.md`, `surfaces/eg-mobile.md`.
+Patterns / motion / RTL / a11y / surfaces — scaffolds remain; follow tokens above when implementing.

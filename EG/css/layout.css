@@ -1,5 +1,5 @@
-/* EG Design System — layout.css
-   Status: empty stub. Fill tokens / rules here.
-   Spec: docs/design-system.md
-*/
-
+.container { width: min(100% - 2rem, 1100px); margin-inline: auto; }
+.stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.cluster { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.grid-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-3); }
+.section { padding-block: var(--space-8); border-bottom: 1px solid var(--color-border); }
