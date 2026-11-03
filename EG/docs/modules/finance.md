@@ -1,50 +1,47 @@
-# Module — finance (المالية)
+# Module — finance (المالية والحسابات)
+
+> Live: `../../finance-hr.html` (أقسام المالية) · مكونات: `../../design-system.html#money` · مستندات: `../documents-pdf.md` · الحالة: تصميم وديمو جاهز، والقواعد المالية **Pending Confirmation** ما لم يُذكر Approved.
 
 ## Purpose
 
-Receivables, payables, cash, month sales
+الفواتير والتحصيل والذمم المدينة والدائنة والخزينة والمصروفات والتقارير المالية. **العملة EGP فقط في v1 (Approved)** مع تصميم يسمح بإضافة عملات لاحقاً.
 
-## Users
+## Users / permissions
 
--
+Accountant · General Manager · Owner. **Approved:** موظف المبيعات لا يرى التكاليف الداخلية ولا التقارير المالية ولا أرباح المصنع، ولا يُؤكَّد ولا يُعتمد إجراء مالي دون الصلاحية. التصدير والاعتماد صلاحيتان منفصلتان.
 
-## Primary screens
+## Primary screens (`finance-hr.html`)
 
-| Screen | Route / file | Notes |
-|--------|--------------|-------|
-| List | `screens/erp/finance.html` | stub |
-| Detail | | |
-| Create / Edit | | |
-
-## Data fields
-
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| | | | |
+| Screen | Anchor | Notes |
+|--------|--------|-------|
+| نظرة مالية | `#overview` | مبيعات الشهر، ذمم مدينة/دائنة، نقدية، تدفق نقدي، أعمار ديون |
+| الفواتير | `#invoices` | 5 حالات + عمود فاتورة إلكترونية (Pending) + PDF |
+| تفاصيل الفاتورة | `#invoice` | الفاتورة، المدفوع/المتبقي، التحصيلات، المراحل |
+| تسجيل تحصيل | `#payment` | مبلغ، طريقة دفع، مرجع، توزيع على الفواتير ← سند قبض |
+| الذمم المدينة | `#receivables` | أعمار الديون وكشوف الحسابات |
+| الذمم الدائنة | `#payables` | فواتير الموردين وسندات الصرف |
+| الخزينة والمصروفات | `#treasury` | حسابات، حركة، مصروفات حسب البند |
+| التقارير المالية | `#reports` | قائمة دخل مبسطة بصلاحية + حالة «بدون صلاحية» |
 
 ## Statuses
 
-| Status | Meaning | Color token |
-|--------|---------|-------------|
-| | | |
+| Entity | Status | Chip |
+|--------|--------|------|
+| فاتورة | مسودة / صادرة / مدفوعة جزئياً / مدفوعة / متأخرة | neutral / info / warning / success / danger |
+| فاتورة مورد | غير مستحق / مستحق قريباً / متأخر | info / warning / danger |
+| الفاتورة الإلكترونية | غير مرسلة (Pending) | pending badge |
 
-## Actions
+## Documents (PDF)
 
--
+فاتورة `INV-` · عرض سعر `QT-` · سند قبض `RV-` / سند صرف `PV-` · كشف حساب `SOA-` · أعمار الديون `AG-` · تقرير مبيعات `RP-` · أمر شراء `PS-`. (البادئات الجديدة Placeholders وPending.)
 
-## Empty / error / permission states
+## Rules
 
--
-
-## Permissions
-
--
-
-## Acceptance criteria
-
-- [ ]
-- [ ]
+- **Approved:** فاتورة PDF ليست فاتورة إلكترونية معتمدة؛ فصل الإصدار الداخلي عن التكامل مع مصلحة الضرائب.
+- **Approved:** حقول الرقم الضريبي والسجل التجاري والعنوان قابلة للتعديل (Placeholders حالياً).
+- **Pending:** ضريبة القيمة المضافة 14% كمعدل مبدئي، طرق الدفع، حدود إيقاف العميل المتأخر (60 يوماً مثال)، السنة المالية وشجرة الحسابات.
+- زر Accent واحد في الشاشة (فاتورة جديدة / تسجيل تحصيل)؛ الباقي Primary.
 
 ## Open questions
 
--
+`../open-questions.md` بنود 38–43.

@@ -65,6 +65,9 @@
       .step-prev.is-doc img { object-fit: cover; object-position: top; padding: 14px 40px 0; }
       .step-n { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; width: 40px; height: 40px; display: grid; place-items: center; background: var(--eg-navy); color: #fff; font: 700 1.2rem var(--font-en); border-radius: 14px 3px 14px 3px; box-shadow: 0 6px 14px rgba(2,26,67,.3); }
       .step-card.is-pdf .step-n { background: var(--eg-red); }
+      .step-card.is-pdf { grid-column: 1 / -1; flex-direction: row; }
+      .step-card.is-pdf .step-prev { flex: 0 0 46%; aspect-ratio: auto; min-height: 240px; border-bottom: 0; border-inline-end: 1px solid var(--color-border); }
+      @media (max-width: 1000px) { .step-card.is-pdf { flex-direction: column; } .step-card.is-pdf .step-prev { flex: none; aspect-ratio: 16 / 10; border-inline-end: 0; border-bottom: 1px solid var(--color-border); } }
       .step-body { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); flex: 1; }
       .step-body h3 { margin: 0; font-size: 1.25rem; }
       .step-body p { margin: 0; color: var(--color-text-muted); font-size: var(--text-dense); }
@@ -153,7 +156,7 @@
       <div class="stats">
         <div class="stat"><b class="num">11</b><span>وحدة في النظام تمت مراجعتها</span></div>
         <div class="stat"><b class="num">25<sup>+</sup></b><span>نوع مستند وتقرير PDF</span></div>
-        <div class="stat"><b class="num">6</b><span>قوالب A4 جاهزة</span></div>
+        <div class="stat"><b class="num">11</b><span>قالب A4 جاهز</span></div>
         <div class="stat"><b class="num">4</b><span>أسطح: النظام · الكتالوج والتاجر · الموبايل · المستندات</span></div>
       </div>
     </div>
@@ -163,7 +166,7 @@
       <section class="sec" id="journey">
         <div class="sec-head">
           <span class="t-eyebrow">رحلة العرض</span>
-          <h2>ست خطوات تغطي كل التفاصيل</h2>
+          <h2>سبع خطوات تغطي كل التفاصيل</h2>
           <p>ابدأ من الخطوة 1، وفي آخر كل صفحة زر «التالي». شريط الخطوات في أعلى كل صفحة يرجعك لأي مكان، والروابط الصغيرة تأخذك مباشرة للتفصيلة.</p>
         </div>
         <div class="steps">
@@ -198,27 +201,36 @@
             <a class="step-prev" href="./catalog.html" aria-label="الخطوة 4"><span class="step-n">4</span><img src="./assets/previews/catalog.jpg" alt="معاينة: الكتالوج وبوابة التاجر" loading="lazy" /></a>
             <div class="step-body">
               <h3>الكتالوج وبوابة التاجر</h3>
-              <p>كتالوج عام قابل للمشاركة، صفحة منتج بألوانه ومقاساته، «أنشئ طلبك» كتدفق قابل للتجربة، حساب التاجر، ومراجعة المبيعات بالصلاحيات.</p>
+              <p>كتالوج عام، صفحة منتج، و«أنشئ طلبك» ديناميكي: التاجر يرى أسعاره وتتكوّن فاتورته المبدئية أمامه، ثم يُبلَّغ أن المبيعات ستتصل به لتأكيد الطلب. وحساب التاجر ومهمة الاتصال داخل النظام.</p>
               <div class="chips"><a href="./catalog.html#catalog">الكتالوج</a><a href="./catalog.html#product">المنتج</a><a href="./catalog.html#order">أنشئ طلبك</a><a href="./catalog.html#portal">بوابة التاجر</a><a href="./catalog.html#review">مراجعة المبيعات</a></div>
               <a class="btn btn-primary" href="./catalog.html">افتح الخطوة 4</a>
             </div>
           </article>
           <article class="step-card">
-            <a class="step-prev" href="./mobile.html" aria-label="الخطوة 5"><span class="step-n">5</span><img src="./assets/previews/mobile.jpg" alt="معاينة: شاشات الموبايل: إشعارات ومركز إشعارات وإعدادات" loading="lazy" /></a>
+            <a class="step-prev" href="./finance-hr.html" aria-label="الخطوة 5"><span class="step-n">5</span><img src="./assets/previews/finance-hr.jpg" alt="معاينة: لوحة المالية والفواتير" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>الحسابات والموارد البشرية</h3>
+              <p>الفواتير والتحصيل والسندات والذمم وأعمار الديون والخزينة، والموظفون والحضور والإجازات والمرتبات ومفردات المرتب. ديمو بأرقام جنيه مصري وصلاحيات واضحة.</p>
+              <div class="chips"><a href="./finance-hr.html#invoices">الفواتير</a><a href="./finance-hr.html#invoice">تفاصيل فاتورة</a><a href="./finance-hr.html#payment">تحصيل</a><a href="./finance-hr.html#attendance">الحضور</a><a href="./finance-hr.html#payroll">المرتبات</a></div>
+              <a class="btn btn-primary" href="./finance-hr.html">افتح الخطوة 5</a>
+            </div>
+          </article>
+          <article class="step-card">
+            <a class="step-prev" href="./mobile.html" aria-label="الخطوة 6"><span class="step-n">6</span><img src="./assets/previews/mobile.jpg" alt="معاينة: شاشات الموبايل: إشعارات ومركز إشعارات وإعدادات" loading="lazy" /></a>
             <div class="step-body">
               <h3>تطبيق الموبايل: الأساسيات</h3>
               <p>مبني على تطبيق EG-Mobile الحالي: مطابقة معه وما يحتاج قراراً، شاشات الدخول، مكتبة المكونات، شاشات الوحدات الثماني بالعربي والإنجليزي، ونظام الإشعارات بثلاثة مستويات.</p>
               <div class="chips"><a href="./mobile.html#align">المطابقة</a><a href="./mobile.html#auth">الدخول</a><a href="./mobile.html#components">المكونات</a><a href="./mobile.html#screens">الشاشات</a><a href="./mobile.html#notify">الإشعارات</a></div>
-              <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 5</a>
+              <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 6</a>
             </div>
           </article>
           <article class="step-card is-pdf">
-            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 6"><span class="step-n">6</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
+            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 7"><span class="step-n">7</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
             <div class="step-body">
               <h3>المستندات والتقارير (PDF)</h3>
-              <p>أي وحدة في النظام تحتاج أي مستند، و6 قوالب A4 جاهزة تغطي حوالي 25 نوعاً، مع ملف PDF حقيقي لكل قالب.</p>
-              <div class="chips"><a href="./documents.html#matrix">أي وحدة تحتاج أي مستند؟</a><a href="./documents.html#kit">مواصفات المستند</a><a href="./documents.html#doc-invoice">الفاتورة</a><a href="./documents.html#doc-statement">كشف الحساب</a><a href="./documents.html#doc-workorder">أمر التشغيل</a></div>
-              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 6</a>
+              <p>أي وحدة تحتاج أي مستند، و11 قالب A4 جاهزة تغطي حوالي 30 نوعاً، بما فيها عرض السعر والفاتورة المبدئية للتاجر وسند القبض وأعمار الديون وكشف المرتبات، مع ملف PDF حقيقي لكل قالب.</p>
+              <div class="chips"><a href="./documents.html#matrix">أي وحدة تحتاج أي مستند؟</a><a href="./documents.html#kit">مواصفات المستند</a><a href="./documents.html#doc-invoice">الفاتورة</a><a href="./documents.html#doc-voucher">سند قبض</a><a href="./documents.html#doc-aging">أعمار الديون</a><a href="./documents.html#doc-payroll">كشف المرتبات</a></div>
+              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 7</a>
             </div>
           </article>
         </div>
@@ -232,13 +244,18 @@
           <p>كل ملف صفحة A4 واحدة ببيانات تجريبية، بالشعار والترويسة والتذييل كما سيخرج من النظام.</p>
         </div>
         <div class="pdfs">
+          <a class="pdf" href="./assets/samples/quotation.pdf" target="_blank"><span class="ico">PDF</span><span><b>عرض سعر</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/proforma.pdf" target="_blank"><span class="ico">PDF</span><span><b>فاتورة مبدئية للتاجر</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/invoice.pdf" target="_blank"><span class="ico">PDF</span><span><b>فاتورة مبيعات</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/voucher.pdf" target="_blank"><span class="ico">PDF</span><span><b>سند قبض / صرف</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/delivery.pdf" target="_blank"><span class="ico">PDF</span><span><b>إذن تسليم</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/statement.pdf" target="_blank"><span class="ico">PDF</span><span><b>كشف حساب عميل</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/aging.pdf" target="_blank"><span class="ico">PDF</span><span><b>أعمار الديون</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/report.pdf" target="_blank"><span class="ico">PDF</span><span><b>تقرير المبيعات الشهري</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/workorder.pdf" target="_blank"><span class="ico">PDF</span><span><b>أمر تشغيل</b><small>A4 · صفحة</small></span></a>
+          <a class="pdf" href="./assets/samples/payroll.pdf" target="_blank"><span class="ico">PDF</span><span><b>كشف مرتبات الشهر</b><small>A4 · صفحة</small></span></a>
           <a class="pdf" href="./assets/samples/payslip.pdf" target="_blank"><span class="ico">PDF</span><span><b>مفردات مرتب</b><small>A4 · صفحة</small></span></a>
-          <a class="pdf is-all" href="./assets/samples/all-templates.pdf" target="_blank"><span class="ico">6×</span><span><b>القوالب الستة معاً</b><small>ملف واحد · 6 صفحات</small></span></a>
+          <a class="pdf is-all" href="./assets/samples/all-templates.pdf" target="_blank"><span class="ico">11×</span><span><b>القوالب الأحد عشر معاً</b><small>ملف واحد · 11 صفحة</small></span></a>
         </div>
       </section>
 
@@ -299,7 +316,7 @@
       document.getElementById("hub-finishes").innerHTML = EG.finishes.map(function (f) { return '<i style="--c:' + f.hex + '" title="' + f.code + '"></i>'; }).join("");
       document.getElementById("hero-fin").innerHTML = EG.finishes.slice(0, 8).map(function (f) { return '<i style="--c:' + f.hex + '"></i>'; }).join("");
       var groups = [
-        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js", "docs/modules/super-admin.md", "docs/modules/catalog-portal.md"]],
+        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js", "docs/modules/super-admin.md", "docs/modules/catalog-portal.md", "docs/modules/finance.md", "docs/modules/hr.md"]],
         ["Product & content", ["docs/ia-sitemap.md", "docs/screen-inventory.md", "docs/flows.md", "docs/demo-data.md", "docs/content-voice.md", "assets/ASSETS.md", "js/demo-data.js"]],
         ["ERP modules", ["dashboard", "products", "inventory", "sales", "production", "customers", "suppliers", "purchases", "hr", "finance", "settings"].map(function (m) { return "docs/modules/" + m + ".md"; })],
         ["Surfaces · Delivery", ["docs/surfaces/eg-system.md", "docs/surfaces/eg-website.md", "docs/surfaces/eg-mobile.md", "docs/qa-checklist.md", "docs/handoff.md", "docs/open-questions.md"]]

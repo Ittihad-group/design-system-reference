@@ -20,6 +20,7 @@
         <a href="#data" data-ar="البيانات" data-en="Data">البيانات</a>
         <a href="#feedback" data-ar="التنبيهات" data-en="Feedback">التنبيهات</a>
         <a href="#shell" data-ar="هيكل النظام" data-en="App shell">هيكل النظام</a>
+        <a href="#money" data-ar="المالية والـHR" data-en="Finance & HR">المالية والـHR</a>
         <a href="#admin" data-ar="الإدارة والصلاحيات" data-en="Admin & RBAC">الإدارة والصلاحيات</a>
         <a href="#catalog" data-ar="الكتالوج والتاجر" data-en="Catalog & dealer">الكتالوج والتاجر</a>
         <a href="#brand" data-ar="عناصر الهوية" data-en="Brand">عناصر الهوية</a>
@@ -198,6 +199,34 @@
         </div></div>
         <div class="ds-label" style="margin-top:var(--space-6)">Mobile bottom nav</div>
         <div class="ds-demo" style="max-width:420px;padding:0;overflow:hidden"><div class="bottom-nav"><a href="#shell" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#shell"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#shell"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a><a href="#shell"><svg class="icon"><use href="#i-settings"/></svg>الإعدادات</a></div></div>
+      </div></section>
+
+      <!-- MONEY: FINANCE & HR -->
+      <section class="ds-section" id="money"><div class="container">
+        <h2 class="t-h1" data-ar="المالية والموارد البشرية" data-en="Finance & HR">المالية والموارد البشرية</h2>
+        <p class="lead" data-ar="مكونات الفواتير والتحصيل والمرتبات: المبالغ، حالات الفاتورة، أعمار الديون، طرق الدفع، شبكة الحضور، وشارات السرية. الصفحة الكاملة: finance-hr.html." data-en="Invoice, collection and payroll components. Full page: finance-hr.html.">مكونات الفواتير والتحصيل والمرتبات: المبالغ، حالات الفاتورة، أعمار الديون، طرق الدفع، شبكة الحضور، وشارات السرية. الصفحة الكاملة: <a href="./finance-hr.html">finance-hr.html</a>.</p>
+        <div class="grid grid-wide">
+          <div class="card stack"><h3 class="t-h3">المبالغ (EGP)</h3>
+            <div class="cluster" style="gap:var(--space-6)"><span class="amount-xl num">528,400</span><span class="amount">63,203.88<span class="cur">ج.م</span></span><span class="amount is-pos">+ 31,601.94<span class="cur">ج.م</span></span><span class="amount is-neg">− 2,918.00<span class="cur">ج.م</span></span></div>
+            <div class="t-caption">أرقام لاتينية متجانسة العرض (tabular)، «ج.م» بخط عربي أصغر، وAmount بدون ألوان إلا للموجب/السالب. فاصلة الآلاف دائماً.</div></div>
+          <div class="card stack"><h3 class="t-h3">حالات الفاتورة</h3>
+            <div class="cluster"><span class="chip">مسودة</span><span class="chip chip-info">صادرة</span><span class="chip chip-warning">مدفوعة جزئياً</span><span class="chip chip-success">مدفوعة</span><span class="chip chip-danger">متأخرة</span></div>
+            <div class="cluster"><span class="pending-badge">فاتورة إلكترونية: Pending</span><span class="conf-badge"><svg class="icon"><use href="#i-lock"/></svg>سري</span><span class="role-chip">Accountant</span></div></div>
+          <div class="card stack"><h3 class="t-h3">أعمار الديون</h3>
+            <div class="stackbar"><i style="--w:49.5%;--c:#012864"></i><i style="--w:22.3%;--c:#345383"></i><i style="--w:14.2%;--c:#9fb3d6"></i><i style="--w:9.3%;--c:#e0a33a"></i><i style="--w:4.7%;--c:#c41218"></i></div>
+            <div class="stackbar-legend"><span style="--c:#012864">غير مستحق</span><span style="--c:#345383">1–30</span><span style="--c:#9fb3d6">31–60</span><span style="--c:#e0a33a">61–90</span><span style="--c:#c41218">+90</span></div>
+            <div class="t-caption">الأحمر للأقدم فقط. لون واحد لكل فئة، ومعها نص وأرقام دائماً.</div></div>
+          <div class="card stack"><h3 class="t-h3">طرق الدفع وتقدّم الدفع</h3>
+            <div class="cluster" style="gap:6px"><button class="pay-method" type="button" aria-pressed="false"><svg class="icon"><use href="#i-coins"/></svg>نقداً</button><button class="pay-method" type="button" aria-pressed="true"><svg class="icon"><use href="#i-globe"/></svg>تحويل بنكي</button><button class="pay-method" type="button" aria-pressed="false"><svg class="icon"><use href="#i-receipt"/></svg>شيك</button></div>
+            <div class="progress"><span style="--value:50%"></span></div><div class="t-caption">مدفوع 50% · المتبقي <span class="num">31,601.94</span> ج.م</div></div>
+          <div class="card stack"><h3 class="t-h3">شبكة الحضور</h3>
+            <div class="perm-legend"><span><b class="att-c p" style="display:inline-grid;width:20px">✓</b> حضور</span><span><b class="att-c a" style="display:inline-grid;width:20px">غ</b> غياب</span><span><b class="att-c t" style="display:inline-grid;width:20px">ت</b> تأخير</span><span><b class="att-c l" style="display:inline-grid;width:20px">ج</b> إجازة</span></div>
+            <div class="att-row" style="--days:14"><b>أحمد محمود</b><span class="att-c p">✓</span><span class="att-c p">✓</span><span class="att-c t">ت</span><span class="att-c p">✓</span><span class="att-c h">·</span><span class="att-c a">غ</span><span class="att-c p">✓</span><span class="att-c l">ج</span><span class="att-c l">ج</span><span class="att-c p">✓</span><span class="att-c p">✓</span><span class="att-c h">·</span><span class="att-c p">✓</span><span class="att-c p">✓</span></div>
+            <div class="t-caption">الحالة بحرف ولون معاً، لا لون وحده.</div></div>
+          <div class="card stack"><h3 class="t-h3">مسار المرتب</h3>
+            <ol class="order-steps"><li class="is-done">حساب</li><li class="is-done">مراجعة</li><li class="is-now">اعتماد</li><li>صرف</li></ol>
+            <button class="btn btn-accent" type="button" disabled><svg class="icon"><use href="#i-lock"/></svg>اعتماد المرتبات</button><div class="t-caption">الاعتماد والصرف بصلاحية Approve؛ الزر المعطّل يبيّن السبب.</div></div>
+        </div>
       </div></section>
 
       <!-- ADMIN / RBAC -->

@@ -1,50 +1,39 @@
-# Module — hr (الموارد البشرية)
+# Module — hr (الموارد البشرية والمرتبات)
+
+> Live: `../../finance-hr.html` (أقسام الموارد البشرية) · مكونات: `../../design-system.html#money` · الحالة: تصميم وديمو جاهز؛ **مؤجَّل P2 في نطاق v1** (Pending) لكن مستنداته جاهزة.
 
 ## Purpose
 
-Employees by department
+الموظفون والأقسام والحضور والانصراف والإجازات والمرتبات ومفردات المرتب. البيانات **سرية**: الأجور والمرتبات لا تظهر إلا لمن يملك الصلاحية.
 
-## Users
+## Users / permissions
 
--
+HR Manager · Accountant (اعتماد وصرف) · General Manager · Owner · المدير المباشر (اعتماد إجازات فريقه) · الموظف (مفردات مرتبه فقط على الموبايل). تُدار الأدوار من Super Admin (RBAC).
 
-## Primary screens
+## Primary screens (`finance-hr.html`)
 
-| Screen | Route / file | Notes |
-|--------|--------------|-------|
-| List | `screens/erp/hr.html` | stub |
-| Detail | | |
-| Create / Edit | | |
+| Screen | Anchor | Notes |
+|--------|--------|-------|
+| الموظفون | `#employees` | عمود الأجر سري (شارة قفل لغير المخوَّل) |
+| ملف الموظف | `#profile` | بيانات، أرصدة، مفردات المرتب بـPDF |
+| الحضور | `#attendance` | شبكة شهرية: حضور ✓ · غياب غ · تأخير ت · إجازة ج · عطلة · |
+| الإجازات والطلبات | `#leave` | اعتماد بصلاحية Approve |
+| المرتبات | `#payroll` | حساب ← مراجعة ← اعتماد ← صرف؛ الاعتماد معطّل بدون صلاحية |
 
-## Data fields
+## Mobile
 
-| Field | Type | Required | Notes |
-|-------|------|----------|-------|
-| | | | |
+«مفردات مرتبي»: خدمة ذاتية، شارة «سري»، تحميل PDF (`mobile.html`).
 
-## Statuses
+## Documents (PDF)
 
-| Status | Meaning | Color token |
-|--------|---------|-------------|
-| | | |
+مفردات مرتب `PAY-` · كشف مرتبات `PR-` · (لاحقاً) كشف حضور وخطابات رسمية بنفس القوالب.
 
-## Actions
+## Rules
 
--
-
-## Empty / error / permission states
-
--
-
-## Permissions
-
--
-
-## Acceptance criteria
-
-- [ ]
-- [ ]
+- **Pending Confirmation:** مكونات المرتب (أساسي، بدلات، حوافز، إضافي، تأمينات، ضريبة كسب العمل، سلف) تُعتمد من HR والمحاسب القانوني؛ مصدر الحضور (بصمة أم يدوي)؛ سياسة الإجازات.
+- الاعتماد والصرف بصلاحية؛ كل تغيير يُسجَّل في النشاط (Audit).
+- لا يُعرض أجر موظف لغير المخوَّلين، ولا يُصدَّر دون صلاحية Export.
 
 ## Open questions
 
--
+`../open-questions.md` بنود 44–46.

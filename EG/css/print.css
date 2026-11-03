@@ -103,3 +103,21 @@
   body[data-print-only] .doc-wrap:not(.is-printing) { display: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* —— Finance / HR documents (voucher, payroll, aging, quotation) —— */
+.doc-amount { display: flex; justify-content: space-between; align-items: center; gap: 6mm; border: .5mm solid var(--eg-navy); border-radius: 2mm; padding: 4mm 6mm; background: var(--eg-navy-tint); }
+.doc-amount b { font-size: 20pt; color: var(--eg-navy); }
+.doc-amount small { display: block; color: var(--eg-muted); font-size: 8.5pt; }
+.doc-methods { display: flex; gap: 6mm; flex-wrap: wrap; font-size: 9pt; }
+.doc-stackbar { display: flex; height: 5mm; border-radius: 1mm; overflow: hidden; background: #e8e8e8; }
+.doc-stackbar i { display: block; width: var(--w); background: var(--c); }
+.doc-conf { display: inline-block; background: var(--eg-ink); color: #fff; font-size: 7.5pt; font-weight: 700; padding: .4mm 3mm; border-radius: 99px; }
+.doc-table.dense { font-size: 8.5pt; } .doc-table.dense th, .doc-table.dense td { padding: 1.3mm 2mm; }
+.doc-table tr.sub td { background: var(--eg-bg-soft); font-weight: 700; }
+.doc-call { display: flex; gap: 5mm; align-items: center; border: .5mm solid var(--eg-navy); border-radius: 2mm; padding: 4mm 5mm; background: var(--eg-navy-tint); }
+.doc-call b { color: var(--eg-navy); font-size: 11pt; }
+.doc-call small { display: block; color: var(--eg-muted); font-size: 8.5pt; }
+.doc-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2mm; font-size: 8.5pt; }
+.doc-steps div { border-top: 1.2mm solid var(--eg-line-strong); padding-top: 1.5mm; color: var(--eg-muted); }
+.doc-steps div.on { border-color: var(--eg-red); color: var(--eg-navy); font-weight: 700; }
+.doc-steps div.done { border-color: var(--eg-navy); color: var(--eg-navy); }
