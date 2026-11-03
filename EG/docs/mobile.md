@@ -142,4 +142,4 @@ Targets ≥ 48px and ≥ 8px apart · state never colour-only · `aria-label`/`S
 
 ## 9. Open decisions
 
-`docs/open-questions.md` — Approved: 20, 25, 29, 30 · Pending: 5, 9, 15, 16, 18, 19, 21, 22 · Open: 17, 18, 19, 33.
+`docs/open-questions.md` — Approved: 7, 20, 25, 29, 30 · Pending Confirmation: 9, 15, 16, 18, 19, 21, 22 · Open: 9, 15, 16, 17, 18, 19 (التفاصيل التشغيلية).
