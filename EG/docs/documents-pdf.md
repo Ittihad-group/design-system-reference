@@ -22,3 +22,9 @@ A4 210×297mm · margins 14mm · header (logo + title pill + number/date/status)
 Browser: open `documents.html` → "طباعة / حفظ PDF" (prints only that template).
 Headless: `chrome --headless=new --no-pdf-header-footer --virtual-time-budget=10000 --print-to-pdf=out.pdf "file:///…/documents.html?doc=invoice"`
 In production render the same HTML server-side with real data and the same `print.css`.
+
+## الترقيم والفاتورة الإلكترونية
+
+- الترقيم المبدئي (Pending Confirmation، قابل للتعديل من إعدادات النظام): `INV-` Invoice · `DN-` Delivery Note · `WO-` Work Order · `ST-` Stock Transfer · `PS-` Purchase Order. العينات: كشف الحساب `SOA-` وكشف المرتب `PAY-` (Placeholders لتفادي التعارض مع ST- وPS-)؛ التقرير `RP-`.
+- **Approved:** حقول الرقم الضريبي والسجل التجاري والعنوان الرسمي والتواصل قابلة للتعديل (Placeholders حالياً)، وأماكن الختم والتوقيع، ودعم العربية والثنائية.
+- **Approved:** ملف PDF العادي **ليس** فاتورة إلكترونية معتمدة. الفاتورة الإلكترونية (QR) Pending Confirmation ومفصولة عن إصدار الفاتورة الداخلية.

@@ -47,7 +47,7 @@
 .m-h2 { font-size: 18px; font-weight: 700; line-height: 1.35; margin: 0; }
 .m-sub { font-size: 15px; color: var(--eg-muted); margin: 0; }
 .m-sec { font-size: 14px; font-weight: 700; color: var(--eg-muted); margin: 4px 2px 0; display: flex; justify-content: space-between; align-items: center; }
-.m-sec a { color: var(--eg-red-deep); font-weight: 700; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; }
+.m-sec a { color: var(--eg-navy); font-weight: 700; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; }
 
 /* ── App bar ────────────────────────────────────────── */
 .m-appbar { height: var(--m-appbar-h); flex: none; display: flex; align-items: center; gap: 4px; padding-inline: 4px 8px; background: #fff; border-bottom: 1px solid var(--eg-line); color: var(--eg-navy); }
@@ -77,9 +77,9 @@
 .m-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: var(--m-btn-h); padding-inline: 20px; border: 2px solid transparent; border-radius: var(--m-radius); font-weight: 700; font-size: 19px; line-height: 1.2; font-family: inherit; cursor: pointer; text-decoration: none; transition: transform var(--duration-press), background var(--duration-fast); }
 .m-btn:active { transform: scale(.98); }
 .m-btn .icon { width: 22px; height: 22px; }
-.m-btn-primary { background: var(--eg-red); color: #fff; }          /* 19px bold = large text → 4.38:1 passes */
-.m-btn-primary:active { background: var(--eg-red-deep); }
-.m-btn-secondary { background: var(--eg-navy); color: #fff; }
+.m-btn-accent { background: var(--eg-red); color: #fff; }          /* 19px bold = large text → 4.38:1 passes */
+.m-btn-accent:active { background: var(--eg-red-deep); }
+.m-btn-primary, .m-btn-secondary { background: var(--eg-navy); color: #fff; }
 .m-btn-ghost { background: #fff; color: var(--eg-navy); border-color: var(--eg-line-strong); }
 .m-btn-soft-danger { background: var(--eg-red-tint); color: var(--eg-red-deep); }
 .m-btn-text { background: none; color: var(--eg-navy); min-height: var(--m-touch); font-size: 16px; }
@@ -89,7 +89,7 @@
 @keyframes m-spin { to { transform: rotate(360deg); } }
 
 .m-actionbar { flex: none; padding: 12px var(--m-gutter) 12px; background: #fff; border-top: 1px solid var(--eg-line); display: grid; gap: 8px; }
-.m-actionbar.is-2 .m-btn-primary { order: -1; }
+.m-actionbar.is-2 .m-btn-accent { order: -1; }
 .m-actionbar.is-2 { grid-template-columns: 2fr 1fr; }  /* primary (2fr) sits on the start side: right in RTL */
 
 /* ── Fields ─────────────────────────────────────────── */
@@ -166,8 +166,8 @@
 .m-tile { min-height: 96px; background: #fff; border: 1px solid var(--eg-line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; font-weight: 700; font-size: 16px; color: var(--eg-navy); text-decoration: none; box-shadow: var(--shadow-card); }
 .m-tile .m-ico { width: 44px; height: 44px; border-radius: 50%; background: var(--eg-navy-tint); display: grid; place-items: center; }
 .m-tile .m-ico .icon { width: 24px; height: 24px; }
-.m-tile.is-primary { background: var(--eg-red); border-color: var(--eg-red); color: #fff; }
-.m-tile.is-primary .m-ico { background: rgba(255,255,255,.22); }
+.m-tile.is-primary { background: var(--eg-navy); border-color: var(--eg-navy); color: #fff; }
+.m-tile.is-primary .m-ico { background: var(--eg-red); color: #fff; }   /* red = small accent only */
 .m-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--eg-navy); color: #fff; display: grid; place-items: center; font-weight: 700; flex: none; }
 
 /* stepper */
@@ -306,7 +306,7 @@
 .m-stat small { font-size: 13px; font-weight: 600; color: var(--eg-muted); }
 .m-stat b { font: 700 19px/1.25 var(--font-en); color: var(--eg-navy); white-space: nowrap; }
 .m-stat b em { font: 600 13px var(--font-body); font-style: normal; color: var(--eg-muted); margin-inline-start: 4px; }
-.m-stat.is-red b { color: var(--eg-red-deep); } .m-stat.is-ok b { color: var(--color-success); }
+.m-stat.is-red b { color: var(--eg-navy); } .m-stat.is-ok b { color: var(--color-success); }
 /* LinearProgressIndicator */
 .m-progress { height: 8px; border-radius: 4px; background: var(--eg-navy-tint); overflow: hidden; }
 .m-progress::after { content: ""; display: block; height: 100%; width: var(--v, 0%); background: var(--eg-navy); border-radius: 4px; }

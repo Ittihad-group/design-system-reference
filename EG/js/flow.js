@@ -7,8 +7,10 @@
     { file: "index.html", n: "", label: "الرئيسية", title: "الرئيسية" },
     { file: "brand.html", n: "1", label: "الهوية والمقاسات", title: "الهوية والمقاسات", next: "الألوان والخطوط والمقاسات وكيف تُطبّق على الموقع والنظام والموبايل" },
     { file: "design-system.html", n: "2", label: "المكونات", title: "المكونات", next: "الأزرار والنماذج والجداول والتنبيهات وهيكل النظام والأيقونات" },
-    { file: "mobile.html", n: "3", label: "الموبايل", title: "تطبيق الموبايل: الأساسيات", next: "الدخول والحساب، مكتبة مكونات الموبايل، الشاشات الأساسية، ونظام الإشعارات" },
-    { file: "documents.html", n: "4", label: "المستندات (PDF)", title: "المستندات والتقارير (PDF)", next: "أي وحدة تحتاج أي مستند، و6 قوالب A4 مع ملفات PDF جاهزة" }
+    { file: "super-admin.html", n: "3", label: "Super Admin", title: "Super Admin: إدارة النظام", next: "المستخدمون، الأدوار والصلاحيات (RBAC)، الأقسام والموديولات، إعدادات الشركة والمخازن والعملة، النشاط" },
+    { file: "catalog.html", n: "4", label: "الكتالوج والتاجر", title: "الكتالوج وبوابة التاجر", next: "الكتالوج العام، أنشئ طلبك، حساب التاجر ومتابعة الطلبات، ومراجعة المبيعات" },
+    { file: "mobile.html", n: "5", label: "الموبايل", title: "تطبيق الموبايل: الأساسيات", next: "الدخول والحساب، مكتبة مكونات الموبايل، الشاشات الأساسية، ونظام الإشعارات" },
+    { file: "documents.html", n: "6", label: "المستندات (PDF)", title: "المستندات والتقارير (PDF)", next: "أي وحدة تحتاج أي مستند، و6 قوالب A4 مع ملفات PDF جاهزة" }
   ];
   var cur = location.pathname.split("/").pop() || "index.html";
   var i = STEPS.findIndex(function (s) { return s.file === cur; });
@@ -47,8 +49,8 @@
           : "<small>انتهت الرحلة</small><h2>راجعت الهوية والمكونات والمستندات</h2><p>ارجع للرئيسية لقرارات الإدارة المطلوبة.</p>") +
       '</div><div class="btns">' +
       (pv ? '<a class="btn btn-ghost" href="./' + pv.file + '">→ ' + (pv.n ? "الخطوة " + pv.n + ": " : "") + pv.label + "</a>" : "") +
-      (nx ? '<a class="btn btn-primary btn-lg" href="./' + nx.file + '">التالي: ' + nx.label + " ←</a>"
-          : '<a class="btn btn-primary btn-lg" href="./index.html">العودة للرئيسية</a>') +
+      (nx ? '<a class="btn btn-accent btn-lg" href="./' + nx.file + '">التالي: ' + nx.label + " ←</a>"
+          : '<a class="btn btn-accent btn-lg" href="./index.html">العودة للرئيسية</a>') +
       "</div></div></section>";
     var anchor = document.querySelector("body > footer");
     (anchor ? anchor : document.body).insertAdjacentHTML(anchor ? "beforebegin" : "beforeend", html);

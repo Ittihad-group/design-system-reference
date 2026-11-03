@@ -16,16 +16,16 @@ Source of truth for structure and data: the **EG-Mobile** repo (`lib/features/*`
 
 | Area | Current | Design | Status |
 | --- | --- | --- | --- |
-| Palette | forest `#1A4A36` + brass `#A67C42` | red `#ED1C24` + navy `#012864` (measured from the logo) | **decision** (open-questions 20) |
+| Palette | forest `#1A4A36` + brass `#A67C42` | Navy `#012864` primary + Red `#ED1C24` accent (not for large backgrounds or body text) | **Approved** (20) |
 | Font | Roboto (no Arabic glyphs) | Somar Rounded → Cairo; Poppins for Latin | fix |
 | Logo | brass square "EG" | official seal / wordmark | fix |
 | Login | email + password, prefilled, red SnackBar | same fields; inline error; no prefill; phase 2 biometric/PIN | fix |
-| Navigation | 4 tabs + drawer | Home · Sales · Production · Stock · More (More = Products, Customers, Finance, notifications settings, language, account, logout) | **decision** (21) |
+| Navigation | 4 tabs + drawer | Home · Sales · Production · Stock · More; tabs shown by permission (More = Products, Customers, Finance, notifications settings, language, account, logout) | Pending Confirmation (21) |
 | App bar | title + language + logout | screen title + bell | fix |
 | Notifications | none | 3 levels with action buttons | new |
 | Screen states | spinner / raw error text | skeleton, empty, offline banner, retry | new |
 | Order detail | none | detail + progress + "أكّد الأمر" for `draft` | new |
-| Roles | no UI difference | hide cost + finance from `sales` | **decision** (22, 5) |
+| Roles | no UI difference | RBAC: `sales` has no costs/finance; confirming an order requires an approve permission | Approved rules (25); role matrix Pending (5, 22) |
 | Seed data | colours `C205`…; cladding 16×280; foam 18 mm | official 11 finishes; 17×280; foam 4.5–17 mm | fix |
 | Text size | 12–14px | min 13px, body 15–17px | fix |
 
@@ -75,13 +75,17 @@ class AppColors {
 | `.m-chip` | `StatusChip` |
 | `.m-rec` | `Card + ListTile` → one shared `RecordCard` |
 | `.m-progress` | `LinearProgressIndicator` (navy; green at 100%) |
-| `.m-btn-*` | `FilledButton` / `OutlinedButton` / `TextButton` themes |
+| `.m-btn-accent` (red) / `.m-btn-primary` (navy) / `.m-btn-ghost` | `FilledButton` (accent = red for the single key action, primary = navy) / `OutlinedButton` / `TextButton` themes |
 | `.m-sheet` | `showModalBottomSheet` |
 | `.m-toast` | `SnackBar` (floating, navy-deep, action) |
 | `.m-empty` / `.m-skel` / `.m-banner` | new `EmptyState`, `SkeletonList`, `ConnectivityBanner` |
 | `.m-hold` | new `HoldToConfirmButton` |
 | `.m-switch`, `.m-seg` | `Switch`, `SegmentedButton` |
 | icons | Material Symbols equivalents: home, point_of_sale, precision_manufacturing, warehouse, menu, notifications, bolt, … |
+
+## 3b. Offline
+
+Limited offline (Pending Confirmation 9): show previously loaded data; record permitted operations locally and sync on reconnect. **Approved:** no financial operations and no sensitive approvals offline — their buttons are disabled with the note «يحتاج اتصالاً».
 
 ## 4. Principles (apply to every screen)
 
@@ -104,7 +108,7 @@ Touch target 48 · primary button 52 (text 19 bold) · in-card button 44 · inpu
 | `action` | navy bar + bell | soft tone + short vibrate | ≤ 2 | until acted | outside work hours |
 | `info` | grey, no buttons | silent, centre only | none | 7 days then archived | yes |
 
-Proposed events (operations to confirm): low stock below `minStock` → urgent (admin) · work order past `dueDate` → urgent (admin) · new `draft` sales order → action (sales, admin; button "أكّد الأمر") · order `shipped` → info (sales) · work order `done` → info (admin).
+Proposed events (Pending Confirmation — operations decide): critical stock below `minStock` → urgent · production line down / work order past `dueDate` → urgent · new `draft` sales order or purchase order awaiting approval → action (shown only to users holding the approve permission; the server re-checks permission on every action) · order status update / completion / daily report → info.
 Badge on the bell counts unresolved `action` + `urgent` items only. Quiet hours default 22:00–06:00: only `urgent` is audible.
 
 ### Payload (FCM / APNs data message)
@@ -126,11 +130,11 @@ Badge on the bell counts unresolved `action` + `urgent` items only. Quiet hours 
 }
 ```
 
-One notification per event (idempotent by `id`); the title always carries the reference number; tapping opens the exact screen and marks it read; an action button calls the API directly and replaces the notification with an `info` confirmation (or an error toast with retry). Android channels: `urgent` (HIGH, DND bypass), `action` (HIGH), `info` (LOW).
+One notification per event (idempotent by `id`); the title always carries the reference number; tapping opens the exact screen and marks it read; an action button calls the API directly and replaces the notification with an `info` confirmation (or an error toast with retry). Android channels: `urgent` (HIGH, DND bypass), `action` (HIGH), `info` (LOW). Provider: FCM + APNs (Approved). Sensitive actions from a notification are never executed offline or without a server-side permission check (Approved).
 
 ## 7. Auth
 
-Login (email + password, language switch, hotline 15536) → Home. Error under the field, no prefill. Forgot password = contact the system admin until the API supports recovery. Phase 2: PIN + biometric lock, auto-lock 2 min, full login every 30 days. Exceptional states: suspended account, expired session, no permission (e.g. `sales` → Finance), offline.
+Login (email + password, language switch, hotline 15536) → Home. Error under the field, no prefill. Forgot password: self-service by email or reset by Super Admin (Pending Confirmation 15). Auto-lock after inactivity (timeout Open). Phase 2: PIN + biometric. Session length and reset policy await IT. Exceptional states: suspended account, expired session, no permission (e.g. `sales` → Finance), offline. Shared device: logout + local data cleanup (Approved).
 
 ## 8. Accessibility
 
@@ -138,4 +142,4 @@ Targets ≥ 48px and ≥ 8px apart · state never colour-only · `aria-label`/`S
 
 ## 9. Open decisions
 
-`docs/open-questions.md` items 15–22 (and 5 for roles).
+`docs/open-questions.md` — Approved: 20, 25, 29, 30 · Pending: 5, 9, 15, 16, 18, 19, 21, 22 · Open: 17, 18, 19, 33.

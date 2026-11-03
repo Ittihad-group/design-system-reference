@@ -6,9 +6,9 @@
 .t-dense { font-size: var(--text-dense); }
 .t-caption { font-size: var(--text-caption); color: var(--color-text-muted); }
 .t-muted { color: var(--color-text-muted); font-size: var(--text-dense); }
-.t-brand-red { color: var(--color-primary); }
+.t-brand-red { color: var(--color-accent); }  /* use sparingly — red is not for body text */
 .t-brand-navy { color: var(--color-secondary); }
-.t-eyebrow { font-size: var(--text-caption); font-weight: 700; letter-spacing: 0; color: var(--color-primary); }
+.t-eyebrow { font-size: var(--text-caption); font-weight: 700; letter-spacing: 0; color: var(--eg-navy-glass); }
 /* Numbers, prices, SKUs: Latin tabular figures in both languages */
 .num, .sku { font-family: var(--font-en); font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
 .sku { font-family: var(--font-mono); font-size: 0.9em; letter-spacing: 0.02em; }

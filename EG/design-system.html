@@ -20,6 +20,8 @@
         <a href="#data" data-ar="البيانات" data-en="Data">البيانات</a>
         <a href="#feedback" data-ar="التنبيهات" data-en="Feedback">التنبيهات</a>
         <a href="#shell" data-ar="هيكل النظام" data-en="App shell">هيكل النظام</a>
+        <a href="#admin" data-ar="الإدارة والصلاحيات" data-en="Admin & RBAC">الإدارة والصلاحيات</a>
+        <a href="#catalog" data-ar="الكتالوج والتاجر" data-en="Catalog & dealer">الكتالوج والتاجر</a>
         <a href="#brand" data-ar="عناصر الهوية" data-en="Brand">عناصر الهوية</a>
         <a href="#icons" data-ar="الأيقونات" data-en="Icons">الأيقونات</a>
         <span class="grow"></span>
@@ -55,7 +57,7 @@
       <!-- COLOR -->
       <section class="ds-section" id="color"><div class="container">
         <h2 class="t-h1" data-ar="الألوان" data-en="Color">الألوان</h2>
-        <p class="lead" data-ar="الأحمر = الإجراء والنصف المصري. الكحلي = الهيكل والثقة والنصف الألماني. القيم مقاسة من بكسلات الشعار." data-en="Red = action / the Egyptian half. Navy = structure & trust / the German half. Values measured from the logo pixels.">الأحمر = الإجراء والنصف المصري. الكحلي = الهيكل والثقة والنصف الألماني. القيم مقاسة من بكسلات الشعار.</p>
+        <p class="lead" data-ar="الكحلي = اللون الأساسي (الهيكل والثقة والنصف الألماني). الأحمر = Accent للأزرار المهمة وحالات الانتباه فقط، وليس لخلفيات كبيرة أو نصوص عادية. القيم مقاسة من بكسلات الشعار." data-en="Red = action / the Egyptian half. Navy = structure & trust / the German half. Values measured from the logo pixels.">الأحمر = الإجراء والنصف المصري. الكحلي = الهيكل والثقة والنصف الألماني. القيم مقاسة من بكسلات الشعار.</p>
         <div class="ds-label">Brand</div>
         <div class="grid grid-swatches" id="sw-brand"></div>
         <div class="ds-label" style="margin-top:var(--space-6)">Neutral</div>
@@ -93,7 +95,7 @@
             <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-sm)"></div><span class="t-caption">4 · sm</span></div>
             <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-md)"></div><span class="t-caption">8 · md</span></div>
             <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-secondary);border-radius:var(--radius-lg)"></div><span class="t-caption">12 · lg</span></div>
-            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-primary);border-radius:var(--radius-brand)"></div><span class="t-caption">brand</span></div>
+            <div class="stack-sm" style="align-items:center"><div style="width:64px;height:64px;background:var(--color-accent);border-radius:var(--radius-brand)"></div><span class="t-caption">brand</span></div>
           </div>
         </div>
       </div></section>
@@ -101,19 +103,20 @@
       <!-- ACTIONS -->
       <section class="ds-section" id="actions"><div class="container">
         <h2 class="t-h1" data-ar="الأزرار" data-en="Buttons">الأزرار</h2>
-        <p class="lead" data-ar="زر أحمر واحد رئيسي في كل شاشة. الكحلي للإجراء الثانوي. ارتفاع 40 للنظام و44+ للموبايل." data-en="One red primary per screen. Navy for secondary. 40px in ERP, 44px+ on mobile.">زر أحمر واحد رئيسي في كل شاشة. الكحلي للإجراء الثانوي. ارتفاع 40 للنظام و44+ للموبايل.</p>
+        <p class="lead" data-ar="الكحلي (Primary) للإجراءات المعتادة، والأحمر (Accent) لأهم إجراء واحد في الشاشة فقط (تأكيد، أنشئ طلبك). ارتفاع 40 للنظام و44+ للموبايل." data-en="One red primary per screen. Navy for secondary. 40px in ERP, 44px+ on mobile.">زر أحمر واحد رئيسي في كل شاشة. الكحلي للإجراء الثانوي. ارتفاع 40 للنظام و44+ للموبايل.</p>
         <div class="ds-demo stack">
           <div class="cluster">
-            <button class="btn btn-primary" type="button">عرض الكتالوج</button>
+            <button class="btn btn-accent" type="button">أنشئ طلبك</button>
+            <button class="btn btn-primary" type="button">حفظ</button>
             <button class="btn btn-secondary" type="button">تواصل معنا</button>
             <button class="btn btn-ghost" type="button">تصدير</button>
             <button class="btn btn-danger" type="button">حذف</button>
-            <button class="btn btn-primary" type="button" disabled>معطّل</button>
+            <button class="btn btn-accent" type="button" disabled>معطّل</button>
           </div>
           <div class="cluster">
-            <button class="btn btn-primary btn-lg" type="button">كبير 48</button>
-            <button class="btn btn-primary btn-sm" type="button">صغير 32</button>
-            <button class="btn btn-primary" type="button"><svg class="icon"><use href="#i-plus"/></svg>أمر بيع جديد</button>
+            <button class="btn btn-accent btn-lg" type="button">كبير 48</button>
+            <button class="btn btn-accent btn-sm" type="button">صغير 32</button>
+            <button class="btn btn-accent" type="button"><svg class="icon"><use href="#i-plus"/></svg>أمر بيع جديد</button>
             <button class="btn btn-ghost btn-icon" type="button" aria-label="Filter"><svg class="icon"><use href="#i-filter"/></svg></button>
             <button class="btn btn-ghost btn-icon" type="button" aria-label="Download"><svg class="icon"><use href="#i-download"/></svg></button>
           </div>
@@ -151,7 +154,7 @@
         </div>
         <div class="grid grid-2" style="margin-top:var(--space-5)">
           <div class="card stack"><h3 class="t-h3">المخزون</h3><div id="stock" class="stack"></div></div>
-          <div class="card stack"><h3 class="t-h3">حالات فارغة</h3><div class="empty"><svg class="icon icon-lg"><use href="#i-box"/></svg><strong>لا توجد أوامر بعد</strong><span class="t-muted">ابدأ بإنشاء أول أمر بيع.</span><button class="btn btn-primary btn-sm" type="button">أمر بيع جديد</button></div></div>
+          <div class="card stack"><h3 class="t-h3">حالات فارغة</h3><div class="empty"><svg class="icon icon-lg"><use href="#i-box"/></svg><strong>لا توجد أوامر بعد</strong><span class="t-muted">ابدأ بإنشاء أول أمر بيع.</span><button class="btn btn-accent btn-sm" type="button">أمر بيع جديد</button></div></div>
         </div>
       </div></section>
 
@@ -188,13 +191,56 @@
           </aside>
           <div class="app-main">
             <header class="topbar"><div class="crumbs"><span>الرئيسية</span><span>/</span><span aria-current="page">لوحة التحكم</span></div><div class="cluster"><button class="btn btn-ghost btn-icon btn-sm" type="button" aria-label="Notifications"><svg class="icon"><use href="#i-bell"/></svg></button><span class="avatar">م</span></div></header>
-            <div class="app-content"><div class="page-head"><div><h3 class="t-h2">لوحة التحكم</h3><p class="t-muted">نظرة عامة على المصنع اليوم</p></div><button class="btn btn-primary" type="button"><svg class="icon"><use href="#i-plus"/></svg>جديد</button></div>
+            <div class="app-content"><div class="page-head"><div><h3 class="t-h2">لوحة التحكم</h3><p class="t-muted">نظرة عامة على المصنع اليوم</p></div><button class="btn btn-accent" type="button"><svg class="icon"><use href="#i-plus"/></svg>جديد</button></div>
               <div class="grid grid-3"><div class="card kpi"><span class="kpi-label">مبيعات الشهر</span><span class="kpi-value num">374,950</span><span class="kpi-delta up">▲ 12%</span></div><div class="card kpi is-accent"><span class="kpi-label">أوامر مفتوحة</span><span class="kpi-value num">14</span></div></div>
             </div>
           </div>
         </div></div>
         <div class="ds-label" style="margin-top:var(--space-6)">Mobile bottom nav</div>
         <div class="ds-demo" style="max-width:420px;padding:0;overflow:hidden"><div class="bottom-nav"><a href="#shell" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#shell"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#shell"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a><a href="#shell"><svg class="icon"><use href="#i-settings"/></svg>الإعدادات</a></div></div>
+      </div></section>
+
+      <!-- ADMIN / RBAC -->
+      <section class="ds-section" id="admin"><div class="container">
+        <h2 class="t-h1" data-ar="الإدارة والصلاحيات (Super Admin)" data-en="Admin & RBAC (Super Admin)">الإدارة والصلاحيات (Super Admin)</h2>
+        <p class="lead" data-ar="مكونات موديول Super Admin: أدوار، مصفوفة صلاحيات RBAC، حالات المستخدم، سجل النشاط، حالة «بدون صلاحية»، وصفوف الإعدادات. الصفحة الكاملة: super-admin.html." data-en="Super Admin building blocks: roles, RBAC matrix, user states, activity log, no-permission state, setting rows. Full page: super-admin.html.">مكونات موديول Super Admin: أدوار، مصفوفة صلاحيات RBAC، حالات المستخدم، سجل النشاط، حالة «بدون صلاحية»، وصفوف الإعدادات. الصفحة الكاملة: <a href="./super-admin.html">super-admin.html</a>.</p>
+        <div class="grid grid-wide">
+          <div class="card stack"><h3 class="t-h3">أدوار وحالات المستخدم</h3>
+            <div class="cluster"><span class="role-chip is-owner"><svg class="icon"><use href="#i-shield"/></svg>Super Admin</span><span class="role-chip">Sales Manager</span><span class="role-chip">Warehouse Manager</span><span class="role-chip is-external">Dealer · خارجي</span></div>
+            <div class="cluster"><span class="chip chip-success">نشط</span><span class="chip chip-warning">بانتظار الموافقة</span><span class="chip">معطّل</span><span class="chip chip-danger">موقوف</span></div>
+            <div class="cluster"><span class="approved-badge">Approved</span><span class="pending-badge">Pending Confirmation</span><span class="ph">رقم ضريبي — Placeholder</span></div>
+            <div class="t-caption">Approved = قرار معتمد · Pending = افتراض مبدئي · Placeholder = بيانات رسمية لم تصل بعد.</div></div>
+          <div class="card stack"><h3 class="t-h3">مصفوفة الصلاحيات (RBAC)</h3>
+            <div class="table-wrap"><table class="table perm" style="min-width:520px"><thead><tr><th>الموديول</th><th>عرض</th><th>إضافة</th><th>تعديل</th><th>حذف</th><th>اعتماد</th><th>تصدير</th></tr></thead><tbody>
+              <tr><td>المبيعات</td><td><label class="perm-cb"><input type="checkbox" checked aria-label="View"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" checked aria-label="Create"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" checked aria-label="Edit"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" aria-label="Delete"/><span></span></label></td><td><label class="perm-cb is-approve"><input type="checkbox" checked aria-label="Approve"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" aria-label="Export"/><span></span></label></td></tr>
+              <tr><td>المالية</td><td><label class="perm-cb"><input type="checkbox" aria-label="View"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" disabled aria-label="Create"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" disabled aria-label="Edit"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" disabled aria-label="Delete"/><span></span></label></td><td><label class="perm-cb is-approve"><input type="checkbox" disabled aria-label="Approve"/><span></span></label></td><td><label class="perm-cb"><input type="checkbox" disabled aria-label="Export"/><span></span></label></td></tr>
+            </tbody></table></div>
+            <div class="t-caption">الاعتماد بالأحمر لأنه إجراء حساس. الخانات المعطّلة تعتمد على «عرض».</div></div>
+          <div class="card card-flush"><div class="card-head"><h3 class="t-h3">سجل النشاط</h3></div><div class="audit">
+            <div class="audit-item"><span class="audit-ico"><svg class="icon"><use href="#i-check"/></svg></span><div><b>أكّد أمر البيع <span class="num">SO-2025-0145</span></b><small>سارة · Sales Manager</small></div><time>09:41</time></div>
+            <div class="audit-item"><span class="audit-ico is-warn"><svg class="icon"><use href="#i-alert"/></svg></span><div><b>محاولة دخول فاشلة</b><small>sales@egerman-upvc.com</small></div><time>09:12</time></div></div></div>
+          <div class="card card-flush"><div class="denied"><span class="dot"><svg class="icon"><use href="#i-shield"/></svg></span><strong>هذه الشاشة ليست من صلاحياتك</strong><span class="t-muted">اطلب من مدير النظام إضافتها لدورك.</span></div>
+            <div class="setting-row"><div>العملة الأساسية<small>الجنيه المصري فقط في الإصدار الأول</small></div><span class="chip chip-info">EGP</span></div>
+            <div class="setting-row"><div>وحدة القياس للمنتج<small>تحويل بين الوحدات عند الحاجة</small></div><span class="num">120<span class="unit">pcs</span> · 45.5<span class="unit">m²</span> · 300<span class="unit">kg</span></span></div></div>
+        </div>
+      </div></section>
+
+      <!-- CATALOG / DEALER -->
+      <section class="ds-section" id="catalog"><div class="container">
+        <h2 class="t-h1" data-ar="الكتالوج وبوابة التاجر" data-en="Catalog & dealer portal">الكتالوج وبوابة التاجر</h2>
+        <p class="lead" data-ar="بطاقة منتج، خيارات المقاس واللون، السعر (عام / خاص بالتاجر)، العدّاد، خطوات «أنشئ طلبك»، ومراحل الطلب. الصفحة الكاملة: catalog.html." data-en="Product card, size/finish pickers, price (public / dealer), quantity, Create Your Order steps, order timeline. Full page: catalog.html.">بطاقة منتج، خيارات المقاس واللون، السعر (عام / خاص بالتاجر)، العدّاد، خطوات «أنشئ طلبك»، ومراحل الطلب. الصفحة الكاملة: <a href="./catalog.html">catalog.html</a>.</p>
+        <div class="grid grid-wide">
+          <div class="cat-card" style="max-width:360px"><div class="cat-img"><img src="./assets/images/products/doors.png" alt="" /></div><div class="cat-body"><h3>باب WPC مودرن D134</h3><div class="cat-meta"><span class="chip chip-plain">أبواب</span><span class="chip chip-plain num">215 × 80–110</span></div>
+            <div class="fin-pick" role="group" aria-label="التشطيب"><button type="button" style="--c:var(--finish-c091)" aria-pressed="true" aria-label="C091"></button><button type="button" style="--c:var(--finish-c102)" aria-pressed="false" aria-label="C102"></button><button type="button" style="--c:var(--finish-c115)" aria-pressed="false" aria-label="C115"></button><button type="button" style="--c:var(--finish-c132)" aria-pressed="false" aria-label="C132"></button></div>
+            <div class="cluster" role="group" aria-label="المقاس"><button class="opt-chip" type="button" aria-pressed="false">80</button><button class="opt-chip" type="button" aria-pressed="true">90</button><button class="opt-chip" type="button" aria-pressed="false">100</button><button class="opt-chip" type="button" aria-pressed="false">110</button></div>
+            <div class="price-tag"><b>7,100</b><span class="cur">ج.م</span><s>7,600</s><span class="chip chip-info">سعر التاجر</span></div>
+            <button class="btn btn-primary" type="button">أضف للطلب</button></div></div>
+          <div class="card stack"><h3 class="t-h3">العدّاد وخطوات الطلب ومراحله</h3>
+            <div class="qty"><button type="button" aria-label="نقص"><svg class="icon"><use href="#i-minus"/></svg></button><output class="num">24</output><button type="button" aria-label="زيادة"><svg class="icon"><use href="#i-plus"/></svg></button></div>
+            <ol class="order-steps"><li class="is-done">المنتجات</li><li class="is-done">الكميات والألوان</li><li class="is-now">المراجعة</li><li>الإرسال</li></ol>
+            <ul class="timeline"><li class="is-done"><div>أُرسل الطلب<small>من حساب التاجر</small></div><time>09:30</time></li><li class="is-now"><div>قيد مراجعة المبيعات<small>لا تأكيد تلقائي</small></div><time>الآن</time></li><li><div>مؤكد</div><time>—</time></li></ul>
+            <div class="share-bar"><svg class="icon"><use href="#i-globe"/></svg><code class="num">catalog.abc.com/p/d134</code><button class="btn btn-ghost btn-sm" type="button">نسخ</button><button class="btn btn-ghost btn-sm" type="button">واتساب</button></div></div>
+        </div>
       </div></section>
 
       <!-- BRAND -->
@@ -245,7 +291,7 @@
             return '<div class="swatch"><div class="swatch-chip" style="--c:' + hex + '"></div><div class="swatch-meta"><strong>' + x[1] + '</strong><span class="sku">' + x[0] + '</span><br><span class="sku">' + hex.toUpperCase() + "</span></div></div>";
           }).join("");
         }
-        sw("sw-brand", [["--eg-red", "Red · primary"], ["--eg-red-deep", "Red deep · pressed"], ["--eg-navy", "Navy · structure"], ["--eg-navy-deep", "Navy deep · sidebar"], ["--eg-navy-soft", "Navy soft · hover"], ["--eg-navy-glass", "Glass blue · seal"]]);
+        sw("sw-brand", [["--eg-navy", "Navy · Primary"], ["--eg-red", "Red · Accent"], ["--eg-red-deep", "Red deep · pressed / small text"], ["--eg-navy-deep", "Navy deep · sidebar"], ["--eg-navy-soft", "Navy soft · hover"], ["--eg-navy-glass", "Glass blue · seal"]]);
         sw("sw-neutral", [["--eg-ink", "Ink"], ["--eg-muted", "Muted"], ["--eg-line", "Line"], ["--eg-bg", "Canvas"], ["--eg-bg-soft", "Soft band"], ["--eg-surface", "Surface"]]);
 
         document.getElementById("space-demo").innerHTML = [1, 2, 3, 4, 5, 6, 8, 10].map(function (n) {

@@ -3,6 +3,12 @@
 > Source of truth: `../css/variables.css`  
 > Measured from the logo PNG pixels and cross-checked with the live site theme ([egerman-upvc.com](https://egerman-upvc.com/))
 
+## القرار المعتمد (Approved)
+
+اعتماد ألوان العلامة في **EG-System** و**EG-Mobile**: Primary Navy `#012864` + Brand Red `#ED1C24`. تُستبدل Forest Green `#1A4A36` وBrass `#A67C42` نهائياً (أي مرجع لهما في الكود يُعتبر قديماً).
+
+**قاعدة استخدام الأحمر:** لون Accent فقط — الأزرار المهمة والحالات التي تحتاج انتباهاً (عاجل، متأخر، خطأ). لا خلفيات حمراء كبيرة، ولا نصوص عادية حمراء (للنص الأحمر الصغير استخدم `--eg-red-deep`، وللحالات فقط). الكحلي هو اللون الأساسي للهيكل والعناوين والروابط والأزرار الثانوية. ألوان النجاح والتحذير والخطأ والحالات التشغيلية تبقى.
+
 ## Primitives
 
 | Name | Hex | Notes |
@@ -55,6 +61,7 @@ Every status is a chip with a dot **and** a text label.
 
 ## Do / Don't
 
+- Do: الأحمر Accent (زر مهم، حالة عاجلة) · Don't: الأحمر كخلفية كبيرة أو نص عادي
 - Do pair red CTA with navy structure
 - Don't introduce a third brand hue without documenting it here
 - Don't use pure `#FF0000` — stick to `--eg-red`

@@ -31,14 +31,15 @@ Rules: no recoloring · no drop shadows on the seal · clear space ≥ EG letter
 - [x] Logo assets downloaded
 - [x] Icon set (`js/icons.js`, 36 icons)
 - [x] Motion tokens + reduced-motion
-- [ ] Licensed Somar Rounded files in `assets/fonts/` (needs client)
+- [ ] Licensed Somar Rounded files in `assets/fonts/` (needs client — Open)
+- [x] Brand palette approved for EG-System & EG-Mobile (Navy primary · Red accent) — Forest/Brass retired
 
 ## Core palette
 
 | Role | Token | Hex |
 |------|-------|-----|
-| Primary / CTA | `--eg-red` | `#ED1C24` |
-| Secondary / structure | `--eg-navy` | `#012864` |
+| Primary / structure | `--eg-navy` | `#012864` |
+| Accent (important buttons, attention states only) | `--eg-red` | `#ED1C24` |
 | Background | `--eg-bg` | `#EEEEEE` |
 | Surface | `--eg-surface` | `#FFFFFF` |
 | Ink | `--eg-ink` | `#141414` |

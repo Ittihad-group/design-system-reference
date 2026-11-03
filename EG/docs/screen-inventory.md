@@ -6,6 +6,7 @@
 
 | ID | File | Title AR | Priority | Status |
 |----|------|----------|----------|--------|
+| super-admin | super-admin.html | Super Admin (مستخدمون · أدوار · أقسام · إعدادات) | P0 (أول موديول) | **designed** — `../super-admin.html` |
 | login | login.html | تسجيل الدخول | P0 | stub |
 | dashboard | dashboard.html | لوحة التحكم | P0 | stub |
 | products | products.html | المنتجات | P0 | stub |
@@ -30,6 +31,17 @@
 | careers | careers.html | stub |
 | news | news.html | stub |
 | contact | contact.html | stub |
+
+## Catalog & Dealer Portal (Approved)
+
+| ID | Title AR | Priority | Status |
+|----|----------|----------|--------|
+| catalog | الكتالوج العام | P0 | **designed** — `../catalog.html#catalog` |
+| product | صفحة المنتج | P0 | **designed** — `#product` |
+| create-order | أنشئ طلبك | P0 | **designed** — `#order` |
+| dealer-register | تسجيل تاجر جديد | P0 | **designed** (تبويب «عميل جديد») |
+| dealer-orders | طلباتي | P0 | **designed** — `#portal` |
+| dealer-quotes-invoices | عروض الأسعار والفواتير | P1 | planned |
 
 ## Mobile (`screens/mobile/`)
 

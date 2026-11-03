@@ -31,6 +31,8 @@ Files: `wordmark-color.png` (default) · `wordmark-white.png` (on dark)
 
 ## Color story
 
+> **Approved:** الكحلي `#012864` هو اللون الأساسي (Primary) والأحمر `#ED1C24` Accent في EG-System وEG-Mobile. الأحمر ليس لخلفيات كبيرة ولا لنصوص عادية.
+
 Red = Egyptian half, urgency, primary CTA (matches live site buttons `#ED1C24`).  
 Navy = German half, structure, headings, secondary actions (`#012864`).  
 Together they read as the bilingual manufacturer identity.
@@ -64,7 +66,7 @@ Together they read as the bilingual manufacturer identity.
 
 | Context | Treatment |
 |---------|-----------|
-| ERP shell | Navy sidebar/top · red primary buttons · mark 28–32px |
+| ERP shell | Navy sidebar/top · red accent for important buttons only · mark 28–32px |
 | Marketing hero | Wordmark or mark · red CTAs · product photography |
 | Mobile splash | Centered mark on white or navy |
 | Print / PDF | Color wordmark; seal for stamps |

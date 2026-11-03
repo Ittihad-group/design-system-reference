@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Company profile, language, preferences
+Company profile, language, preferences — تُدار مركزياً من موديول **Super Admin** (أول موديول، Approved): بيانات الشركة والمصنع، المخازن، العملة (EGP فقط في v1)، ترقيم المستندات
 
 ## Users
 

@@ -27,7 +27,7 @@
       .wire .tb { height: calc(60px * var(--k)); background: #fff; border-bottom: 1px solid var(--color-border); font-size: 11px; padding: 2px 8px; display: flex; align-items: center; }
       .wire .ct { flex: 1; padding: calc(24px * var(--k)); display: grid; gap: calc(24px * var(--k)); grid-template-columns: repeat(4, 1fr); align-content: start; }
       .wire .ct i { background: #fff; border: 1px solid var(--color-border); border-radius: 4px; height: 44px; }
-      .ctl { display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: #fff; font-weight: 700; font-size: var(--text-dense); border-radius: var(--radius-md); width: 150px; }
+      .ctl { display: flex; align-items: center; justify-content: center; background: var(--color-accent); color: #fff; font-weight: 700; font-size: var(--text-dense); border-radius: var(--radius-md); width: 150px; }
       .phone { width: 250px; height: 500px; border: 8px solid var(--eg-ink); border-radius: 32px; overflow: hidden; background: #fff; display: flex; flex-direction: column; flex: none; }
       .phone .scr { flex: 1; display: flex; flex-direction: column; }
       .site-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); background: #fff; padding: var(--space-3) var(--space-5); border-bottom: 1px solid var(--color-border); }
@@ -42,7 +42,7 @@
         <a href="./index.html" aria-label="Hub"><img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" /></a>
         <a href="#logo">الشعار</a><a href="#clear">المساحة الآمنة</a><a href="#misuse">الاستخدام الصحيح</a><a href="#color">الألوان</a><a href="#type">الخطوط</a><a href="#dimensions">المقاسات</a><a href="#catalog">لغة الكتالوج</a><a href="#apps">التطبيقات</a>
         <span class="grow"></span>
-        <a href="./design-system.html" style="background:var(--color-primary);color:#fff">المكونات ←</a>
+        <a href="./design-system.html" style="background:var(--color-accent);color:#fff">المكونات ←</a>
       </div>
     </nav>
 
@@ -109,9 +109,9 @@
       <!-- 4 COLOR -->
       <section class="ds-section" id="color"><div class="container">
         <h2 class="t-h1">4 · الألوان وكيف تُستخدم</h2>
-        <p class="lead">لونان للعلامة فقط. المحايد يحمل معظم الشاشة، الكحلي للهيكل، والأحمر للإجراء الواحد المهم.</p>
+        <p class="lead">لونان للعلامة (معتمدان 2026-11-03 لـ EG-System وEG-Mobile): الكحلي <b>Primary</b> للهيكل والعناوين والروابط والإجراءات المعتادة، والأحمر <b>Accent</b> للأزرار المهمة وحالات الانتباه فقط. لا خلفيات حمراء كبيرة ولا نصوص عادية حمراء. ألوان الأخضر الغابي والنحاسي القديمة أُلغيت.</p>
         <div class="ds-label">نسب الاستخدام التقريبية في أي شاشة</div>
-        <div class="ratio"><div style="flex:60;background:var(--eg-bg);color:var(--eg-ink)">محايد 60%</div><div style="flex:25;background:var(--eg-navy)">كحلي 25%</div><div style="flex:10;background:var(--eg-red)">أحمر 10%</div><div style="flex:5;background:var(--eg-navy-glass)">5%</div></div>
+        <div class="ratio"><div style="flex:60;background:var(--eg-bg);color:var(--eg-ink)">محايد 60%</div><div style="flex:25;background:var(--eg-navy)">كحلي 25%</div><div style="flex:11;background:var(--eg-navy-glass)">11%</div><div style="flex:4;background:var(--eg-red)">أحمر ≤ 5%</div></div>
         <div class="ds-label" style="margin-top:var(--space-6)">تباين النص (يُحسب مباشرة من القيم — معيار WCAG)</div>
         <div class="grid grid-3" id="pairs"></div>
         <div class="alert alert-warning" style="margin-top:var(--space-4)"><svg class="icon"><use href="#i-alert"/></svg><div>الأبيض على الأحمر الرسمي أقل من 4.5:1 — يُستخدم للأزرار والعناوين الكبيرة والغامقة فقط، وللنص الصغير نستخدم الأحمر الغامق <span class="num">#B9141B</span>.</div></div>
@@ -155,7 +155,7 @@
               <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:8px">8</div><span class="t-caption">أزرار وحقول</span></div>
               <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:12px">12</div><span class="t-caption">بطاقات</span></div>
               <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:999px">pill</div><span class="t-caption">شارات</span></div>
-              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:var(--radius-brand);background:var(--color-primary)">brand</div><span class="t-caption">عيّنات الهوية</span></div>
+              <div class="stack-sm" style="align-items:center"><div class="meas" style="width:72px;height:72px;border-radius:var(--radius-brand);background:var(--color-accent)">brand</div><span class="t-caption">عيّنات الهوية</span></div>
             </div>
           </div>
           <div class="ds-demo stack">
@@ -200,8 +200,8 @@
         <p class="lead">الموقع يتنفّس والنظام كثيف، والعلامة هي نفسها.</p>
         <div class="ds-label">الموقع</div>
         <div class="mini-app" style="background:#fff">
-          <div class="site-bar"><img src="./assets/images/logo/wordmark-color.png" alt="" style="height:44px;width:auto" /><nav class="cluster t-dense" style="gap:var(--space-5)"><a href="#apps">الرئيسية</a><a href="#apps">من نحن</a><a href="#apps">خدماتنا</a><a href="#apps">المنتجات</a><a href="#apps">اتصل بنا</a></nav><a class="btn btn-primary" href="#apps">عرض الكتالوج</a></div>
-          <div class="site-hero"><div class="stack"><h3 class="t-h1" style="color:#fff">نصنع أبواب WPC &amp; UPVC عالية الجودة</h3><p style="color:#c9d6ee">مقاومة للرطوبة والتآكل، مثالية للمنازل والمباني التجارية.</p><div class="cluster"><a class="btn btn-primary btn-lg" href="#apps">منتجاتنا</a><a class="btn btn-ghost btn-lg" href="#apps">تواصل معنا</a></div></div><img src="./assets/images/products/doors.png" alt="" /></div>
+          <div class="site-bar"><img src="./assets/images/logo/wordmark-color.png" alt="" style="height:44px;width:auto" /><nav class="cluster t-dense" style="gap:var(--space-5)"><a href="#apps">الرئيسية</a><a href="#apps">من نحن</a><a href="#apps">خدماتنا</a><a href="#apps">المنتجات</a><a href="#apps">اتصل بنا</a></nav><a class="btn btn-accent" href="#apps">عرض الكتالوج</a></div>
+          <div class="site-hero"><div class="stack"><h3 class="t-h1" style="color:#fff">نصنع أبواب WPC &amp; UPVC عالية الجودة</h3><p style="color:#c9d6ee">مقاومة للرطوبة والتآكل، مثالية للمنازل والمباني التجارية.</p><div class="cluster"><a class="btn btn-accent btn-lg" href="#apps">منتجاتنا</a><a class="btn btn-ghost btn-lg" href="#apps">تواصل معنا</a></div></div><img src="./assets/images/products/doors.png" alt="" /></div>
         </div>
 
         <div class="grid grid-2" style="margin-top:var(--space-6);align-items:start">
@@ -215,7 +215,7 @@
           <div><div class="ds-label">الموبايل</div>
             <div class="cluster" style="align-items:flex-start;gap:var(--space-5)">
               <div class="phone"><div class="scr" style="background:#fff;place-items:center;justify-content:center;align-items:center;gap:var(--space-4)"><img src="./assets/images/logo/mark.png" alt="" style="width:120px" /><div class="t-h3" style="color:var(--eg-navy)">المصرية الألمانية</div><div class="t-caption">باب أهل مصر</div></div></div>
-              <div class="phone"><div class="scr" style="background:var(--eg-bg)"><div class="topbar" style="height:52px;padding-inline:var(--space-4)"><strong class="t-dense">الرئيسية</strong><span class="avatar" style="width:28px;height:28px">م</span></div><div class="stack" style="padding:var(--space-3);gap:var(--space-2);flex:1"><div class="card kpi" style="padding:var(--space-3)"><span class="kpi-label">مبيعات اليوم</span><span class="kpi-value num" style="font-size:1.25rem">42,300</span></div><div class="card kpi is-accent" style="padding:var(--space-3)"><span class="kpi-label">أوامر الإنتاج</span><span class="kpi-value num" style="font-size:1.25rem">6</span></div><button class="btn btn-primary" type="button">أمر بيع جديد</button></div><div class="bottom-nav"><a href="#apps" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#apps"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#apps"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a></div></div></div>
+              <div class="phone"><div class="scr" style="background:var(--eg-bg)"><div class="topbar" style="height:52px;padding-inline:var(--space-4)"><strong class="t-dense">الرئيسية</strong><span class="avatar" style="width:28px;height:28px">م</span></div><div class="stack" style="padding:var(--space-3);gap:var(--space-2);flex:1"><div class="card kpi" style="padding:var(--space-3)"><span class="kpi-label">مبيعات اليوم</span><span class="kpi-value num" style="font-size:1.25rem">42,300</span></div><div class="card kpi is-accent" style="padding:var(--space-3)"><span class="kpi-label">أوامر الإنتاج</span><span class="kpi-value num" style="font-size:1.25rem">6</span></div><button class="btn btn-accent" type="button">أمر بيع جديد</button></div><div class="bottom-nav"><a href="#apps" aria-current="page"><svg class="icon"><use href="#i-dashboard"/></svg>الرئيسية</a><a href="#apps"><svg class="icon"><use href="#i-cart"/></svg>المبيعات</a><a href="#apps"><svg class="icon"><use href="#i-warehouse"/></svg>المخزون</a></div></div></div>
             </div></div>
         </div>
       </div></section>

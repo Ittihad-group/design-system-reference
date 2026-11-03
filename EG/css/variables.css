@@ -29,13 +29,20 @@
   --eg-surface: #ffffff;
 
   /* —— Semantic —— */
-  --color-primary: var(--eg-red);
-  --color-primary-hover: var(--eg-red-hot);
-  --color-primary-pressed: var(--eg-red-deep);
-  --color-primary-tint: var(--eg-red-tint);
-  --color-secondary: var(--eg-navy);
+  /* Approved 2026-11-03: Navy = Primary (structure, links, standard actions). Red = Accent
+     (important buttons + attention states only — never large backgrounds or body text). */
+  --color-primary: var(--eg-navy);
+  --color-primary-hover: var(--eg-navy-soft);
+  --color-primary-pressed: var(--eg-navy-deep);
+  --color-primary-tint: var(--eg-navy-tint);
+  --color-secondary: var(--eg-navy);          /* legacy alias of primary */
   --color-secondary-hover: var(--eg-navy-soft);
   --color-secondary-tint: var(--eg-navy-tint);
+  --color-accent: var(--eg-red);
+  --color-accent-hover: var(--eg-red-hot);
+  --color-accent-pressed: var(--eg-red-deep);
+  --color-accent-tint: var(--eg-red-tint);
+  --color-on-accent: #fff;
 
   --color-bg: var(--eg-bg);
   --color-bg-alt: var(--eg-bg-soft);

@@ -95,7 +95,7 @@
       /* ───────── Tech (collapsed) ───────── */
       .tech { margin-top: var(--space-16); background: var(--eg-ink); color: #e8e8e8; padding-block: var(--space-10); }
       .tech-top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
-      .tech .tag { display: inline-block; background: var(--color-primary); color: #fff; font-weight: 700; font-size: var(--text-caption); padding: 2px 10px; border-radius: var(--radius-pill); }
+      .tech .tag { display: inline-block; background: var(--color-accent); color: #fff; font-weight: 700; font-size: var(--text-caption); padding: 2px 10px; border-radius: var(--radius-pill); }
       .tech h2 { margin: var(--space-2) 0 0; font-size: 1.25rem; color: #fff; }
       .tech p { margin: 4px 0 0; color: #9aa7bd; font-size: var(--text-dense); max-width: 64ch; }
       .tech details { margin-top: var(--space-5); border: 1px solid #2c2c2c; border-radius: var(--radius-md); }
@@ -135,7 +135,7 @@
           <h1>هوية ومكونات ومستندات <em>نظام المصرية الألمانية</em> في مكان واحد</h1>
           <p class="lead">كل ما يخص شكل نظام الشركة (ERP) والموقع والموبايل: الشعار والألوان والمقاسات، المكونات الجاهزة للتجربة، وقوالب ملفات PDF للفواتير والتقارير والأوامر.</p>
           <div class="cluster">
-            <a class="btn btn-primary btn-lg" href="./brand.html">ابدأ الرحلة من الخطوة 1 ←</a>
+            <a class="btn btn-accent btn-lg" href="./brand.html">ابدأ الرحلة من الخطوة 1 ←</a>
             <a class="btn btn-lg" href="./documents.html" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)">شاهد المستندات (PDF)</a>
           </div>
           <div class="hero-trust"><div class="plate" id="hero-certs"></div><span>معتمدة ISO · صنع في مصر</span></div>
@@ -154,7 +154,7 @@
         <div class="stat"><b class="num">11</b><span>وحدة في النظام تمت مراجعتها</span></div>
         <div class="stat"><b class="num">25<sup>+</sup></b><span>نوع مستند وتقرير PDF</span></div>
         <div class="stat"><b class="num">6</b><span>قوالب A4 جاهزة</span></div>
-        <div class="stat"><b class="num">3</b><span>أسطح: النظام · الموقع · الموبايل</span></div>
+        <div class="stat"><b class="num">4</b><span>أسطح: النظام · الكتالوج والتاجر · الموبايل · المستندات</span></div>
       </div>
     </div>
 
@@ -163,7 +163,7 @@
       <section class="sec" id="journey">
         <div class="sec-head">
           <span class="t-eyebrow">رحلة العرض</span>
-          <h2>أربع خطوات تغطي كل التفاصيل</h2>
+          <h2>ست خطوات تغطي كل التفاصيل</h2>
           <p>ابدأ من الخطوة 1، وفي آخر كل صفحة زر «التالي». شريط الخطوات في أعلى كل صفحة يرجعك لأي مكان، والروابط الصغيرة تأخذك مباشرة للتفصيلة.</p>
         </div>
         <div class="steps">
@@ -186,21 +186,39 @@
             </div>
           </article>
           <article class="step-card">
-            <a class="step-prev" href="./mobile.html" aria-label="الخطوة 3"><span class="step-n">3</span><img src="./assets/previews/mobile.jpg" alt="معاينة: شاشات الموبايل: إشعارات ومركز إشعارات وإعدادات" loading="lazy" /></a>
+            <a class="step-prev" href="./super-admin.html" aria-label="الخطوة 3"><span class="step-n">3</span><img src="./assets/previews/super-admin.jpg" alt="معاينة: Super Admin: إدارة النظام" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>Super Admin: إدارة النظام</h3>
+              <p>أول موديول: المستخدمون، الأدوار والصلاحيات (RBAC) مع مصفوفة تجريبية، الأقسام والموديولات، إعدادات الشركة والمخازن والعملة، العملاء والموردون، النشاط والتقارير.</p>
+              <div class="chips"><a href="./super-admin.html#users">المستخدمون</a><a href="./super-admin.html#roles">الأدوار والصلاحيات</a><a href="./super-admin.html#company">الشركة والمصنع</a><a href="./super-admin.html#warehouses">المخازن والعملات</a><a href="./super-admin.html#activity">النشاط</a></div>
+              <a class="btn btn-primary" href="./super-admin.html">افتح الخطوة 3</a>
+            </div>
+          </article>
+          <article class="step-card">
+            <a class="step-prev" href="./catalog.html" aria-label="الخطوة 4"><span class="step-n">4</span><img src="./assets/previews/catalog.jpg" alt="معاينة: الكتالوج وبوابة التاجر" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>الكتالوج وبوابة التاجر</h3>
+              <p>كتالوج عام قابل للمشاركة، صفحة منتج بألوانه ومقاساته، «أنشئ طلبك» كتدفق قابل للتجربة، حساب التاجر، ومراجعة المبيعات بالصلاحيات.</p>
+              <div class="chips"><a href="./catalog.html#catalog">الكتالوج</a><a href="./catalog.html#product">المنتج</a><a href="./catalog.html#order">أنشئ طلبك</a><a href="./catalog.html#portal">بوابة التاجر</a><a href="./catalog.html#review">مراجعة المبيعات</a></div>
+              <a class="btn btn-primary" href="./catalog.html">افتح الخطوة 4</a>
+            </div>
+          </article>
+          <article class="step-card">
+            <a class="step-prev" href="./mobile.html" aria-label="الخطوة 5"><span class="step-n">5</span><img src="./assets/previews/mobile.jpg" alt="معاينة: شاشات الموبايل: إشعارات ومركز إشعارات وإعدادات" loading="lazy" /></a>
             <div class="step-body">
               <h3>تطبيق الموبايل: الأساسيات</h3>
               <p>مبني على تطبيق EG-Mobile الحالي: مطابقة معه وما يحتاج قراراً، شاشات الدخول، مكتبة المكونات، شاشات الوحدات الثماني بالعربي والإنجليزي، ونظام الإشعارات بثلاثة مستويات.</p>
               <div class="chips"><a href="./mobile.html#align">المطابقة</a><a href="./mobile.html#auth">الدخول</a><a href="./mobile.html#components">المكونات</a><a href="./mobile.html#screens">الشاشات</a><a href="./mobile.html#notify">الإشعارات</a></div>
-              <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 3</a>
+              <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 5</a>
             </div>
           </article>
           <article class="step-card is-pdf">
-            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 4"><span class="step-n">4</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
+            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 6"><span class="step-n">6</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
             <div class="step-body">
               <h3>المستندات والتقارير (PDF)</h3>
               <p>أي وحدة في النظام تحتاج أي مستند، و6 قوالب A4 جاهزة تغطي حوالي 25 نوعاً، مع ملف PDF حقيقي لكل قالب.</p>
               <div class="chips"><a href="./documents.html#matrix">أي وحدة تحتاج أي مستند؟</a><a href="./documents.html#kit">مواصفات المستند</a><a href="./documents.html#doc-invoice">الفاتورة</a><a href="./documents.html#doc-statement">كشف الحساب</a><a href="./documents.html#doc-workorder">أمر التشغيل</a></div>
-              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 4</a>
+              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 6</a>
             </div>
           </article>
         </div>
@@ -230,8 +248,8 @@
           <div class="card stack">
             <h3 class="t-h3">ملخص الهوية</h3>
             <div class="cluster">
-              <span class="chip chip-plain" style="background:var(--eg-red);color:#fff"><span class="num">#ED1C24</span>&nbsp;أحمر · الإجراء</span>
-              <span class="chip chip-plain" style="background:var(--eg-navy);color:#fff"><span class="num">#012864</span>&nbsp;كحلي · الهيكل</span>
+              <span class="chip chip-plain" style="background:var(--eg-red);color:#fff"><span class="num">#ED1C24</span>&nbsp;أحمر · Accent</span>
+              <span class="chip chip-plain" style="background:var(--eg-navy);color:#fff"><span class="num">#012864</span>&nbsp;كحلي · أساسي</span>
             </div>
             <div class="t-caption">11 تشطيب مشترك للأبواب والتجاليد والفوم</div>
             <div class="hub-sw" id="hub-finishes"></div>
@@ -239,12 +257,13 @@
             <div class="trust" id="hub-certs"></div>
           </div>
           <div class="card stack-sm">
-            <h3 class="t-h3" style="margin-bottom:var(--space-2)">قرارات مطلوبة من الإدارة</h3>
-            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>ملفات الخط الرسمي Somar Rounded</strong><div class="t-muted">الموقع يستخدمه لكنه مرخّص — نحتاج الملفات أو بديلاً معتمداً.</div></div></div>
-            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>صحة أرقام الشركة</strong><div class="t-muted">25 سنة · 100 عامل · 5000 عميل · 500 مشروع — منشورة على الموقع، نؤكدها قبل الاعتماد.</div></div></div>
-            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>الأسعار المرجعية</strong><div class="t-muted">الباب من 7,100 والتجاليد من 250 غير موجودة على الموقع.</div></div></div>
-            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>بيانات المستندات الرسمية</strong><div class="t-muted">الرقم الضريبي والسجل التجاري والختم، وهل الفاتورة تحتاج ربط الفاتورة الإلكترونية (QR).</div></div></div>
-            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>نطاق النظام في الإصدار الأول</strong><div class="t-muted">أي الوحدات (مبيعات، مخزون، إنتاج…) تُبنى أولاً، والعملة والوحدات.</div></div></div>
+            <h3 class="t-h3" style="margin-bottom:var(--space-2)">ما زال يحتاج إجابة العميل</h3>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>ملفات الخط الرسمي Somar Rounded</strong><div class="t-muted">الخط العربي الرسمي مرخّص — نحتاج الملفات (Poppins للإنجليزية متاح).</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>تأكيد أرقام الشركة</strong><div class="t-muted">25 سنة · 100 عامل · 5000 عميل · 500 مشروع — قبل النشر.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>البيانات الرسمية للمستندات</strong><div class="t-muted">الرقم الضريبي والسجل التجاري والعنوان الرسمي والختم والتوقيع. وعند الفاتورة الإلكترونية: مراجعة متطلبات مصلحة الضرائب.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>سياسة الكتالوج وبوابة التاجر</strong><div class="t-muted">الأسعار عامة أم بعد الدخول، ودومين الكتالوج، ومن يوافق على تسجيل التاجر الجديد.</div></div></div>
+            <div class="decision"><svg class="icon"><use href="#i-alert"/></svg><div><strong>حدود الاعتماد والصلاحيات</strong><div class="t-muted">حدود الخصم والطلب الكبير، واعتماد مصفوفة الأدوار الـ9 المبدئية.</div></div></div>
+            <div class="t-muted" style="margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border)"><strong>تم حسمه:</strong> ألوان العلامة (كحلي أساسي + أحمر Accent) · الجنيه المصري فقط في <bdi>v1</bdi> · <bdi>Super Admin</bdi> أول موديول · الكتالوج وبوابة التاجر جزء من النظام · <bdi>FCM + APNs</bdi>. التفاصيل في <code>docs/open-questions.md</code>.</div>
           </div>
         </div>
       </section>
@@ -280,7 +299,7 @@
       document.getElementById("hub-finishes").innerHTML = EG.finishes.map(function (f) { return '<i style="--c:' + f.hex + '" title="' + f.code + '"></i>'; }).join("");
       document.getElementById("hero-fin").innerHTML = EG.finishes.slice(0, 8).map(function (f) { return '<i style="--c:' + f.hex + '"></i>'; }).join("");
       var groups = [
-        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js"]],
+        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js", "docs/modules/super-admin.md", "docs/modules/catalog-portal.md"]],
         ["Product & content", ["docs/ia-sitemap.md", "docs/screen-inventory.md", "docs/flows.md", "docs/demo-data.md", "docs/content-voice.md", "assets/ASSETS.md", "js/demo-data.js"]],
         ["ERP modules", ["dashboard", "products", "inventory", "sales", "production", "customers", "suppliers", "purchases", "hr", "finance", "settings"].map(function (m) { return "docs/modules/" + m + ".md"; })],
         ["Surfaces · Delivery", ["docs/surfaces/eg-system.md", "docs/surfaces/eg-website.md", "docs/surfaces/eg-mobile.md", "docs/qa-checklist.md", "docs/handoff.md", "docs/open-questions.md"]]

@@ -1,26 +1,79 @@
-# Open questions
+# الأسئلة المفتوحة والقرارات (Open Questions)
 
-| # | Topic | Question | Owner | Decision |
-|---|-------|----------|-------|----------|
-| 1 | Brand | Navy hex | — | **resolved** `#012864`, measured from logo pixels + site theme |
-| 2 | Fonts | Official Arabic face is **Somar Rounded** — need licensed files (Poppins is Google, fine) | Client | pending |
-| 3 | Stats | “1” on the site is the pre-animation value; real: 25+ yrs / 100+ workers / 5000 clients / 500 projects | Client | **partly resolved** — confirm the figures are accurate |
-| 4 | ERP | Which modules ship in v1? | Product | pending |
-| 5 | Auth | Roles & permissions matrix? | Product | pending |
-| 6 | Units | Stock units (pcs / m² / kg)? | Ops | pending |
-| 7 | Currency | EGP only or multi-currency (Oman / GCC)? | Finance | pending |
-| 8 | Catalog | PDF / ecommerce depth vs ERP SKUs? | Sales | pending |
-| 9 | Mobile | Offline requirements? | Mobile | pending |
-| 10 | Badges | Meaning of badges | — | **resolved** ISO 14001 · ISO 9001 · Made-in-Egypt quality mark |
-| 11 | Documents | Tax registration no. + commercial register no. for the PDF header (placeholders now) | Finance | pending |
-| 12 | Documents | Is e-invoicing (tax authority QR) required on invoices? Template reserves a QR slot | Finance | pending |
-| 13 | Documents | Official stamp / signature images, and whether documents are Arabic-only or bilingual | Client | pending |
-| 14 | Documents | Numbering scheme (INV-/DN-/WO-/ST-/PS- prefixes used in samples are placeholders) | Ops | pending |
-| 15 | Mobile auth | Login id: keep email + password (current EG-Mobile) or switch to phone / employee code? Who resets a password, and do we add self-service recovery? | Product / IT | pending |
-| 16 | Mobile auth | Is biometric / PIN quick-unlock (phase 2) allowed on all devices? Session length and auto-lock timeout? | IT | pending |
-| 17 | Mobile notifications | Push provider: FCM (+ APNs for iOS) for the Flutter app? Affects channels and notification action buttons | Mobile | pending |
-| 18 | Mobile notifications | Which events are `urgent` vs `action` vs `info` (business decision, per module)? Quiet-hours default | Ops | pending |
-| 19 | Mobile | Supervisor devices: Android-only or iOS too? Minimum OS version; shared devices between shifts? | Ops | pending |
-| 20 | Mobile palette | EG-Mobile and EG-System use forest-green `#1A4A36` + brass `#A67C42`; the logo is red `#ED1C24` + navy `#012864`. Adopt the brand palette in both apps (recommended)? | Client / Design | **decision needed** |
-| 21 | Mobile nav | Bottom bar: Home · Sales · Production · Stock · More (recommended) vs current 4 tabs + drawer? | Product | **decision needed** |
-| 22 | Mobile roles | Roles `admin` / `sales`: hide cost + finance from `sales`? Can `sales` confirm orders from a notification? | Product | pending (see 5) |
+> آخر تحديث: 2026-11-03 · المواصفات التفصيلية في [`../PRODUCT.md`](../PRODUCT.md) (قسم «المتطلبات المعتمدة»).
+
+**مفتاح الحالات**
+
+- **Approved** — قرار معتمد صراحةً، يُبنى عليه.
+- **Pending Confirmation** — افتراض مبدئي مكتوب في المتطلبات، لا يُعتبر قراراً نهائياً قبل اعتماد صريح من الجهة المذكورة.
+- **Open** — سؤال ما زال يحتاج إجابة (من العميل غالباً).
+
+الأرقام ثابتة: أي بند سابق احتفظ برقمه، والبنود الجديدة تبدأ من 23.
+
+---
+
+## أ. قرارات معتمدة (Approved Requirements)
+
+| # | الموضوع | القرار | ملاحظات |
+|---|---------|--------|---------|
+| 1 | الهوية | الكحلي `#012864` | مقاس من بكسلات الشعار ومطابق لثيم الموقع |
+| 10 | الشارات | ISO 9001 · ISO 14001 · علامة الجودة «صنع في مصر» | — |
+| 20 | الألوان | اعتماد ألوان العلامة في **EG-System** و**EG-Mobile**: Primary Navy `#012864` + Brand Red `#ED1C24`. تُستبدل ألوان Forest Green `#1A4A36` وBrass `#A67C42` | الأحمر لون Accent للأزرار المهمة والحالات التي تحتاج انتباهاً، وليس لخلفيات كبيرة أو نصوص عادية. ألوان النجاح والتحذير والخطأ والحالات التشغيلية تبقى |
+| 7 | العملة | الجنيه المصري (EGP) فقط في الإصدار الأول | لا عملات متعددة في v1، مع تصميم يسمح بإضافتها لاحقاً بلا إعادة بناء (حقل currency في الجداول المالية، وعدم كتابة «ج.م» صلباً في المنطق) |
+| 23 | الموديول الأول | **Super Admin** هو أول موديول يُطوَّر، وهو لصاحب الشركة والمصنع | الوصف الكامل في PRODUCT.md |
+| 24 | الصلاحيات | بناء الصلاحيات على **RBAC** قابلة للتعديل من Super Admin، بعمليات: عرض / إضافة / تعديل / حذف / اعتماد / تصدير لكل موديول | لا أدوار ثابتة فقط |
+| 25 | الصلاحيات المالية | موظف المبيعات لا يرى التكاليف الداخلية ولا التقارير المالية ولا أرباح المصنع. لا يُؤكَّد طلب ولا تُعتمد عملية مالية إلا بصلاحية مطلوبة. لا إجراء حساس من إشعار دون التحقق من الصلاحية | قواعد ملزمة |
+| 26 | الكتالوج | الكتالوج جزء من النظام وليس ملف PDF: رابط عام (Public Catalog) قابل للمشاركة، زر **«أنشئ طلبك»**، وبوابة تاجر (Customer / Dealer Portal) | الـflow في `flows.md` |
+| 27 | طلبات التجار | طلب التاجر لا يُؤكَّد تلقائياً؛ يدخل المبيعات للمراجعة والتأكيد. أسعار خاصة بالتجار عند الحاجة. لا تظهر بيانات عملاء آخرين ولا تكاليف داخلية | — |
+| 28 | المستندات | حقول قابلة للتعديل (رقم التسجيل الضريبي، السجل التجاري، العنوان الرسمي، التواصل). دعم المستندات العربية والثنائية اللغة عند الحاجة، وأماكن للختم والتوقيع. **فاتورة PDF العادية ليست فاتورة إلكترونية معتمدة**، ويُفصل إصدار الفاتورة الداخلية عن التكامل الرسمي مع مصلحة الضرائب | القيم الحالية Placeholders |
+| 29 | الإشعارات (تقنية) | Firebase Cloud Messaging للإشعارات + APNs لـiOS | تصنيف الأحداث ما زال Pending (بند 18) |
+| 30 | الموبايل (حماية) | يدعم التطبيق تسجيل الخروج وحماية البيانات على جهاز مشترك بين موظفين. لا عمليات مالية أو اعتماد حساس دون اتصال | — |
+
+## ب. افتراضات Pending Confirmation
+
+| # | الموضوع | الافتراض الحالي | الجهة المعتمِدة |
+|---|---------|------------------|------------------|
+| 4 | نطاق v1 | Super Admin أولاً (معتمد). ترتيب باقي الموديولات وقائمة v1 النهائية: مقترح في PRODUCT.md («نطاق الإصدار الأول») وبانتظار اعتماد فريق المنتج | فريق المنتج |
+| 5 | الأدوار | 9 أدوار مبدئية قابلة للتعديل: Super Admin / Owner · General Manager · Sales Manager · Sales Representative · Production Manager · Warehouse Manager · Accountant · Purchasing Officer · Quality Control | فريق المنتج |
+| 6 | وحدات المخزون | `pcs` للأبواب والإكسسوارات · `m²` للمنتجات بالمساحة · `kg` للخامات، ودعم التحويل بين الوحدات عند الحاجة | فريق التشغيل |
+| 3 | إحصائيات الموقع | أكثر من 25 سنة خبرة · أكثر من 100 عامل · أكثر من 5000 عميل · أكثر من 500 مشروع | العميل (تأكيد قبل النشر) |
+| 12 | الفاتورة الإلكترونية | النظام يحتاج دعم الفاتورة الإلكترونية المصرية (الحقول وQR محجوز). التكامل الفعلي متوقف على مراجعة المتطلبات واعتمادها | المالية / المحاسب القانوني |
+| 14 | ترقيم المستندات | `INV-` Invoice · `DN-` Delivery Note · `WO-` Work Order · `ST-` Stock Transfer · `PS-` Purchase Order. قابلة للتعديل من إعدادات النظام | التشغيل |
+| 9 | Offline (موبايل) | Offline محدود: عرض ما حُمِّل مسبقاً، تسجيل عمليات مسموحة ثم مزامنة عند الاتصال. تفاصيل البيانات وسياسة المزامنة بانتظار فريق التشغيل | التشغيل |
+| 15 | دخول الموبايل | بريد إلكتروني + كلمة مرور، إعادة تعيين كلمة المرور، استعادة ذاتية ممكنة، وقفل تلقائي بعد مدة خمول. مدة الجلسة وسياسة إعادة التعيين بانتظار IT | IT |
+| 16 | بصمة / PIN | تُدعم في مرحلة لاحقة (مرحلة 2) | IT |
+| 18 | تصنيف الإشعارات | Urgent / Action / Info بأمثلة مبدئية (PRODUCT.md). الأحداث الدقيقة ومواعيد الهدوء بانتظار التشغيل | التشغيل |
+| 19 | الأجهزة | Android + iOS. أقل إصدار نظام يُحدَّد بعد مراجعة أجهزة المشرفين | التشغيل |
+| 21 | تنقل الموبايل | شريط سفلي: Home · Sales · Production · Stock · More، وتظهر التبويبات حسب صلاحيات المستخدم | فريق المنتج |
+| 22 | صلاحيات الموبايل | Super Admin صلاحيات كاملة · Sales بلا تكاليف أو مالية وينشئ الطلبات ويتابعها · اعتماد الطلبات من الإشعارات يتطلب صلاحية اعتماد واضحة | فريق المنتج |
+
+## ج. أسئلة ما زالت تحتاج إجابة من العميل (Open)
+
+| # | الموضوع | السؤال | الجهة |
+|---|---------|--------|--------|
+| 2 | الخط | ملفات **Somar Rounded** المرخصة (الخط العربي الرسمي). Poppins للإنجليزية متاح من Google | العميل |
+| 11 | بيانات رسمية | رقم التسجيل الضريبي، السجل التجاري، العنوان الرسمي (Placeholders حالياً) | المالية |
+| 13 | الختم والتوقيع | صور الختم والتوقيع الرسميين، وهل الافتراضي مستند عربي فقط أم ثنائي اللغة | العميل |
+| 12 | فاتورة إلكترونية | من يراجع متطلبات مصلحة الضرائب ومتى يبدأ التكامل الفعلي؟ | المالية |
+| 15–16 | أمان الموبايل | مدة الجلسة، مهلة القفل التلقائي، سياسة إعادة تعيين كلمة المرور (من يعيد تعيين كلمة المرور؟) | IT |
+| 17 | إشعارات | هل يُستخدم FCM مباشرة من الـbackend، وأين تُدار الأحداث (Cloud Function أم الخادم)؟ | IT / Mobile |
+| 18 | إشعارات | الأحداث الدقيقة لكل مستوى، ومواعيد الهدوء الافتراضية، ومن يستلم ماذا | التشغيل |
+| 19 | أجهزة | قائمة أجهزة المشرفين وأقل إصدار Android وiOS، وهل هناك أجهزة مشتركة بين الورديات؟ | التشغيل |
+| 9 | Offline | ما البيانات المتاحة دون اتصال، وما العمليات المسموح تسجيلها، وكيف تُحل التعارضات عند المزامنة؟ | التشغيل |
+| 6 | وحدات | قواعد التحويل بين الوحدات لكل منتج (مثلاً m² ↔ pcs للتجاليد) ومنتجات m² وkg الفعلية | التشغيل |
+| 31 | الكتالوج | سياسة عرض الأسعار: عام للجميع أم بعد تسجيل الدخول؟ ومن يحدد قوائم أسعار التجار؟ | المبيعات |
+| 32 | الكتالوج | الدومين الفعلي للكتالوج العام (`catalog.abc.com` مثال فقط)، ومن يوافق على طلب تسجيل التاجر الجديد وبأي معايير؟ | المبيعات / IT |
+| 33 | الاعتماد | حدود الخصم والطلب الكبير التي تتطلب اعتماداً، ومن يعتمد (General Manager أم Sales Manager)؟ | الإدارة |
+| 34 | الأدوار | دور Quality Control يفترض موديول جودة (فحص، عيوب، اعتماد). هل هو ضمن v1؟ وهل دور «تاجر» (Dealer) خارجي منفصل عن RBAC الداخلي (المفترض نعم)؟ | فريق المنتج |
+| 35 | Super Admin | من يملك صلاحية Super Admin بعد صاحب الشركة (نسخة احتياطية للحساب)، وهل هناك سجل تدقيق (Audit Log) إلزامي ومدة الاحتفاظ؟ | الإدارة / IT |
+| 36 | بيانات العينة | تصحيح بيانات تجريبية في EG-Mobile: ألوان `C205` غير موجودة في الكتالوج، تجاليد 16×280 (الكتالوج والموقع 17×280)، فوم 18 مم (الكتالوج 4.5–17 مم) | المنتج |
+| 37 | الأسعار | الأسعار المرجعية (الباب من 7,100 والتجاليد من 250) غير موجودة على الموقع | المبيعات |
+
+## د. بنود انتقلت بين الجداول
+
+| # | ما حدث |
+|---|--------|
+| 7 | انتقل إلى «معتمد»: EGP فقط في v1 (بند 7 في الجدول أ) |
+| 8 | حُسم جزئياً: الكتالوج جزء من النظام (بند 26)، ويبقى سياسة الأسعار (بند 31) |
+| 17 | التقنية (FCM + APNs) معتمدة (بند 29)، ويبقى تفصيل مكان إدارة الأحداث |
+| 20 | معتمد: ألوان العلامة |
