@@ -1,32 +1,25 @@
-# EG Design System Reference
+# Design System Reference — Ittihad Group
 
-مرجع الديزاين سيستم لمجموعة **المصرية الألمانية (EG)** — مصنع WPC & PVC، جمصة، الدقهلية.
+مجلد مرجعي فيه أكتر من ديزاين سيستم. كل منتج/براند في فولدر لوحده.
 
-Design-system reference for the Egyptian-German plant surfaces:
+Parent folder for multiple design-system packages. Each product lives in its own directory.
 
-| Surface | Repo | Role |
-|---------|------|------|
-| EG-System | [Ittihad-group/EG-System](https://github.com/Ittihad-group/EG-System) | Internal plant ERP (web) |
-| EG-Website | [Ittihad-group/EG-Website](https://github.com/Ittihad-group/EG-Website) | Public marketing site |
-| EG-Mobile | [Ittihad-group/EG-Mobile](https://github.com/Ittihad-group/EG-Mobile) | Internal Flutter companion |
+## Packages
 
-## Status
+| Folder | Product | Surfaces |
+|--------|---------|----------|
+| [`EG/`](./EG/) | المصرية الألمانية (WPC & PVC) | EG-System · EG-Website · EG-Mobile |
 
-Scaffold only — HTML / CSS / JS stubs + Markdown specs ready to fill.
+<!-- Add new rows as packages are added -->
 
-## Open locally
+## Add a new package
 
-Open `index.html` or `design-system.html` in a browser (no build step).
+1. Create a sibling folder next to `EG/` (e.g. `BrandName/`)
+2. Mirror the EG scaffold: `css/`, `js/`, `docs/`, `screens/`, `PRODUCT.md`, `DESIGN.md`
+3. Link it in this README table
 
-## Docs map
+## Related product repos
 
-- `PRODUCT.md` — product, users, modules
-- `DESIGN.md` — design principles & brand direction
-- `docs/` — detailed specs (tokens, components, IA, flows, modules, surfaces)
-- `css/` · `js/` · `screens/` — live reference stubs
-
-## Contact (company)
-
-- Address: Dakahlia, Gamasa, Industrial Zone Phase 3 — Egypt
-- Hotline: `15536` · Phone: `+201555515536`
-- Email: `contact@egerman-upvc.com`
+| Package | Repos |
+|---------|-------|
+| EG | [EG-System](https://github.com/Ittihad-group/EG-System) · [EG-Website](https://github.com/Ittihad-group/EG-Website) · [EG-Mobile](https://github.com/Ittihad-group/EG-Mobile) |
