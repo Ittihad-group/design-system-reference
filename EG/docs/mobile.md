@@ -83,18 +83,18 @@ class AppColors {
 | `.m-switch`, `.m-seg` | `Switch`, `SegmentedButton` |
 | icons | Material Symbols equivalents: home, point_of_sale, precision_manufacturing, warehouse, menu, notifications, bolt, … |
 
-## 3b. Offline
+## 3b. Offline (Pending — التشغيل، بند 9)
 
-Limited offline (Pending Confirmation 9): show previously loaded data; record permitted operations locally and sync on reconnect. **Approved:** no financial operations and no sensitive approvals offline — their buttons are disabled with the note «يحتاج اتصالاً».
+Show previously loaded data and store **non-sensitive drafts only**. **No approval, payment/disbursement, or final stock changes offline** (Approved partially, 30) — their buttons are disabled with the note «يحتاج اتصالاً». On sync, if the server copy is newer **the conflict is shown to the user** instead of overwriting it automatically. The list of allowed drafts and conflict-UI details remain Open.
 
 ## 4. Principles (apply to every screen)
 
 1. One primary action per screen (red, bottom). Never two red buttons.
-2. A decision is ≤ 2 taps from a notification (push carries the action button).
+2. A notification opens the exact screen directly; the decision happens **inside the app after the app re-checks session, permission and the order's current state**. No sensitive action is executed from the notification text itself (Approved 25; Pending 17).
 3. Copy: title ≤ 6 words, body one line (~12 words), button = one verb.
 4. Actions in the lower third; sticky action bar does not scroll.
 5. Choose, don't type: filters by status, stepper, barcode scan, canned reasons.
-6. Offline-tolerant: banner + local queue + sync; never lose typed input on error.
+6. Offline-tolerant: banner + non-sensitive drafts + conflict shown on sync; never lose typed input on error.
 
 ## 5. Tokens (`css/mobile.css` `:root`)
 
@@ -109,7 +109,7 @@ Touch target 48 · primary button 52 (text 19 bold) · in-card button 44 · inpu
 | `info` | grey, no buttons | silent, centre only | none | 7 days then archived | yes |
 
 Proposed events (Pending Confirmation — operations decide): critical stock below `minStock` → urgent · production line down / work order past `dueDate` → urgent · new `draft` sales order or purchase order awaiting approval → action (shown only to users holding the approve permission; the server re-checks permission on every action) · order status update / completion / daily report → info.
-Badge on the bell counts unresolved `action` + `urgent` items only. Quiet hours default 22:00–06:00: only `urgent` is audible.
+Badge on the bell counts unresolved `action` + `urgent` items only. **Quiet hours, recipients and the exact events are not enabled until operations approve** (Open 18); the 22:00–06:00 value in `mobile.html` is an illustrative placeholder, not a default.
 
 ### Payload (FCM / APNs data message)
 
@@ -122,19 +122,18 @@ Badge on the bell counts unresolved `action` + `urgent` items only. Quiet hours 
   "ref": { "type": "sales_order", "id": "so4" },
   "deeplink": "eg://sales/so4",
   "actions": [
-    { "id": "confirm", "label": "أكّد الأمر", "api": "POST /sales-orders/so4/confirm" },
-    { "id": "open", "label": "تفاصيل", "deeplink": "eg://sales/so4" }
+    { "id": "open", "label": "فتح الطلب", "deeplink": "eg://sales/so4" }
   ],
   "created_at": "2026-11-03T09:41:00+02:00",
   "expires_at": null
 }
 ```
 
-One notification per event (idempotent by `id`); the title always carries the reference number; tapping opens the exact screen and marks it read; an action button calls the API directly and replaces the notification with an `info` confirmation (or an error toast with retry). Android channels: `urgent` (HIGH, DND bypass), `action` (HIGH), `info` (LOW). Provider: FCM + APNs (Approved). Sensitive actions from a notification are never executed offline or without a server-side permission check (Approved).
+One notification per event (idempotent by `id`); the title always carries the reference number. **The backend decides whether and to whom a notification is sent (Pending 17); FCM/APNs only deliver it.** Opening it launches the exact screen, then the app verifies session, permission and the current order state before showing any action button; a sensitive action is never executed from the notification text. Android channels: `urgent` (HIGH, DND bypass), `action` (HIGH), `info` (LOW).
 
 ## 7. Auth
 
-Login (email + password, language switch, hotline 15536) → Home. Error under the field, no prefill. Forgot password: self-service by email or reset by Super Admin (Pending Confirmation 15). Auto-lock after inactivity (timeout Open). Phase 2: PIN + biometric. Session length and reset policy await IT. Exceptional states: suspended account, expired session, no permission (e.g. `sales` → Finance), offline. Shared device: logout + local data cleanup (Approved).
+Login (email + password, language switch, hotline 15536) → Home. Error under the field, no prefill. Forgot password: **temporary link to the registered email** (Pending — IT, 15). Session ends after **30 min idle (proposed value)** with re-verification for sensitive operations (Pending — IT). Phase 2: PIN + biometric, not in v1 unless IT approves (16). Exceptional states: suspended account, expired session, no permission (e.g. `sales` → Finance), offline. Shared device: logout + local data cleanup (Approved 30).
 
 ## 8. Accessibility
 
@@ -142,4 +141,4 @@ Targets ≥ 48px and ≥ 8px apart · state never colour-only · `aria-label`/`S
 
 ## 9. Open decisions
 
-`docs/open-questions.md` — Approved: 7, 20, 25, 29, 30 · Pending Confirmation: 9, 15, 16, 18, 19, 21, 22 · Open: 9, 15, 16, 17, 18, 19 (التفاصيل التشغيلية).
+`docs/open-questions.md` — Approved: 7, 20, 25, 29, 30 · Pending Confirmation: 9, 15, 16, 17, 18, 19, 21, 22 · Open (values/details): 9, 15, 16, 17, 18, 19.

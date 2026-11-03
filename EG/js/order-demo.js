@@ -181,6 +181,9 @@
       if (step === 2) submit();
       step = Math.min(3, step + 1); if (step === 2) renderInvoices(); updateNav(); return;
     }
+    var sub = t.closest(".panel[data-p='0'] [data-sub]");
+    if (sub) { var i0 = sub.dataset.sub; $$("[data-subpanel]").forEach(function (b) { b.hidden = b.dataset.subpanel !== i0; }); $$(".panel[data-p='0'] [data-sub]").forEach(function (b) { b.setAttribute("aria-selected", String(b === sub)); }); return; }
+    if (t.closest("#req-btn")) { $("#req-form").hidden = true; $("#req-done").hidden = false; return; }
     if (t.closest("[data-next]")) { step = 1; updateNav(); return; }
     if (t.closest("[data-prev]")) { step = Math.max(0, step - 1); updateNav(); return; }
   });

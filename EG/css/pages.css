@@ -79,3 +79,12 @@
 @media print { body.is-printing-inv > *:not(main) { display: none !important; } }
 @media print { .inv-sheet.is-printing { position: fixed; inset: 0; z-index: 99999; background: #fff; border: 0; box-shadow: none; } body:has(.inv-sheet.is-printing) .ds-nav, body:has(.inv-sheet.is-printing) .flow-bar, body:has(.inv-sheet.is-printing) .ds-hero, body:has(.inv-sheet.is-printing) main > section:not(:has(.is-printing)) { display: none !important; } }
 .inv-sheet .table td, .inv-sheet .table th { white-space: normal; padding: var(--space-2) var(--space-3); }
+
+/* ── Guest / dealer price visibility + demo markers ── */
+.view-toggle { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; padding: 8px 14px; background: var(--eg-bg-soft); border-bottom: 1px solid var(--color-border); }
+.demo-ribbon { margin-inline-start: auto; font-size: 11px; font-weight: 700; color: var(--color-warning); background: var(--color-warning-tint); padding: 2px 10px; border-radius: 99px; }
+.mock.is-guest .only-dealer { display: none !important; }
+.mock:not(.is-guest) .only-guest { display: none !important; }
+.price-lock { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); background: var(--color-neutral-tint); color: var(--color-neutral); font-size: var(--text-caption); font-weight: 600; }
+.price-lock .icon { flex: none; }
+.price-lock.is-big { padding: var(--space-4); font-size: var(--text-dense); }

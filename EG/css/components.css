@@ -283,3 +283,5 @@
 .drawer-pane .d-foot { padding: var(--space-4) var(--space-5); border-top: 1px solid var(--color-border); display: flex; gap: var(--space-2); justify-content: flex-end; }
 .mock-scrim { position: absolute; inset: 0; background: rgba(2, 26, 67, .45); z-index: 4; }
 .mock { position: relative; }
+.pending-badge, .approved-badge { white-space: nowrap; }
+.card-head { flex-wrap: wrap; }
