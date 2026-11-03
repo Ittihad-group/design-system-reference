@@ -57,7 +57,7 @@
       .sec-head h2 { margin: 0; font-size: 1.75rem; }
       .sec-head p { margin: 0; color: var(--color-text-muted); }
 
-      .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+      .steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-5); }
       .step-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-card); transition: transform var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast); }
       .step-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-float); }
       .step-prev { position: relative; display: block; aspect-ratio: 16 / 10; background: var(--eg-bg-soft); border-bottom: 1px solid var(--color-border); overflow: hidden; }
@@ -163,7 +163,7 @@
       <section class="sec" id="journey">
         <div class="sec-head">
           <span class="t-eyebrow">رحلة العرض</span>
-          <h2>ثلاث خطوات تغطي كل التفاصيل</h2>
+          <h2>أربع خطوات تغطي كل التفاصيل</h2>
           <p>ابدأ من الخطوة 1، وفي آخر كل صفحة زر «التالي». شريط الخطوات في أعلى كل صفحة يرجعك لأي مكان، والروابط الصغيرة تأخذك مباشرة للتفصيلة.</p>
         </div>
         <div class="steps">
@@ -185,13 +185,22 @@
               <a class="btn btn-primary" href="./design-system.html">افتح الخطوة 2</a>
             </div>
           </article>
+          <article class="step-card">
+            <a class="step-prev" href="./mobile.html" aria-label="الخطوة 3"><span class="step-n">3</span><img src="./assets/previews/mobile.jpg" alt="معاينة: شاشات الموبايل: إشعارات ومركز إشعارات وإعدادات" loading="lazy" /></a>
+            <div class="step-body">
+              <h3>تطبيق الموبايل: الأساسيات</h3>
+              <p>للمشرف في الميدان: قواعد تقلّل الخطوات، شاشات الدخول (بصمة ورقم سري)، مكتبة مكونات الموبايل، وهيكل الشاشات ونظام الإشعارات بثلاثة مستويات.</p>
+              <div class="chips"><a href="./mobile.html#rules">القواعد</a><a href="./mobile.html#auth">الدخول</a><a href="./mobile.html#components">المكونات</a><a href="./mobile.html#screens">الشاشات</a><a href="./mobile.html#notify">الإشعارات</a></div>
+              <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 3</a>
+            </div>
+          </article>
           <article class="step-card is-pdf">
-            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 3"><span class="step-n">3</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
+            <a class="step-prev is-doc" href="./documents.html" aria-label="الخطوة 4"><span class="step-n">4</span><img src="./assets/previews/documents.jpg" alt="معاينة: فاتورة PDF" loading="lazy" /></a>
             <div class="step-body">
               <h3>المستندات والتقارير (PDF)</h3>
               <p>أي وحدة في النظام تحتاج أي مستند، و6 قوالب A4 جاهزة تغطي حوالي 25 نوعاً، مع ملف PDF حقيقي لكل قالب.</p>
               <div class="chips"><a href="./documents.html#matrix">أي وحدة تحتاج أي مستند؟</a><a href="./documents.html#kit">مواصفات المستند</a><a href="./documents.html#doc-invoice">الفاتورة</a><a href="./documents.html#doc-statement">كشف الحساب</a><a href="./documents.html#doc-workorder">أمر التشغيل</a></div>
-              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 3</a>
+              <a class="btn btn-primary" href="./documents.html">افتح الخطوة 4</a>
             </div>
           </article>
         </div>
@@ -271,7 +280,7 @@
       document.getElementById("hub-finishes").innerHTML = EG.finishes.map(function (f) { return '<i style="--c:' + f.hex + '" title="' + f.code + '"></i>'; }).join("");
       document.getElementById("hero-fin").innerHTML = EG.finishes.slice(0, 8).map(function (f) { return '<i style="--c:' + f.hex + '"></i>'; }).join("");
       var groups = [
-        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "css/variables.css", "css/components.css", "css/print.css"]],
+        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js"]],
         ["Product & content", ["docs/ia-sitemap.md", "docs/screen-inventory.md", "docs/flows.md", "docs/demo-data.md", "docs/content-voice.md", "assets/ASSETS.md", "js/demo-data.js"]],
         ["ERP modules", ["dashboard", "products", "inventory", "sales", "production", "customers", "suppliers", "purchases", "hr", "finance", "settings"].map(function (m) { return "docs/modules/" + m + ".md"; })],
         ["Surfaces · Delivery", ["docs/surfaces/eg-system.md", "docs/surfaces/eg-website.md", "docs/surfaces/eg-mobile.md", "docs/qa-checklist.md", "docs/handoff.md", "docs/open-questions.md"]]

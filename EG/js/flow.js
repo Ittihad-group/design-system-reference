@@ -7,7 +7,8 @@
     { file: "index.html", n: "", label: "الرئيسية", title: "الرئيسية" },
     { file: "brand.html", n: "1", label: "الهوية والمقاسات", title: "الهوية والمقاسات", next: "الألوان والخطوط والمقاسات وكيف تُطبّق على الموقع والنظام والموبايل" },
     { file: "design-system.html", n: "2", label: "المكونات", title: "المكونات", next: "الأزرار والنماذج والجداول والتنبيهات وهيكل النظام والأيقونات" },
-    { file: "documents.html", n: "3", label: "المستندات (PDF)", title: "المستندات والتقارير (PDF)", next: "أي وحدة تحتاج أي مستند، و6 قوالب A4 مع ملفات PDF جاهزة" }
+    { file: "mobile.html", n: "3", label: "الموبايل", title: "تطبيق الموبايل: الأساسيات", next: "الدخول والحساب، مكتبة مكونات الموبايل، الشاشات الأساسية، ونظام الإشعارات" },
+    { file: "documents.html", n: "4", label: "المستندات (PDF)", title: "المستندات والتقارير (PDF)", next: "أي وحدة تحتاج أي مستند، و6 قوالب A4 مع ملفات PDF جاهزة" }
   ];
   var cur = location.pathname.split("/").pop() || "index.html";
   var i = STEPS.findIndex(function (s) { return s.file === cur; });

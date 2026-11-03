@@ -16,3 +16,8 @@
 | 12 | Documents | Is e-invoicing (tax authority QR) required on invoices? Template reserves a QR slot | Finance | pending |
 | 13 | Documents | Official stamp / signature images, and whether documents are Arabic-only or bilingual | Client | pending |
 | 14 | Documents | Numbering scheme (INV-/DN-/WO-/ST-/PS- prefixes used in samples are placeholders) | Ops | pending |
+| 15 | Mobile auth | Login id: phone number or employee code? Password policy and who unlocks a locked account? | Product / IT | pending |
+| 16 | Mobile auth | OTP channel for password recovery: SMS or WhatsApp? Is biometric login allowed on all devices? | IT | pending |
+| 17 | Mobile notifications | Push provider (FCM + APNs) and whether the app is Flutter or native? Affects channels/action buttons | Mobile | pending |
+| 18 | Mobile notifications | Which events are `urgent` vs `action` vs `info` (business decision, per module)? Quiet-hours default | Ops | pending |
+| 19 | Mobile | Supervisor devices: Android-only or iOS too? Minimum OS version; shared devices between shifts? | Ops | pending |

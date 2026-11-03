@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EG — تطبيق الموبايل: الأساسيات</title>
+    <link rel="icon" href="./assets/images/logo/favicon.png" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <style>
+      .rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: var(--space-4); counter-reset: r; }
+      .rule { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); display: grid; gap: var(--space-2); position: relative; padding-inline-start: 72px; counter-increment: r; }
+      .rule::before { content: counter(r); position: absolute; inset-inline-start: var(--space-5); inset-block-start: var(--space-5); width: 36px; height: 36px; display: grid; place-items: center; background: var(--eg-red); color: #fff; font: 700 18px var(--font-en); border-radius: var(--radius-brand); }
+      .rule h3 { margin: 0; font-size: var(--text-h3); } .rule p { margin: 0; color: var(--color-text-muted); font-size: var(--text-dense); }
+      .twocol { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: var(--space-8); align-items: center; }
+      .thumb { width: 200px; height: 400px; margin-inline: auto; border: 8px solid var(--eg-ink); border-radius: 32px; overflow: hidden; display: grid; grid-template-rows: 30fr 35fr 35fr; }
+      .thumb div { display: grid; place-items: center; text-align: center; font-weight: 700; font-size: 14px; padding: 8px; line-height: 1.4; }
+      .thumb .z1 { background: var(--color-neutral-tint); color: var(--color-neutral); }
+      .thumb .z2 { background: var(--eg-navy-tint); color: var(--eg-navy); }
+      .thumb .z3 { background: var(--eg-red); color: #fff; font-size: 16px; }
+      .path { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: var(--text-dense); }
+      .path span { background: var(--color-surface); border: 1px solid var(--color-border-strong); border-radius: 99px; padding: 4px 12px; font-weight: 600; }
+      .path.is-short span { background: var(--eg-navy); color: #fff; border-color: var(--eg-navy); font-size: var(--text-body); padding: 8px 18px; }
+      .path.is-short span.go { background: var(--eg-red); border-color: var(--eg-red); }
+      .path em { color: var(--color-text-muted); font-style: normal; }
+      .path.is-long { opacity: .75; } .path.is-long span { text-decoration: line-through; text-decoration-color: var(--eg-red); }
+      .mtable { width: 100%; border-collapse: collapse; font-size: var(--text-dense); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; }
+      .mtable th { background: var(--eg-navy-tint); color: var(--eg-navy); text-align: start; padding: 10px 14px; font-weight: 700; }
+      .mtable td { padding: 10px 14px; border-top: 1px solid var(--color-border); vertical-align: top; }
+      .mtable td:first-child { font-weight: 700; white-space: nowrap; }
+      .tablewrap { overflow-x: auto; }
+      .tablewrap .mtable { min-width: 560px; }
+      .levels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-4); }
+      .level { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; display: grid; align-content: start; }
+      .level header { display: flex; align-items: center; gap: 12px; padding: var(--space-4) var(--space-5); color: #fff; }
+      .level header .m-lv { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.2); color: #fff; }
+      .level header h3 { margin: 0; font-size: var(--text-h3); } .level header small { opacity: .9; }
+      .level.is-urgent header { background: var(--eg-red-deep); } .level.is-action header { background: var(--eg-navy); } .level.is-info header { background: var(--color-neutral); }
+      .level dl { margin: 0; padding: var(--space-4) var(--space-5); display: grid; grid-template-columns: 92px 1fr; gap: 8px 12px; font-size: var(--text-dense); }
+      .level dt { color: var(--color-text-muted); } .level dd { margin: 0; font-weight: 600; }
+      .demo-row { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+      .phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-8) var(--space-5); align-items: start; }
+      .specs { grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); }
+      .copy-pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+      @media (max-width: 800px) { .twocol, .copy-pair { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <nav class="ds-nav" aria-label="Sections">
+      <div class="container">
+        <a href="./index.html" aria-label="Hub"><img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" /></a>
+        <a href="#rules">القواعد</a><a href="#auth">الدخول</a><a href="#components">المكونات</a><a href="#screens">الشاشات الأساسية</a><a href="#notify">الإشعارات</a>
+        <span class="grow"></span>
+        <a href="./documents.html" style="background:var(--color-primary);color:#fff">المستندات ←</a>
+      </div>
+    </nav>
+
+    <header class="ds-hero">
+      <div class="container stack-sm">
+        <div class="t-eyebrow" style="color:#ffb3b6">تطبيق الموبايل · الأساسيات</div>
+        <h1 class="t-display" style="color:#fff">الموبايل: دخول، مكونات، إشعارات</h1>
+        <p class="t-muted" style="max-width:66ch">تطبيق للمشرف والعامل في الميدان. الفكرة الحاكمة: <b style="color:#fff">كل شاشة لها إجراء واحد واضح، وأقل عدد خطوات ممكن</b>، بنص قصير ومحدد. هذه الصفحة تغطي الأساسيات فقط (الدخول والحساب، مكتبة المكونات، نظام الإشعارات) بدون أي تفاصيل أعمال. شاشات النماذج هنا شكل وهيكل لا أكثر.</p>
+        <div class="cluster" style="margin-top:var(--space-3)">
+          <span class="chip chip-plain" style="background:rgba(255,255,255,.14);color:#fff">360 × 740 شاشة التصميم</span>
+          <span class="chip chip-plain" style="background:rgba(255,255,255,.14);color:#fff">أقل هدف لمس 48px</span>
+          <span class="chip chip-plain" style="background:rgba(255,255,255,.14);color:#fff">نصان وأقل: من الإشعار للإجراء</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- 1 RULES -->
+      <section class="ds-section" id="rules"><div class="container">
+        <h2 class="t-h1">1 · قواعد الاستخدام الأيسر</h2>
+        <p class="lead">المشرف في الميدان: إيد واحدة، شمس، ووقت قليل. هذه القواعد تحكم كل شاشة، ولو شاشة خالفتها تُعاد.</p>
+        <div class="rules">
+          <div class="rule"><h3>إجراء رئيسي واحد في الشاشة</h3><p>زر واحد كبير أحمر في الأسفل. الباقي ثانوي أو نص. لا زرّين أحمرين معاً.</p></div>
+          <div class="rule"><h3>خطوتان بحد أقصى للقرار</h3><p>الإشعار يحمل زر الإجراء نفسه (اعتمد / ارفض). لا يضطر المشرف يفتح القوائم ليصل.</p></div>
+          <div class="rule"><h3>نص قصير وفعل واضح</h3><p>العنوان حتى 6 كلمات، والجملة سطر واحد. الزر فعل مباشر: «اعتمد»، «استلمت»، «أرسل». لا «موافق».</p></div>
+          <div class="rule"><h3>الإبهام يصل لكل شيء</h3><p>الإجراءات في الثلث السفلي، والمعلومات في الأعلى. شريط الإجراء ثابت ولا يتحرك مع التمرير.</p></div>
+          <div class="rule"><h3>اختيار بدل كتابة</h3><p>قوائم سريعة وعدّاد كبير ومسح باركود وأسباب جاهزة. الكتابة آخر حل، والكيبورد المناسب يظهر تلقائياً.</p></div>
+          <div class="rule"><h3>يشتغل مع النت الضعيف</h3><p>شريط واضح «بدون إنترنت»، والعمل يتسجّل ويتزامن بعدين. ولا فقد لما كتبه المستخدم عند أي خطأ.</p></div>
+        </div>
+
+        <div class="twocol" style="margin-top:var(--space-10)">
+          <div class="stack">
+            <h3 class="t-h2">مناطق الإبهام</h3>
+            <p class="t-muted">على موبايل بحجم 6.1 بوصة وإيد واحدة: الأسفل أسهل منطقة، والأعلى أبعدها. لذلك يقع الإجراء في الأسفل والمعلومات في الأعلى.</p>
+            <div class="stack-sm">
+              <div class="t-dense"><b>الإجراء الرئيسي</b> (شريط الإجراء + التنقل السفلي) ← المنطقة الحمراء</div>
+              <div class="t-dense"><b>المحتوى والبطاقات</b> ← المنطقة الوسطى</div>
+              <div class="t-dense"><b>العنوان والبحث والإعدادات</b> ← المنطقة العليا (أبعد مكان)</div>
+            </div>
+          </div>
+          <div class="thumb" role="img" aria-label="مناطق الإبهام: أعلى للمعلومات، وسط للمحتوى، أسفل للإجراء">
+            <div class="z1">معلومات وعنوان<br />(أبعد منطقة)</div>
+            <div class="z2">المحتوى<br />والبطاقات</div>
+            <div class="z3">الإجراء الرئيسي<br />+ التنقل</div>
+          </div>
+        </div>
+
+        <h3 class="t-h2" style="margin-top:var(--space-10)">كم خطوة؟ نفس القرار بطريقتين</h3>
+        <div class="stack" style="margin-top:var(--space-3)">
+          <div class="path is-long"><b style="text-decoration:none">المسار الطويل (ممنوع):</b><span>افتح التطبيق</span><em>←</em><span>دخول</span><em>←</em><span>القائمة</span><em>←</em><span>المهام</span><em>←</em><span>اختر الطلب</span><em>←</em><span>اعتمد</span></div>
+          <div class="path is-short"><b>مسار الأساسيات:</b><span>إشعار على الشاشة</span><em>←</em><span class="go">اعتمد</span><em>← تم ✔</em></div>
+        </div>
+
+        <h3 class="t-h2" style="margin-top:var(--space-10)">مقاسات الموبايل</h3>
+        <div class="tablewrap" style="margin-top:var(--space-3)"><table class="mtable">
+          <thead><tr><th>العنصر</th><th>القيمة</th><th>لماذا</th></tr></thead>
+          <tbody>
+            <tr><td>شاشة التصميم</td><td class="num">360 × 740</td><td>أصغر شاشات الأندرويد الشائعة؛ ما يصلح عليها يصلح على الأكبر</td></tr>
+            <tr><td>أقل هدف لمس</td><td class="num">48 × 48 px</td><td>إصبع بقفاز أو إيد متسخة، وتوصية Material وApple</td></tr>
+            <tr><td>زر رئيسي / ثانوي</td><td class="num">52px · نص 19px عريض</td><td>19px عريض يُعدّ «نصاً كبيراً» فيجتاز التباين على الأحمر (4.38:1)</td></tr>
+            <tr><td>زر داخل بطاقة</td><td class="num">44px · نص 16px</td><td>إجراء سريع دون فتح الشاشة</td></tr>
+            <tr><td>حقل إدخال</td><td class="num">52px · نص 16px</td><td>16px يمنع تكبير الصفحة تلقائياً في iOS</td></tr>
+            <tr><td>شريط التطبيق</td><td class="num">56px (الرئيسية 72px)</td><td>عنوان واحد + إجراءان على الأكثر</td></tr>
+            <tr><td>التنقل السفلي</td><td class="num">64px · 4 عناصر</td><td>أكثر من 4 عناصر يصغّر الهدف؛ الباقي تحت «المزيد»</td></tr>
+            <tr><td>حدود الشاشة</td><td class="num">16px جانبياً</td><td>يطابق مقياس المسافات 4pt (space-4)</td></tr>
+            <tr><td>أقل حجم نص</td><td class="num">13px</td><td>للتواريخ وتسميات التنقل فقط؛ النص الأساسي 15–17px</td></tr>
+            <tr><td>أركان البطاقات / الأزرار</td><td class="num">16px / 14px</td><td>الركن الأحمر المميّز <code>28px 4px 28px 4px</code> لبطاقة الترحيب فقط</td></tr>
+          </tbody>
+        </table></div>
+      </div></section>
+
+      <!-- 2 AUTH -->
+      <section class="ds-section" id="auth"><div class="container">
+        <h2 class="t-h1">2 · الدخول والحساب</h2>
+        <p class="lead">دخول كامل مرة واحدة (رقم الموبايل + كلمة السر)، وبعدها يفتح التطبيق بالبصمة أو بالرقم السري. الشاشتان الخامسة والسادسة قابلتان للتجربة.</p>
+        <div class="mref-flow">
+          <!-- 1 splash -->
+          <div><div class="m-wrap"><div class="m-device is-dark"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:transparent"><div class="m-body is-center" style="gap:16px">
+              <img src="./assets/images/logo/mark.png" alt="" style="width:120px;height:120px;background:#fff;border-radius:50%;padding:6px" />
+              <div style="font-size:24px;font-weight:700">المصرية الألمانية</div>
+              <div style="color:#c6d3ea;font-size:15px">باب أهل مصر</div>
+              <div style="width:120px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);overflow:hidden;margin-top:24px"><div class="skeleton" style="width:60%;height:100%;background:var(--eg-red);animation:none"></div></div>
+            </div><div style="text-align:center;color:#8fa2c4;font-size:13px;padding-bottom:12px" class="num">v 1.0.0</div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">1</span>شاشة البداية</b><span class="t-muted">ثانية واحدة، وتنتقل مباشرة حسب الحالة: دخول، أو قفل، أو الرئيسية.</span></div></div>
+
+          <!-- 2 login -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:#fff"><div class="m-body" style="gap:14px;padding-top:28px">
+              <img src="./assets/images/logo/wordmark-color.png" alt="المصرية الألمانية" style="height:34px;width:auto;align-self:flex-start" />
+              <div style="margin-top:12px"><h2 class="m-h1">أهلاً بك</h2><p class="m-sub">سجّل دخولك لمتابعة شغلك</p></div>
+              <div class="m-field"><label class="m-label">رقم الموبايل</label><div class="m-input"><i data-i="phone"></i><input class="num" type="tel" inputmode="tel" value="01012345678" dir="ltr" style="text-align:start" aria-label="رقم الموبايل" /></div></div>
+              <div class="m-field"><label class="m-label">كلمة السر</label><div class="m-input is-focus"><i data-i="lock"></i><input type="password" value="••••••••" aria-label="كلمة السر" /><button class="m-iconbtn" type="button" data-eye aria-label="إظهار كلمة السر"><i data-i="eye"></i></button></div></div>
+              <a class="m-link" href="#auth" style="align-self:flex-start">نسيت كلمة السر؟</a>
+              <div class="m-sp"></div>
+              <button class="m-btn m-btn-primary" type="button">دخول</button>
+              <button class="m-btn m-btn-text" type="button"><i data-i="finger"></i> الدخول بالبصمة</button>
+              <div style="text-align:center;font-size:14px;color:var(--eg-muted)">محتاج مساعدة؟ اتصل <b class="num" style="color:var(--eg-navy)">15536</b></div>
+            </div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">2</span>تسجيل الدخول</b><span class="t-muted">حقلان وزر واحد. كلمة السر لها زر إظهار.</span></div></div>
+
+          <!-- 3 login error -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:#fff"><div class="m-body" style="gap:14px;padding-top:28px">
+              <img src="./assets/images/logo/wordmark-color.png" alt="المصرية الألمانية" style="height:34px;width:auto;align-self:flex-start" />
+              <div style="margin-top:12px"><h2 class="m-h1">أهلاً بك</h2><p class="m-sub">سجّل دخولك لمتابعة شغلك</p></div>
+              <div class="m-field"><label class="m-label">رقم الموبايل</label><div class="m-input"><i data-i="phone"></i><input class="num" type="tel" value="01012345678" dir="ltr" style="text-align:start" aria-label="رقم الموبايل" /></div></div>
+              <div class="m-field"><label class="m-label">كلمة السر</label><div class="m-input has-error"><i data-i="lock"></i><input type="password" value="••••••" aria-label="كلمة السر" aria-invalid="true" /><button class="m-iconbtn" type="button" data-eye aria-label="إظهار كلمة السر"><i data-i="eye"></i></button></div>
+                <div class="m-error" role="alert"><i data-i="alert"></i><span>كلمة السر غير صحيحة. باقي لك محاولتان.</span></div></div>
+              <a class="m-link" href="#auth" style="align-self:flex-start">نسيت كلمة السر؟</a>
+              <div class="m-sp"></div>
+              <button class="m-btn m-btn-primary" type="button">دخول</button>
+            </div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">3</span>خطأ في الدخول</b><span class="t-muted">الرسالة تحت الحقل نفسه وتقول المطلوب. لا يُمسح رقم الموبايل.</span></div></div>
+
+          <!-- 4 otp -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:#fff"><div class="m-appbar" style="border:0"><button class="m-iconbtn" type="button" aria-label="رجوع"><i data-i="chevron"></i></button><h1>استرجاع كلمة السر</h1></div>
+              <div class="m-body" style="gap:18px;padding-top:12px">
+                <div><h2 class="m-h1">أدخل الكود</h2><p class="m-sub" style="margin-top:6px">بعتنا كود من 6 أرقام على <span class="num" dir="ltr">0101•••5678</span></p></div>
+                <div class="m-otp"><span>4</span><span>8</span><span>1</span><span>9</span><span class="on"></span><span></span></div>
+                <div style="text-align:center;color:var(--eg-muted);font-size:15px">إعادة الإرسال بعد <b class="num">00:42</b></div>
+                <div class="m-sp"></div>
+                <button class="m-btn m-btn-primary" type="button" disabled>تأكيد</button>
+              </div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">4</span>كود التحقق</b><span class="t-muted">كيبورد أرقام تلقائي. الزر يتفعّل بعد اكتمال الكود.</span></div></div>
+
+          <!-- 5 set pin -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:#fff"><div class="m-body" style="gap:22px;padding-top:34px;align-items:center;text-align:center">
+              <div class="m-ico-lg" style="width:64px;height:64px;border-radius:50%;background:var(--eg-navy-tint);color:var(--eg-navy);display:grid;place-items:center"><i data-i="shield" data-c="icon-lg"></i></div>
+              <div><h2 class="m-h1">اختر رقمك السري</h2><p class="m-sub" style="margin-top:6px">4 أرقام تفتح بها التطبيق بسرعة</p></div>
+              <div class="m-dots" aria-live="polite"><i></i><i></i><i></i><i></i></div>
+              <div class="m-sp"></div>
+              <div class="m-keypad" data-pin style="width:100%">
+                <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+                <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+                <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+                <button type="button" class="is-ghost" aria-hidden="true" tabindex="-1"></button><button type="button" data-k="0">0</button><button type="button" class="is-ghost" data-k="del" aria-label="مسح"><i data-i="x"></i></button>
+              </div>
+            </div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">5</span>الرقم السري <span class="chip chip-info" style="margin-inline-start:6px">جرّبه</span></b><span class="t-muted">لوحة أرقام كبيرة (58px). يُطلب مرة واحدة بعد أول دخول.</span></div></div>
+
+          <!-- 6 biometric -->
+          <div><div class="m-wrap"><div class="m-device is-dark"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:radial-gradient(120% 70% at 50% 0%, #1d4a96 0%, var(--eg-navy) 45%, var(--eg-navy-deep) 100%)"><div class="m-body is-center" style="gap:14px;color:#fff">
+              <div class="m-avatar" style="width:72px;height:72px;font-size:28px;background:rgba(255,255,255,.16);border:2px solid rgba(255,255,255,.4)">أ</div>
+              <div><div style="font-size:22px;font-weight:700">أهلاً م. أحمد</div><div style="color:#c6d3ea;font-size:15px">التطبيق مقفول</div></div>
+              <div class="m-finger" style="margin-block:26px"><i data-i="finger"></i></div>
+              <div style="font-size:17px;font-weight:600">المس البصمة للدخول</div>
+              <button class="m-btn m-btn-text" type="button" style="color:#fff;text-decoration:underline;width:auto;margin-top:6px">استخدم الرقم السري</button>
+            </div><div style="text-align:center;padding:0 16px 14px"><button class="m-btn m-btn-text" type="button" style="color:#9fb2d6;font-size:14px;width:auto">لست أحمد؟ تبديل الحساب</button></div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b><span class="n">6</span>قفل التطبيق</b><span class="t-muted">يظهر عند العودة للتطبيق. البصمة أولاً والرقم السري بديل.</span></div></div>
+        </div>
+
+        <h3 class="t-h2" style="margin-top:var(--space-12)">حالات الدخول الاستثنائية</h3>
+        <p class="t-muted" style="margin-bottom:var(--space-4)">كل حالة تقول ماذا حدث، وماذا يفعل المستخدم الآن، في سطرين وزر واحد.</p>
+        <div class="grid specs">
+          <div class="mref-spec"><h3>الحساب مقفول</h3><div class="mref-stage is-phone"><div class="m-empty"><div class="m-ico-lg" style="background:var(--eg-red-tint);color:var(--eg-red-deep)"><i data-i="lock"></i></div><h3>الحساب مقفول</h3><p>أخطأت 5 مرات في كلمة السر. كلّم المسؤول أو اتصل بالدعم.</p><button class="m-btn m-btn-primary" type="button"><i data-i="phone"></i> اتصل <span class="num">15536</span></button></div></div></div>
+          <div class="mref-spec"><h3>انتهت الجلسة</h3><div class="mref-stage is-phone"><div class="m-empty"><div class="m-ico-lg"><i data-i="clock"></i></div><h3>سجّل دخولك مرة أخرى</h3><p>انتهت جلستك لأمانك. ما كتبته محفوظ على الجهاز.</p><button class="m-btn m-btn-secondary" type="button">تسجيل الدخول</button></div></div></div>
+          <div class="mref-spec"><h3>بدون صلاحية</h3><div class="mref-stage is-phone"><div class="m-empty"><div class="m-ico-lg"><i data-i="shield"></i></div><h3>هذه الشاشة ليست من صلاحياتك</h3><p>اطلب من المسؤول إضافتها لحسابك.</p><button class="m-btn m-btn-ghost" type="button">رجوع</button></div></div></div>
+          <div class="mref-spec"><h3>بدون إنترنت أثناء الدخول</h3><div class="mref-stage is-phone" style="padding:0;overflow:hidden"><div class="m-banner is-offline"><i data-i="wifioff"></i><span>لا يوجد اتصال بالإنترنت</span></div><div style="padding:16px;display:grid;gap:10px"><div class="m-help">الدخول بالرقم السري أو البصمة متاح. تتزامن بياناتك فور عودة الاتصال.</div><button class="m-btn m-btn-secondary" type="button">ادخل بالرقم السري</button></div></div></div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top:var(--space-8)">
+          <div class="card"><h3 class="t-h3">سياسة الدخول (مقترح)</h3><ul class="rule-list t-dense" style="margin-top:var(--space-2)"><li>دخول كامل كل 30 يوماً، أو عند جهاز جديد</li><li>قفل تلقائي بعد دقيقتين خمول</li><li>5 محاولات ثم قفل الحساب</li><li>جهاز واحد نشط لكل حساب</li></ul></div>
+          <div class="card"><h3 class="t-h3">قواعد الشاشة</h3><ul class="rule-list t-dense" style="margin-top:var(--space-2)"><li>حقل أرقام ← كيبورد أرقام تلقائياً</li><li>رسالة الخطأ تحت الحقل وتقول الحل</li><li>لا نمسح ما كتبه المستخدم عند الخطأ</li><li>زر الدخول يظهر حالة تحميل، لا نص «جارٍ…»</li></ul></div>
+          <div class="card" style="border-inline-start:4px solid var(--eg-red)"><h3 class="t-h3">قرارات مطلوبة قبل البرمجة</h3><ul class="rule-list t-dense" style="margin-top:var(--space-2)"><li>الدخول برقم الموبايل أم كود الموظف؟</li><li>كود التحقق عبر SMS أم واتساب؟</li><li>هل البصمة مسموحة على كل الأجهزة؟</li><li>من يعيد فتح الحساب المقفول؟</li></ul></div>
+        </div>
+      </div></section>
+
+      <!-- 3 COMPONENTS -->
+      <section class="ds-section" id="components"><div class="container">
+        <h2 class="t-h1">3 · مكتبة مكونات الموبايل</h2>
+        <p class="lead">كل مكوّن بحجمه الحقيقي على شاشة 360px. الألوان من نفس نظام العلامة: أحمر للإجراء، كحلي للهيكل، والحالات بلون ونص معاً.</p>
+        <div class="grid specs">
+
+          <div class="mref-spec"><h3>الأزرار</h3><div class="mref-stage is-phone">
+            <button class="m-btn m-btn-primary" type="button"><i data-i="check"></i> اعتمد</button>
+            <button class="m-btn m-btn-secondary" type="button">متابعة</button>
+            <button class="m-btn m-btn-ghost" type="button">إلغاء</button>
+            <button class="m-btn m-btn-soft-danger" type="button">رفض</button>
+            <div class="m-card-actions"><button class="m-btn m-btn-sm m-btn-primary" type="button">اعتمد</button><button class="m-btn m-btn-sm m-btn-ghost" type="button">تفاصيل</button></div>
+            <button class="m-btn m-btn-primary is-loading" type="button" aria-busy="true">جارٍ الإرسال</button>
+            <button class="m-btn m-btn-primary" type="button" disabled>غير متاح</button>
+          </div><div class="mref-dim">رئيسي <code>52px</code> نص <code>19px</code> عريض · داخل بطاقة <code>44px</code> · نص أبيض على الأحمر يجتاز التباين فقط بخط كبير عريض.</div></div>
+
+          <div class="mref-spec"><h3>الحقول والعدّاد</h3><div class="mref-stage is-phone">
+            <div class="m-field"><label class="m-label">رقم الأمر</label><div class="m-input"><i data-i="scan"></i><input class="num" placeholder="امسح الباركود أو اكتب الرقم" aria-label="رقم الأمر" /></div></div>
+            <div class="m-field"><label class="m-label">السبب</label><div class="m-input is-focus"><input value="بيانات ناقصة" aria-label="السبب" /></div></div>
+            <div class="m-field"><label class="m-label">الكمية</label><div class="m-input has-error"><input class="num" value="0" aria-label="الكمية" aria-invalid="true" /></div><div class="m-error"><i data-i="alert"></i><span>أدخل كمية أكبر من صفر</span></div></div>
+            <div class="m-stepper"><button class="is-plus" type="button" aria-label="زيادة"><i data-i="plus"></i></button><output><span class="num">24</span><small>قطعة</small></output><button type="button" aria-label="نقص"><i data-i="minus"></i></button></div>
+          </div><div class="mref-dim">حقل <code>52px</code> نص <code>16px</code> · عدّاد: أزرار <code>60px</code> ورقم <code>34px</code> للكميات بدون كيبورد.</div></div>
+
+          <div class="mref-spec"><h3>شريط التطبيق والتنقل السفلي</h3><div class="mref-stage is-phone" style="padding:0;overflow:hidden;gap:0">
+            <div class="m-appbar is-brand"><div class="m-avatar" style="background:rgba(255,255,255,.16)">أ</div><div class="m-hello"><small>صباح الخير</small><b>م. أحمد</b></div><button class="m-iconbtn" type="button" aria-label="الإشعارات"><i data-i="bell"></i><span class="m-badge num">3</span></button></div>
+            <div class="m-appbar"><button class="m-iconbtn" type="button" aria-label="رجوع"><i data-i="chevron"></i></button><h1>طلب رقم 1042</h1><button class="m-iconbtn" type="button" aria-label="بحث"><i data-i="search"></i></button></div>
+            <nav class="m-nav" aria-label="التنقل"><a href="#components" aria-current="page"><span class="m-pill"><i data-i="home"></i></span>الرئيسية</a><a href="#components"><span class="m-pill"><i data-i="clipboard"></i></span>المهام</a><a href="#components"><span class="m-pill"><i data-i="bell"></i><span class="m-badge num">3</span></span>الإشعارات</a><a href="#components"><span class="m-pill"><i data-i="user"></i></span>حسابي</a></nav>
+          </div><div class="mref-dim">شريط <code>56px</code> · رئيسية <code>72px</code> · تنقل <code>64px</code>، 4 عناصر بحد أقصى. الشارة تعدّ ما يحتاج إجراء فقط.</div></div>
+
+          <div class="mref-spec"><h3>بطاقة إجراء</h3><div class="mref-stage is-phone">
+            <div class="m-card is-urgent"><div class="m-card-top"><h4 class="m-card-title">طلب رقم 1042</h4><span class="m-chip is-bad">عاجل</span></div><div class="m-card-meta"><span><i data-i="clock"></i>منذ 10 دقائق</span><span><i data-i="user"></i>م. سامي</span></div><div class="m-card-actions"><button class="m-btn m-btn-sm m-btn-primary" type="button">اعتمد</button><button class="m-btn m-btn-sm m-btn-ghost" type="button">تفاصيل</button></div></div>
+            <div class="m-card is-action"><div class="m-card-top"><h4 class="m-card-title">طلب رقم 1043</h4><span class="m-chip is-info">بانتظارك</span></div><div class="m-card-meta"><span><i data-i="clock"></i>منذ ساعة</span></div></div>
+            <div class="m-card is-hero"><div class="m-sub">لديك اليوم</div><div class="m-kpi num">6</div><div class="m-sub">مهام مطلوبة</div></div>
+          </div><div class="mref-dim">الشريط الجانبي: أحمر = عاجل، كحلي = يحتاج إجراء. بطاقة الترحيب فقط تحمل الركن المميز للعلامة.</div></div>
+
+          <div class="mref-spec"><h3>القوائم والحالات والفلاتر</h3><div class="mref-stage is-phone">
+            <div class="m-search"><i data-i="search"></i><span>ابحث برقم الطلب</span></div>
+            <div class="m-filters"><button class="m-fchip" type="button" aria-pressed="true">الكل <b class="num">12</b></button><button class="m-fchip" type="button" aria-pressed="false">بانتظاري <b class="num">3</b></button><button class="m-fchip" type="button" aria-pressed="false">مكتمل <b class="num">9</b></button></div>
+            <div class="m-list">
+              <a class="m-row" href="#components"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1042</b><small>منذ 10 دقائق</small></span><span class="m-chip is-warn">قيد التنفيذ</span></a>
+              <a class="m-row" href="#components"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1041</b><small>أمس</small></span><span class="m-chip is-ok">مكتمل</span></a>
+              <a class="m-row" href="#components"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1040</b><small>أمس</small></span><span class="m-chip">مسودة</span></a>
+            </div>
+            <div class="demo-row"><span class="m-chip is-ok">مكتمل</span><span class="m-chip is-warn">قيد التنفيذ</span><span class="m-chip is-bad">متأخر</span><span class="m-chip is-info">جديد</span><span class="m-chip">مسودة</span></div>
+          </div><div class="mref-dim">صف القائمة <code>64px</code> · فلتر <code>44px</code> · الحالة دائماً نقطة + لون + نص (لا لون وحده).</div></div>
+
+          <div class="mref-spec"><h3>اختصارات سريعة</h3><div class="mref-stage is-phone">
+            <div class="m-tiles"><a class="m-tile is-primary" href="#components"><span class="m-ico"><i data-i="plus"></i></span>مهمة جديدة</a><a class="m-tile" href="#components"><span class="m-ico"><i data-i="scan"></i></span>مسح باركود</a></div>
+            <div class="m-tiles"><a class="m-tile" href="#components"><span class="m-ico"><i data-i="clipboard"></i></span>مهامي</a><a class="m-tile" href="#components"><span class="m-ico"><i data-i="bell"></i></span>الإشعارات</a></div>
+          </div><div class="mref-dim">بلاطتان في الصف، ارتفاع <code>96px</code>. بلاطة واحدة حمراء فقط، هي الأكثر استخداماً.</div></div>
+
+          <div class="mref-spec"><h3>تأكيد بالضغط المطوّل</h3><div class="mref-stage is-phone">
+            <button class="m-hold" type="button" data-label="اضغط مطوّلاً للرفض" data-done="تم الرفض ✔"><span><i data-i="x"></i><b>اضغط مطوّلاً للرفض</b></span></button>
+            <div class="m-help">للإجراءات التي لا تُسترجع. اضغط مطوّلاً ثانية وربع ليكتمل (جرّبه). الأزرار العادية للإجراءات الآمنة.</div>
+          </div><div class="mref-dim">يمنع الضغط بالخطأ دون نافذة تأكيد إضافية، فيبقى القرار خطوة واحدة. بديل لوحة الأمان لمن يعتمد قارئ الشاشة: ضغطة Enter.</div></div>
+
+          <div class="mref-spec"><h3>حالات الشاشة</h3><div class="mref-stage is-phone">
+            <div class="m-banner is-offline" style="border-radius:10px"><i data-i="wifioff"></i><span>بدون إنترنت. شغلك محفوظ.</span></div>
+            <div class="m-banner is-sync" style="border-radius:10px"><i data-i="refresh"></i><span>جارٍ المزامنة (3)</span></div>
+            <div class="m-skel"><div class="skeleton" style="width:40px;height:40px;border-radius:12px"></div><div style="flex:1;display:grid;gap:8px"><div class="skeleton" style="height:14px;width:60%"></div><div class="skeleton" style="height:12px;width:35%"></div></div></div>
+            <div class="m-empty" style="padding:8px"><div class="m-ico-lg"><i data-i="check"></i></div><h3>لا مهام الآن</h3><p>كل شيء مكتمل. سنخبرك عند وصول جديد.</p></div>
+            <div class="m-ptr" aria-label="تحديث"><i data-i="refresh"></i></div>
+          </div><div class="mref-dim">لا شاشة بيضاء أبداً: هيكل تحميل، أو حالة فارغة بجملة واحدة، أو شريط يشرح المشكلة.</div></div>
+        </div>
+      </div></section>
+
+      <!-- 4 SCREENS -->
+      <section class="ds-section" id="screens"><div class="container">
+        <h2 class="t-h1">4 · هيكل الشاشات الأساسية</h2>
+        <p class="lead">أربع شاشات تُبنى منها كل شاشات التطبيق: رئيسية، قائمة، تفاصيل بإجراء، وتأكيد. المحتوى توضيحي وليس منطق أعمال.</p>
+        <div class="phones">
+          <!-- home -->
+          <div><div class="m-wrap"><div class="m-device is-brandbar"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar is-brand"><div class="m-avatar" style="background:rgba(255,255,255,.16)">أ</div><div class="m-hello"><small>صباح الخير</small><b>م. أحمد</b></div><button class="m-iconbtn" type="button" aria-label="الإشعارات"><i data-i="bell"></i><span class="m-badge num">3</span></button></div>
+              <div class="m-body">
+                <div class="m-sec"><span>محتاج إجراء منك</span><a href="#screens">الكل</a></div>
+                <div class="m-card is-urgent"><div class="m-card-top"><h4 class="m-card-title">طلب رقم 1042</h4><span class="m-chip is-bad">عاجل</span></div><div class="m-card-meta"><span><i data-i="clock"></i>منذ 10 دقائق</span></div><div class="m-card-actions"><button class="m-btn m-btn-sm m-btn-primary" type="button" data-mdone="تم الاعتماد">اعتمد</button><button class="m-btn m-btn-sm m-btn-ghost" type="button">تفاصيل</button></div></div>
+                <div class="m-card is-action"><div class="m-card-top"><h4 class="m-card-title">طلب رقم 1043</h4><span class="m-chip is-info">بانتظارك</span></div><div class="m-card-meta"><span><i data-i="clock"></i>منذ ساعة</span></div><div class="m-card-actions"><button class="m-btn m-btn-sm m-btn-primary" type="button" data-mdone="تم الاعتماد">اعتمد</button><button class="m-btn m-btn-sm m-btn-ghost" type="button">تفاصيل</button></div></div>
+                <div class="m-sec"><span>اختصارات</span></div>
+                <div class="m-tiles"><a class="m-tile is-primary" href="#screens"><span class="m-ico"><i data-i="plus"></i></span>مهمة جديدة</a><a class="m-tile" href="#screens"><span class="m-ico"><i data-i="scan"></i></span>مسح باركود</a></div>
+              </div>
+              <nav class="m-nav"><a href="#screens" aria-current="page"><span class="m-pill"><i data-i="home"></i></span>الرئيسية</a><a href="#screens"><span class="m-pill"><i data-i="clipboard"></i></span>المهام</a><a href="#screens"><span class="m-pill"><i data-i="bell"></i><span class="m-badge num">3</span></span>الإشعارات</a><a href="#screens"><span class="m-pill"><i data-i="user"></i></span>حسابي</a></nav>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>الرئيسية</b><span class="t-muted">ما يحتاج منك إجراءً يظهر أولاً، وزر الاعتماد داخل البطاقة نفسها (جرّبه).</span></div></div>
+
+          <!-- list -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar"><h1>المهام</h1><button class="m-iconbtn" type="button" aria-label="تصفية"><i data-i="filter"></i></button></div>
+              <div class="m-body">
+                <div class="m-search"><i data-i="search"></i><span>ابحث برقم الطلب</span></div>
+                <div class="m-filters"><button class="m-fchip" type="button" aria-pressed="false">الكل <b class="num">12</b></button><button class="m-fchip" type="button" aria-pressed="true">بانتظاري <b class="num">3</b></button><button class="m-fchip" type="button" aria-pressed="false">مكتمل <b class="num">9</b></button></div>
+                <div class="m-list">
+                  <a class="m-row" href="#screens"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1042</b><small>منذ 10 دقائق</small></span><span class="m-chip is-bad">عاجل</span></a>
+                  <a class="m-row" href="#screens"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1043</b><small>منذ ساعة</small></span><span class="m-chip is-info">بانتظارك</span></a>
+                  <a class="m-row" href="#screens"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1044</b><small>اليوم 08:15</small></span><span class="m-chip is-info">بانتظارك</span></a>
+                  <a class="m-row" href="#screens"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1045</b><small>أمس</small></span><span class="m-chip is-ok">مكتمل</span></a>
+                  <a class="m-row" href="#screens"><span class="m-ico"><i data-i="clipboard"></i></span><span class="m-txt"><b>طلب رقم 1046</b><small>أمس</small></span><span class="m-chip is-ok">مكتمل</span></a>
+                </div>
+              </div>
+              <nav class="m-nav"><a href="#screens"><span class="m-pill"><i data-i="home"></i></span>الرئيسية</a><a href="#screens" aria-current="page"><span class="m-pill"><i data-i="clipboard"></i></span>المهام</a><a href="#screens"><span class="m-pill"><i data-i="bell"></i><span class="m-badge num">3</span></span>الإشعارات</a><a href="#screens"><span class="m-pill"><i data-i="user"></i></span>حسابي</a></nav>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>قائمة</b><span class="t-muted">بحث وفلتر بأعداد، وصفوف عالية، والحالة ظاهرة على كل صف.</span></div></div>
+
+          <!-- detail -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar"><button class="m-iconbtn" type="button" aria-label="رجوع"><i data-i="chevron"></i></button><h1>طلب رقم 1042</h1></div>
+              <div class="m-body">
+                <div class="m-card"><div class="m-card-top"><span class="m-chip is-bad">عاجل · بانتظار اعتمادك</span></div>
+                  <dl class="m-kv"><dt>المسؤول</dt><dd>م. سامي</dd><dt>الموعد</dt><dd>اليوم 14:00</dd><dt>الكمية</dt><dd class="num">24</dd></dl></div>
+                <div class="m-card"><div class="m-label">ملاحظة</div><p class="m-sub" style="color:var(--eg-ink)">يرجى التسليم قبل نهاية الوردية.</p></div>
+                <div class="m-card"><div class="m-timeline"><div><i></i>أُنشئ الطلب · 08:30</div><div><i></i>أُرسل للاعتماد · 08:32</div><div><i></i>بانتظارك</div></div></div>
+              </div>
+              <div class="m-actionbar is-2"><button class="m-btn m-btn-primary" type="button" data-mdone="تم اعتماد الطلب"><i data-i="check"></i>اعتمد</button><button class="m-btn m-btn-ghost" type="button">ارفض</button></div>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>تفاصيل بإجراء</b><span class="t-muted">شريط الإجراء ثابت في الأسفل: الأكبر للمطلوب (اعتمد)، والأصغر للبديل.</span></div></div>
+
+          <!-- confirm -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar"><button class="m-iconbtn" type="button" aria-label="رجوع"><i data-i="chevron"></i></button><h1>طلب رقم 1042</h1></div>
+              <div class="m-body"><div class="m-card"><div class="m-card-top"><span class="m-chip is-bad">عاجل · بانتظار اعتمادك</span></div><dl class="m-kv"><dt>المسؤول</dt><dd>م. سامي</dd><dt>الموعد</dt><dd>اليوم 14:00</dd></dl></div></div>
+              <div class="m-scrim"></div>
+              <div class="m-sheet" role="dialog" aria-label="تأكيد الرفض">
+                <div class="m-ico-lg"><i data-i="alert" data-c="icon-lg"></i></div>
+                <div><h2 class="m-h2">ارفض الطلب رقم 1042؟</h2><p class="m-sub" style="margin-top:4px">سيتم إبلاغ صاحب الطلب فوراً.</p></div>
+                <div class="m-label" style="margin-block-end:-4px">السبب</div>
+                <div class="m-reasons"><button class="m-fchip" type="button" aria-pressed="true">بيانات ناقصة</button><button class="m-fchip" type="button" aria-pressed="false">خارج الصلاحية</button><button class="m-fchip" type="button" aria-pressed="false">آخر</button></div>
+                <button class="m-hold" type="button" data-label="اضغط مطوّلاً للرفض" data-done="تم الرفض ✔"><span><i data-i="x"></i><b>اضغط مطوّلاً للرفض</b></span></button>
+                <button class="m-btn m-btn-text" type="button">إلغاء</button>
+              </div>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>تأكيد إجراء لا يُسترجع</b><span class="t-muted">نافذة سفلية: سبب بنقرة، ثم ضغط مطوّل (جرّبه).</span></div></div>
+        </div>
+      </div></section>
+
+      <!-- 5 NOTIFICATIONS -->
+      <section class="ds-section" id="notify" style="border-bottom:0"><div class="container">
+        <h2 class="t-h1">5 · الإشعارات</h2>
+        <p class="lead">ثلاثة مستويات فقط. كل مستوى له شكل وصوت وسلوك ثابت، فيعرف المشرف من النظرة الأولى هل يتحرك الآن أم لا.</p>
+
+        <div class="levels">
+          <div class="level is-urgent"><header><span class="m-lv"><i data-i="bolt"></i></span><div><h3>عاجل</h3><small>يوقف العمل · نادر</small></div></header><dl><dt>متى</dt><dd>أمر لا يحتمل التأجيل (توقف، طلب متأخر جداً)</dd><dt>الشكل</dt><dd>شريط أحمر + أيقونة برق</dd><dt>الصوت</dt><dd>نغمة + اهتزاز، يتخطى «عدم الإزعاج»</dd><dt>الزر</dt><dd>إجراء واحد أو اثنان</dd><dt>يبقى</dt><dd>حتى يُنفَّذ أو يُغلق</dd><dt>تعطيله</dt><dd>غير مسموح</dd></dl></div>
+          <div class="level is-action"><header><span class="m-lv"><i data-i="bell"></i></span><div><h3>يحتاج إجراء</h3><small>قرار من المشرف</small></div></header><dl><dt>متى</dt><dd>طلب ينتظر اعتماداً أو استلاماً</dd><dt>الشكل</dt><dd>شريط كحلي + زر الإجراء داخل الإشعار</dd><dt>الصوت</dt><dd>نغمة هادئة + اهتزاز قصير</dd><dt>الزر</dt><dd>حتى زرّين: «اعتمد» و«تفاصيل»</dd><dt>يبقى</dt><dd>حتى يُنفَّذ</dd><dt>تعطيله</dt><dd>خارج ساعات العمل فقط</dd></dl></div>
+          <div class="level is-info"><header><span class="m-lv"><i data-i="info"></i></span><div><h3>للعلم</h3><small>بدون إجراء</small></div></header><dl><dt>متى</dt><dd>تم الاعتماد، وصل شحنة، تحديث حالة</dd><dt>الشكل</dt><dd>رمادي بدون أزرار</dd><dt>الصوت</dt><dd>صامت، يظهر في المركز فقط</dd><dt>الزر</dt><dd>لا شيء</dd><dt>يبقى</dt><dd>7 أيام ثم يُؤرشف</dd><dt>تعطيله</dt><dd>مسموح</dd></dl></div>
+        </div>
+
+        <div class="phones" style="margin-top:var(--space-12)">
+          <!-- lock screen -->
+          <div><div class="m-wrap"><div class="m-device is-dark"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr" style="background:transparent"><div class="m-lock">
+              <div class="m-clock"><b class="num">9:41</b><span>الثلاثاء، 3 نوفمبر</span></div>
+              <div class="m-push is-urgent"><div class="m-push-head"><img src="./assets/images/logo/mark.png" alt="" /><b>المصرية الألمانية</b><time>الآن</time></div><h4 class="m-push-title">عاجل: طلب رقم 1042 متأخر</h4><p class="m-push-body">ينتظر اعتمادك منذ ساعتين.</p><div class="m-push-actions"><button class="is-primary" type="button" data-mdone="تم الاعتماد">اعتمد</button><button type="button">تفاصيل</button></div></div>
+              <div class="m-push"><div class="m-push-head"><img src="./assets/images/logo/mark.png" alt="" /><b>المصرية الألمانية</b><time>منذ 5 د</time></div><h4 class="m-push-title">طلب رقم 1043 ينتظر اعتمادك</h4><p class="m-push-body">من م. سامي · موعد اليوم 14:00</p><div class="m-push-actions"><button class="is-primary" type="button" data-mdone="تم الاعتماد">اعتمد</button><button type="button">تفاصيل</button></div></div>
+              <div class="m-push is-info"><div class="m-push-head"><img src="./assets/images/logo/mark.png" alt="" /><b>المصرية الألمانية</b><time>منذ ساعة</time></div><h4 class="m-push-title">تم اعتماد طلب رقم 1039</h4></div>
+            </div></div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>على شاشة القفل</b><span class="t-muted">القرار من الإشعار نفسه دون فتح التطبيق: نقرة واحدة على «اعتمد».</span></div></div>
+
+          <!-- center -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar"><h1>الإشعارات</h1><button class="m-btn m-btn-text m-btn-sm" type="button" style="width:auto;color:var(--eg-red-deep);font-size:15px">قراءة الكل</button></div>
+              <div class="m-body" style="gap:10px">
+                <div class="m-filters"><button class="m-fchip" type="button" aria-pressed="true">الكل</button><button class="m-fchip" type="button" aria-pressed="false">يحتاج إجراء <b class="num">3</b></button><button class="m-fchip" type="button" aria-pressed="false">للعلم</button></div>
+                <div class="m-ngroup">اليوم</div>
+                <div class="m-note is-unread"><span class="m-lv is-urgent"><i data-i="bolt"></i></span><b>طلب رقم 1042 متأخر</b><p>ينتظر اعتمادك منذ ساعتين</p><time>منذ 2 د</time><span class="m-dot"></span><div class="m-card-actions"><button class="m-btn m-btn-sm m-btn-primary" type="button" data-mdone="تم الاعتماد">اعتمد</button></div></div>
+                <div class="m-note is-unread"><span class="m-lv is-action"><i data-i="bell"></i></span><b>طلب رقم 1043 ينتظر اعتمادك</b><p>من م. سامي</p><time>منذ 5 د</time><span class="m-dot"></span></div>
+                <div class="m-note"><span class="m-lv is-info"><i data-i="check"></i></span><b>تم اعتماد طلب رقم 1039</b><p>بواسطة م. هاني</p><time>منذ ساعة</time></div>
+              </div>
+              <nav class="m-nav"><a href="#notify"><span class="m-pill"><i data-i="home"></i></span>الرئيسية</a><a href="#notify"><span class="m-pill"><i data-i="clipboard"></i></span>المهام</a><a href="#notify" aria-current="page"><span class="m-pill"><i data-i="bell"></i><span class="m-badge num">3</span></span>الإشعارات</a><a href="#notify"><span class="m-pill"><i data-i="user"></i></span>حسابي</a></nav>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>مركز الإشعارات</b><span class="t-muted">غير المقروء بنقطة حمراء وخلفية أوضح. المستوى بلون الأيقونة. اضغط إشعاراً لتعليمه مقروءاً.</span></div></div>
+
+          <!-- prefs -->
+          <div><div class="m-wrap"><div class="m-device"><div class="m-status"><b>9:41</b><span class="m-sig"><i></i><i></i><i></i><i class="bat"></i></span></div>
+            <div class="m-scr"><div class="m-appbar"><button class="m-iconbtn" type="button" aria-label="رجوع"><i data-i="chevron"></i></button><h1>إعدادات الإشعارات</h1></div>
+              <div class="m-body">
+                <div class="m-list">
+                  <div class="m-row"><span class="m-ico" style="background:var(--eg-red-tint);color:var(--eg-red-deep)"><i data-i="bolt"></i></span><span class="m-txt"><b>عاجل</b><small>لا يمكن إيقافه</small></span><label class="m-switch"><input type="checkbox" checked disabled aria-label="عاجل" /><span></span></label></div>
+                  <div class="m-row"><span class="m-ico"><i data-i="bell"></i></span><span class="m-txt"><b>يحتاج إجراء</b><small>صوت واهتزاز</small></span><label class="m-switch"><input type="checkbox" checked aria-label="يحتاج إجراء" /><span></span></label></div>
+                  <div class="m-row"><span class="m-ico" style="background:var(--color-neutral-tint);color:var(--color-neutral)"><i data-i="info"></i></span><span class="m-txt"><b>للعلم</b><small>صامت في المركز فقط</small></span><label class="m-switch"><input type="checkbox" aria-label="للعلم" /><span></span></label></div>
+                </div>
+                <div class="m-sec"><span>خارج ساعات العمل</span></div>
+                <div class="m-list">
+                  <div class="m-row"><span class="m-ico"><i data-i="clock"></i></span><span class="m-txt"><b>وقت الهدوء</b><small class="num" dir="ltr">10:00 PM – 6:00 AM</small></span><label class="m-switch"><input type="checkbox" checked aria-label="وقت الهدوء" /><span></span></label></div>
+                </div>
+                <div class="m-help" style="padding-inline:4px">في وقت الهدوء تصلك الإشعارات العاجلة فقط.</div>
+              </div>
+            </div><div class="m-home"></div></div></div>
+            <div class="mref-cap"><b>إعدادات الإشعارات</b><span class="t-muted">ثلاثة مفاتيح فقط + وقت هدوء. «عاجل» مغلق على التفعيل.</span></div></div>
+        </div>
+
+        <h3 class="t-h2" style="margin-top:var(--space-12)">داخل التطبيق: تنبيه عابر وشريط</h3>
+        <p class="t-muted" style="margin-bottom:var(--space-4)">للتأكيد السريع بعد الإجراء. يختفي وحده بعد ٣–٥ ثوانٍ. الخطأ لا يختفي وحده ويحمل زر «أعد المحاولة».</p>
+        <div class="grid specs">
+          <div class="mref-spec"><h3>تنبيه عابر (جرّبه)</h3><div class="mref-stage is-phone">
+            <div class="m-toast is-ok"><i data-i="check"></i><span>تم اعتماد الطلب</span><button class="m-act" type="button">تراجع</button></div>
+            <div class="m-toast is-bad"><i data-i="alert"></i><span>تعذّر الإرسال</span><button class="m-act" type="button">أعد المحاولة</button></div>
+            <div class="m-toast is-info"><i data-i="info"></i><span>تم حفظ المسودة</span></div>
+            <div class="demo-row" style="margin-top:6px">
+              <button class="m-btn m-btn-sm m-btn-secondary" type="button" data-mtoast data-kind="ok" data-msg="تم اعتماد الطلب" data-act="تراجع">نجاح مع تراجع</button>
+              <button class="m-btn m-btn-sm m-btn-ghost" type="button" data-mtoast data-kind="bad" data-msg="تعذّر الإرسال" data-act="أعد المحاولة">خطأ</button>
+            </div>
+          </div><div class="mref-dim">أخضر = تم، أحمر = فشل، أزرق = معلومة. الأيقونة تحمل المعنى مع اللون. أعلى زر «تراجع» ٥ ثوانٍ لإلغاء الإجراء.</div></div>
+          <div class="mref-spec"><h3>كتابة الإشعار</h3>
+            <div class="mref-do"><b>صيغة الإشعار: الحدث + الرقم + المطلوب</b>«طلب رقم 1042 ينتظر اعتمادك»</div>
+            <div class="mref-dont"><b>تجنّب</b>«تم إنشاء طلب جديد بواسطة النظام ويحتاج إلى مراجعة واعتماد من قبل المسؤول المختص»</div>
+            <ul class="rule-list t-dense"><li>العنوان حتى 6 كلمات، والنص سطر واحد (12 كلمة)</li><li>زر بفعل واحد: «اعتمد»، «استلمت»، «تفاصيل»</li><li>الرقم المرجعي دائماً في العنوان</li><li>كل إشعار يفتح الشاشة المعنية مباشرة (رابط عميق)</li><li>لا إشعارين لنفس الحدث، ولا إشعارات ترويجية</li><li>الشارة على «الإشعارات» تعدّ ما يحتاج إجراء فقط</li></ul>
+          </div>
+        </div>
+        <div class="card" style="margin-top:var(--space-6);background:var(--eg-navy-tint);border:0"><b>للمطورين:</b> مواصفات الحمولة (payload) والقنوات وروابط الفتح المباشر في <code>docs/mobile.md</code>، والقرارات المفتوحة في <code>docs/open-questions.md</code> (البنود 15–19).</div>
+      </div></section>
+    </main>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
+    <script src="./js/mobile.js"></script>
+  </body>
+</html>
