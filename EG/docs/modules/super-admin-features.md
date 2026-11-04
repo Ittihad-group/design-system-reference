@@ -3,6 +3,8 @@
 > آخر تحديث: 2026-11-04 · مبني على: `PRODUCT.md` · `docs/open-questions.md` · `docs/flows.md` · `docs/modules/super-admin.md` · الصفحة المصممة `super-admin.html` · تطبيق `EG-System`.
 > الملف ده **مواصفات للتخطيط**، مش قرارات. أي رقم أو سياسة أو قيمة (حدود، مدد، نسب) **مش معتمدة** إلا لو مكتوب جنبها Approved.
 
+> **التفصيل الكامل (شاشات + Use Cases + User Stories + سجل متطلبات):** [`../super-admin/README.md`](../super-admin/README.md). الملف ده بقى الملخص + مواصفات الـDesign System.
+
 ## 0. مفتاح القراءة
 
 | الوسم | المعنى |

@@ -5,11 +5,12 @@
    the annotation lines are drawn from measured screen coordinates. */
 
 /* ── Control bar ────────────────────────────────────── */
-.pr-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: var(--space-4) var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); margin-bottom: var(--space-3); box-shadow: var(--shadow-card); }
+.pr-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: var(--space-4) var(--space-6); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); margin-bottom: var(--space-3); box-shadow: var(--shadow-card); }
 .pr-ctl { display: grid; gap: 6px; align-content: start; min-width: 0; }
 .pr-ctl > b { font-size: var(--text-caption); font-weight: 700; color: var(--color-text-muted); }
 .pr-ctl > small { font-size: 12px; color: var(--color-text-muted); line-height: 1.4; }
-.pr-bar .segmented { width: fit-content; max-width: 100%; flex-wrap: wrap; }
+.pr-bar .segmented { width: fit-content; max-width: 100%; }
+.pr-bar .segmented button { padding-inline: var(--space-3); white-space: nowrap; }
 .pr-bar .segmented button { min-height: 36px; }
 .pr-sw { display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: var(--text-dense); font-weight: 600; cursor: pointer; }
 
@@ -59,13 +60,14 @@
 
 /* ── Phone interior ─────────────────────────────────── */
 .pr-phone .m-device[dir="ltr"] { font-family: var(--font-en); }
-.pr-view { flex: 1; min-height: 0; display: flex; flex-direction: column; animation: pr-in .22s var(--ease-out) both; }
+.pr-view { flex: 1; min-height: 0; display: flex; flex-direction: column; animation: pr-in .22s var(--ease-out); }
+.pr-view.is-still { animation: none; }
 @keyframes pr-in { from { opacity: 0; transform: translateY(6px); } }
 .pr-phone .m-body { overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
 .pr-phone .m-body::-webkit-scrollbar { display: none; }
 .pr-phone .m-body.has-fab { padding-block-end: 92px; }
 .pr-flip { transform: scaleX(-1); }
-.pr-phone .m-device[dir="ltr"] .m-appbar .icon-chev { transform: none; }
+.pr-phone .m-device[dir="ltr"] .m-row > .icon-chev { transform: none; }
 .pr-phone button, .pr-phone a, .pr-phone [data-act] { -webkit-tap-highlight-color: transparent; }
 .pr-phone [data-act] { cursor: pointer; }
 .pr-phone .m-rec:active, .pr-phone .m-card[data-act]:active { background: var(--eg-bg-soft); }

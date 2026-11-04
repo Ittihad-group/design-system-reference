@@ -220,7 +220,7 @@
             <div class="step-body">
               <h3>تطبيق الموبايل: الأساسيات</h3>
               <p>مبني على تطبيق EG-Mobile الحالي: مطابقة معه وما يحتاج قراراً، شاشات الدخول، مكتبة المكونات، شاشات الوحدات الثماني بالعربي والإنجليزي، ونظام الإشعارات بثلاثة مستويات.</p>
-              <div class="chips"><a href="./mobile.html#align">المطابقة</a><a href="./mobile.html#auth">الدخول</a><a href="./mobile.html#components">المكونات</a><a href="./mobile.html#screens">الشاشات</a><a href="./mobile.html#notify">الإشعارات</a></div>
+              <div class="chips"><a href="./mobile.html#try">جرّب التطبيق</a><a href="./mobile.html#align">المطابقة</a><a href="./mobile.html#auth">الدخول</a><a href="./mobile.html#components">المكونات</a><a href="./mobile.html#screens">الشاشات</a><a href="./mobile.html#notify">الإشعارات</a></div>
               <a class="btn btn-primary" href="./mobile.html">افتح الخطوة 6</a>
             </div>
           </article>
@@ -316,7 +316,7 @@
       document.getElementById("hub-finishes").innerHTML = EG.finishes.map(function (f) { return '<i style="--c:' + f.hex + '" title="' + f.code + '"></i>'; }).join("");
       document.getElementById("hero-fin").innerHTML = EG.finishes.slice(0, 8).map(function (f) { return '<i style="--c:' + f.hex + '"></i>'; }).join("");
       var groups = [
-        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/print.css", "js/mobile.js", "docs/modules/super-admin.md", "docs/modules/catalog-portal.md", "docs/modules/finance.md", "docs/modules/hr.md"]],
+        ["Foundations", ["DESIGN.md", "PRODUCT.md", "docs/design-system.md", "docs/brand.md", "docs/colors.md", "docs/typography.md", "docs/layout.md", "docs/components.md", "docs/motion.md", "docs/accessibility-rtl.md", "docs/documents-pdf.md", "docs/mobile.md", "css/variables.css", "css/components.css", "css/mobile.css", "css/mobile-proto.css", "css/print.css", "js/mobile.js", "js/mobile-proto.js", "docs/modules/super-admin.md", "docs/modules/catalog-portal.md", "docs/modules/finance.md", "docs/modules/hr.md"]],
         ["Product & content", ["docs/ia-sitemap.md", "docs/screen-inventory.md", "docs/flows.md", "docs/demo-data.md", "docs/content-voice.md", "assets/ASSETS.md", "js/demo-data.js"]],
         ["ERP modules", ["dashboard", "products", "inventory", "sales", "production", "customers", "suppliers", "purchases", "hr", "finance", "settings"].map(function (m) { return "docs/modules/" + m + ".md"; })],
         ["Surfaces · Delivery", ["docs/surfaces/eg-system.md", "docs/surfaces/eg-website.md", "docs/surfaces/eg-mobile.md", "docs/qa-checklist.md", "docs/handoff.md", "docs/open-questions.md"]]

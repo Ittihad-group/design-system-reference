@@ -1,6 +1,7 @@
 # Mobile app — design reference (aligned with EG-Mobile / Flutter)
 
-Visual reference: `mobile.html` (Step 3 of the presentation flow). Styles: `css/mobile.css`. Behaviours: `js/mobile.js`.
+Visual reference: `mobile.html` (Step 6 of the presentation flow). Styles: `css/mobile.css`. Behaviours: `js/mobile.js`.
+Interactive prototype (section `#try`, reference page only — not part of the app kit): `css/mobile-proto.css` + `js/mobile-proto.js`. A clickable 360×740 phone with roles (RBAC), AR⇄EN mirroring, offline, loading/empty/error states and push deep-links; each element carries `data-ann` and a note (shape · behaviour · Flutter widget) in the `ANN` table of `mobile-proto.js`.
 Source of truth for structure and data: the **EG-Mobile** repo (`lib/features/*`, `lib/core/*`) and **EG-System**. This design follows them; every difference is listed in section 1 of `mobile.html` and below.
 
 ## 1. What EG-Mobile is today (audited)

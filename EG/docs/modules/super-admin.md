@@ -2,7 +2,8 @@
 
 > Status: **Approved** كأول موديول · Live: `../../super-admin.html` · مكونات: `../../design-system.html#admin` · المتطلبات: `../../PRODUCT.md` (قسم 2 و3)
 
-> الكتالوج الكامل للفيتشرز (28 فيتشر) ومواصفات الـDesign System للموديول: [`super-admin-features.md`](super-admin-features.md)
+> **المرجع الكامل للتنفيذ (Epic):** [`../super-admin/README.md`](../super-admin/README.md) — 28 فيتشر · 84 شاشة · 113 Use Case · سجل متطلبات.
+> ملخص الفيتشرز ومواصفات الـDesign System: [`super-admin-features.md`](super-admin-features.md)
 
 ## Purpose
 
