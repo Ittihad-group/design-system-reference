@@ -2,6 +2,8 @@
 
 > Status: **Approved** كأول موديول · Live: `../../super-admin.html` · مكونات: `../../design-system.html#admin` · المتطلبات: `../../PRODUCT.md` (قسم 2 و3)
 
+> الكتالوج الكامل للفيتشرز (28 فيتشر) ومواصفات الـDesign System للموديول: [`super-admin-features.md`](super-admin-features.md)
+
 ## Purpose
 
 موديول صاحب الشركة والمصنع لإدارة النظام بالكامل.
