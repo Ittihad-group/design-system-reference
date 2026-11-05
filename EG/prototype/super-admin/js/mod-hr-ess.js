@@ -299,10 +299,6 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
       const stt = plan[id]; const ago = (m) => hm(new Date(Date.now() - m * 60000)); const k = parseInt(id.slice(-2), 10);
       st.insert('attendance', { id: 'AT-' + id + '-T', employeeId: id, date: t, in: stt === 'absent' || stt === 'leave' ? null : ago(stt === 'late' ? 9 + (k % 4) : 25 + (k % 7) * 6), out: null, status: stt, shift: e.shift, source: 'seed' });
     });
-    if (!L('overtimeRequests').length) {
-      const y = addDays(t, -1);
-      [['E-1021', 2, 'تسليم أمر تشغيل WO-2026-054 قبل ميعاد الشحن'], ['E-1023', 3, 'صيانة طارئة لخط التقطيع'], ['E-1026', 1.5, 'استكمال دفعة دهان متأخرة']].forEach((o, i) => st.insert('overtimeRequests', { id: 'OT-2026-' + p2(i + 1).padStart(4, '0'), employeeId: o[0], date: y, hours: o[1], reason: o[2], status: 'pending', requestedBy: 'self', approvalId: null, createdAt: mk(300 + i * 40) }));
-    }
   }
 
   /* ───────────────────────── approvals: advance a chain + sync decisions made elsewhere (inbox SA-16 / HR screens) back to the source records ───────────────────────── */
@@ -338,6 +334,8 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
     aps.forEach((a) => {
       const ok = a.status === 'approved'; const rt = a.ref.type;
       if (rt === 'leave') {
+        const r0 = st.find('leaveRequests', a.ref.id); if (!r0 || r0.status !== 'pending') return;
+        setTimeout(() => { /* deferred: the HR-time module reconciles first (ledger + balances); this is only a fallback */
         const r = st.find('leaveRequests', a.ref.id); if (!r || r.status !== 'pending') return;
         if (ok) {
           st.patch('leaveRequests', r.id, { status: 'approved', stage: 'done', decidedAt: new Date().toISOString() });
@@ -346,6 +344,7 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
           if (!L('audit').some((x) => x.code === 'HR.LEAVE.APPROVED' && x.target && x.target.id === r.id && x.after && x.after.status === 'approved')) SA.audit('HR.LEAVE.APPROVED', { target: { type: 'leave_request', id: r.id, label: 'إجازة ' + (LEAVE_T[r.type] || r.type) + ' — ' + (empById(r.employeeId) || {}).name }, after: { status: 'approved', stage: 'done' }, reason: 'اكتملت سلسلة الاعتماد' });
         } else { st.patch('leaveRequests', r.id, { status: 'rejected', stage: 'done' }); }
         const e = empById(r.employeeId); if (e && e.userId) noteTo({ title: ok ? 'تمت الموافقة على إجازتك' : 'تم رفض طلب إجازتك', body: 'إجازة ' + (LEAVE_T[r.type] || '') + ' من ' + fdate(r.from) + ' إلى ' + fdate(r.to), level: ok ? 'info' : 'action', toUsers: [e.userId], link: '#/hr/ess/requests' });
+        }, 80);
       } else if (rt === 'doc_request') {
         const r = st.find('docRequests', a.ref.id); if (!r || r.status !== 'requested') return;
         st.patch('docRequests', r.id, { status: ok ? 'issued' : 'rejected', issuedAt: ok ? new Date().toISOString() : null });
@@ -1059,6 +1058,8 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
     if (!items.length) box.append(SA.empty({ icon: 'checkcircle', title: 'مفيش حاجة بانتظار قرارك', text: 'الطلبات الجديدة من فريقك (إجازة، أوفرتايم، تصحيح بصمة) بتظهر هنا.' }));
     else box.append(h('div.sap-ess2-list', {}, items.map((i) => itemCard(i, mem, X.w, me))));
     const ids = mem.map((x) => x.id);
+    const hot = ((st.get('hrTime') || {}).otRequests || []).filter((o) => (o.employeeIds || []).length && o.employeeIds.every((x) => ids.indexOf(x) >= 0)).slice(0, 6);
+    if (hot.length) box.append(SA.card({ title: 'أوفرتايم فريقك', actions: [SA.btn({ label: 'فتح الأوفرتايم', icon: 'bolt', kind: 'ghost', size: 'sm', perm: 'hr.overtime.view', onClick: () => SA.nav('hr/overtime') })] }, h('p.sap-ess2-note', { style: 'margin-block:0 8px' }, 'قرار الأوفرتايم عند مدير الموارد البشرية (السقف والامتثال) — بتتابع حالته هنا.'), h('div.sap-ess2-list', {}, hot.map((o) => h('div.sap-mss-person', {}, SA.icon('bolt'), h('div.sap-mss-info', {}, h('b', {}, o.employeeIds.map((x) => (empById(x) || {}).name).join('، ')), h('small', {}, o.id + ' · ' + fdate(o.date) + ' · ' + hrsTxt(Math.round((o.minutes || 0) / 6) / 10))), chipOf(o.status === 'requested' ? 'requested' : o.status === 'approved' ? 'approved' : 'rejected'))))));
     const hist = L('leaveRequests').filter((r) => ids.indexOf(r.employeeId) >= 0 && r.supervisorDecision).sort((a, b) => new Date(b.supervisorDecision.at) - new Date(a.supervisorDecision.at)).slice(0, 5);
     if (hist.length) box.append(SA.card({ title: 'قراراتك الأخيرة' }, h('div.sap-ess2-list', {}, hist.map((r) => h('div.sap-mss-person', {}, SA.avatar((empById(r.employeeId) || {}).name), h('div.sap-mss-info', {}, h('b', {}, (empById(r.employeeId) || {}).name), h('small', {}, 'إجازة ' + LEAVE_T[r.type] + ' · ' + fdate(r.from) + ' ← ' + fdate(r.to))), reqChip(r.status === 'pending' ? 'at_hr' : r.status), h('small.t-muted', {}, SA.fmt.rel(r.supervisorDecision.at)))))));
   } };
@@ -1333,7 +1334,7 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
     { id: 'M-E5', area: 'hr', title: 'خدماتي: وقّع على سياسة السلامة بالـPIN', persona: 'employee', route: 'hr/ess/acks', est: '3 د', goal: 'اقرأ الملخص، جاوب سؤال الفهم، ووقّع بالـPIN. الإقرار بيحفظ الإصدار والجهاز.', steps: [{ text: 'افتح إقراراتي ← سياسة السلامة' }, { text: 'جاوب السؤال ثم «اطلعت ووافقت»', audit: 'HR.ESS.ACK_SIGNED' }], detect: [{ audit: 'HR.ESS.ACK_SIGNED' }] },
     { id: 'M-E6', area: 'hr', title: 'خدماتي: اطلب شهادة مرتب وسلفة', persona: 'employee', route: 'hr/ess/requests', est: '3 د', goal: 'الشهادة لازم لها غرض، والطلبين بيظهروا لـHR في الصندوق المشترك.', steps: [{ text: 'اطلب شهادة مرتب مع الغرض', audit: 'HR.ESS.REQUEST_SUBMITTED' }, { text: 'اطلب سلفة', audit: 'HR.ADVANCE.REQUESTED' }], detect: [{ audit: 'HR.ESS.REQUEST_SUBMITTED' }, { audit: 'HR.ADVANCE.REQUESTED' }] },
     { id: 'M-E7', area: 'hr', title: 'خدماتي: بلّغ إصابة أو خطر', persona: 'employee', route: 'hr/ess/report', est: '2 د', goal: 'البلاغ بيوصل السلامة فورًا (عاجل للإصابة) ويظهر في سجل السلامة.', steps: [{ text: 'افتح «بلّغ مشكلة» واختر النوع والمكان', audit: 'HR.ESS.INCIDENT_REPORTED' }], detect: [{ audit: 'HR.ESS.INCIDENT_REPORTED' }] },
-    { id: 'M-S1', area: 'hr', title: 'فريقي: اعتمد الأوفرتايم جماعيًا', persona: 'supervisor', route: 'hr/team/approvals', est: '3 د', goal: 'من تبويب الاعتمادات اعتمد طلبات الأوفرتايم المعلّقة دفعة واحدة بعد ملخص الساعات.', steps: [{ text: 'افتح فريقي ← الاعتمادات' }, { text: 'اضغط «اعتماد كل الأوفرتايم»', audit: 'HR.OVERTIME.APPROVED' }], detect: [{ audit: 'HR.OVERTIME.APPROVED' }] },
+    { id: 'M-S1', area: 'hr', title: 'فريقي: اعتمد إجازة بنقرة وشوف تنبيه التغطية', persona: 'supervisor', route: 'hr/team/approvals', est: '3 د', goal: 'افتح الاعتمادات، لاحظ تنبيه التغطية لو في زميل في إجازة بنفس الأيام، ثم اعتمد أو ارفض بسبب جاهز. الطلب بعد اعتمادك بيروح HR في الصندوق المشترك.', steps: [{ text: 'افتح فريقي ← الاعتمادات' }, { text: 'اضغط «اعتمد» على طلب إجازة', audit: 'HR.LEAVE.APPROVED' }], detect: [{ audit: 'HR.LEAVE.APPROVED' }] },
     { id: 'M-S2', area: 'hr', title: 'فريقي: بلاغ مخالفة + تقييم تجربة', persona: 'supervisor', route: 'hr/team/report', est: '4 د', goal: 'سلّم بلاغ مخالفة لـHR (من غير ما تشوف التحقيق)، ثم قيّم موظف تحت التجربة.', steps: [{ text: 'سلّم بلاغ مخالفة', audit: 'HR.DISCIPLINE.REPORTED' }, { text: 'افتح تبويب التجربة وأرسل التقييم', audit: 'HR.PROBATION.REVIEW_SUBMITTED' }], detect: [{ audit: 'HR.DISCIPLINE.REPORTED' }, { audit: 'HR.PROBATION.REVIEW_SUBMITTED' }] },
     { id: 'M-K1', area: 'hr', title: 'الكشك: بصمة بالكود والـPIN', persona: 'employee', route: 'hr/kiosk', est: '2 د', goal: 'ادخل برقم الموظف 17 والـPIN 123456 وسجّل بصمة. الكشك مفيهوش أي أجر.', steps: [{ text: 'افتح الكشك واكتب 17 ثم PIN 123456' }, { text: 'اضغط «تسجيل حضور»', audit: 'HR.KIOSK.PUNCH' }], detect: [{ route: 'hr-kiosk' }, { audit: 'HR.KIOSK.PUNCH' }] },
     { id: 'M-K2', area: 'hr', title: 'الكشك دون اتصال: طابور ومصالحة', persona: 'employee', route: 'hr/kiosk', est: '4 د', goal: 'فعّل Offline من وضع الاختبار، سجّل بصمة (تتحفظ محليًا)، ثم رجّع الاتصال وشوف المزامنة.', steps: [{ text: 'فعّل «Offline» وسجّل بصمة على الكشك', audit: 'HR.KIOSK.OFFLINE' }, { text: 'أوقف Offline وشوف المزامنة', audit: 'HR.KIOSK.PUNCH' }], detect: [{ audit: 'HR.KIOSK.OFFLINE' }, { audit: 'HR.KIOSK.PUNCH' }] }

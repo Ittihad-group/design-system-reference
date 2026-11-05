@@ -164,7 +164,7 @@
         }
         const group = []; const map = {};
         FIELDS.forEach((f) => {
-          const fld = SA.form.field({ name: f.k, label: fieldLabel[f.k], type: f.type === 'textarea' ? 'textarea' : (f.type || 'text'), value: c[f.k] || '', required: f.req, hint: f.hint || (f.phNote && f.ph(c[f.k]) ? f.phNote : ''), dir: f.dir, rules: rulesFor(f.k),
+          const fld = SA.form.field({ name: f.k, label: fieldLabel[f.k] + (f.req ? ' *' : ''), type: f.type === 'textarea' ? 'textarea' : (f.type || 'text'), value: c[f.k] || '', hint: f.hint || (f.phNote && f.ph(c[f.k]) ? f.phNote : ''), dir: f.dir, rules: rulesFor(f.k),
             onInput: (v) => { draft[f.k] = v; drawBanner(draft); dirty(); } });
           group.push(fld); map[f.k] = fld;
         });
