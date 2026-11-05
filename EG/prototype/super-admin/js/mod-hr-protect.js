@@ -1,0 +1,1 @@
+/* mod-hr-protect.js — placeholder: HR Phase 2 agent fills (HR-18..26 + HR-29/28 التطوير والإنهاء والمستندات والتقارير). Register with SA.register({app:"hr", id: SAME id as SA.hrNav in shell.js}) to replace the stub. Intentionally empty. */

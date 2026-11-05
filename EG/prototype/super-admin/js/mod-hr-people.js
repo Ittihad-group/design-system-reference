@@ -1,0 +1,1 @@
+/* mod-hr-people.js — placeholder: HR Phase 2 agent fills (HR-05..08 + HR-34 الموظفون). Register with SA.register({app:"hr", id: SAME id as SA.hrNav in shell.js}) to replace the stub. Intentionally empty. */
