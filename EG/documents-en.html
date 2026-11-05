@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EG — Document &amp; Report Templates (PDF) · English</title>
+    <link rel="icon" href="./assets/images/logo/favicon.png" />
+    <link rel="stylesheet" href="./css/main.css" />
+    <link rel="stylesheet" href="./css/print.css" />
+    <link rel="stylesheet" href="./css/print-en.css" />
+    <style>
+      .doc-wrap { display: grid; grid-template-columns: auto minmax(260px, 1fr); gap: var(--space-8); align-items: start; padding-block: var(--space-8); border-bottom: 1px solid var(--color-border); }
+      .doc-info { position: sticky; top: 72px; display: flex; flex-direction: column; gap: var(--space-3); }
+      .doc-info h3 { margin: 0; }
+      .doc-info ul { margin: 0; padding-inline-start: 1.2em; display: grid; gap: 4px; font-size: var(--text-dense); }
+      .a4-scroll { overflow-x: auto; padding: 4px; }
+      @media (max-width: 1160px) { .doc-wrap { grid-template-columns: 1fr; } .doc-info { position: static; } }
+      .matrix td, .matrix th { white-space: normal; vertical-align: top; }
+      .matrix .chip { margin: 2px; }
+      .schem { position: relative; width: 210px; height: 297px; background: #fff; border: 1px solid var(--color-border-strong); box-shadow: var(--shadow-card); }
+      .schem div { position: absolute; inset-inline: 0; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+      .schem .z-head { top: 14px; height: 36px; background: var(--eg-navy-tint); color: var(--eg-navy); }
+      .schem .z-body { top: 56px; bottom: 44px; background: var(--eg-bg-soft); color: var(--eg-muted); }
+      .schem .z-foot { bottom: 14px; height: 24px; background: var(--eg-navy-tint); color: var(--eg-navy); }
+      .schem .m { position: absolute; inset: 14px; border: 1px dashed var(--color-focus); pointer-events: none; }
+      .ph { border-block-end: 1px dotted #999; color: #999; padding-inline: 4px; }
+      @media print { .docs-title { display: none !important; } .docs-root .container { width: auto !important; margin: 0 !important; } .docs-root { border: 0 !important; } }
+    </style>
+  </head>
+  <body>
+    <nav class="ds-nav" aria-label="Sections">
+      <div class="container">
+        <a href="./index.html" aria-label="Hub"><img src="./assets/images/logo/mark.png" alt="EG" width="32" height="32" style="background:#fff;border-radius:50%;padding:2px" /></a>
+        <a href="#matrix">Who needs a PDF</a><a href="#kit">Document spec</a><a href="#templates">Templates (11)</a>
+        <span class="grow"></span>
+        <a href="./documents.html" hreflang="ar" lang="ar">العربية</a><a href="./brand.html">Brand</a><a href="./design-system.html">Components</a>
+      </div>
+    </nav>
+
+    <header class="ds-hero">
+      <div class="container stack-sm">
+        <div class="t-eyebrow" style="color:#ffb3b6">Documents &amp; reports · English edition</div>
+        <h1 class="t-display" style="color:#fff">What PDF files look like in the Egyptian-German system — in English</h1>
+        <p class="t-muted" style="max-width:66ch">The system issues every document in Arabic and in English. This page shows the 11 A4 templates in their English (left-to-right) edition: same header, footer, colours and layout as the Arabic originals in <a href="./documents.html" style="color:#fff">documents.html</a>. Each template can be printed or saved as PDF from here and has a ready sample PDF.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="ds-section" id="matrix"><div class="container">
+        <h2 class="t-h1">Which module needs which document?</h2>
+        <p class="lead">About 25 document types, all produced from only 11 templates (title and fields change). Priority: "Essential" = required at first go-live.</p>
+        <div class="card card-flush"><div class="table-wrap"><table class="table matrix">
+          <thead><tr><th>Module</th><th>Documents / reports</th><th>Template</th><th>Priority</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Sales</strong></td><td><b>Quotation</b> · <b>Dealer proforma invoice</b> · Sales order · <b>Invoice</b> · <b>Delivery / shipping note</b> · Cash receipt</td><td><span class="chip chip-info chip-plain">Invoice</span><span class="chip chip-info chip-plain">Quotation</span><span class="chip chip-info chip-plain">Note</span></td><td><span class="chip chip-danger chip-plain">Essential</span></td></tr>
+            <tr><td><strong>Customers &amp; dealers</strong></td><td><b>Customer statement</b> · Debt aging</td><td><span class="chip chip-info chip-plain">Statement</span></td><td><span class="chip chip-danger chip-plain">Essential</span></td></tr>
+            <tr><td><strong>Inventory</strong></td><td>Stock-in note · Stock-out note · Stock balance report · Items below minimum · Stocktake record</td><td><span class="chip chip-info chip-plain">Note</span><span class="chip chip-info chip-plain">Report</span></td><td><span class="chip chip-danger chip-plain">Essential</span></td></tr>
+            <tr><td><strong>Production</strong></td><td><b>Work order</b> · Daily production report · Waste report</td><td><span class="chip chip-info chip-plain">Work order</span><span class="chip chip-info chip-plain">Report</span></td><td><span class="chip chip-danger chip-plain">Essential</span></td></tr>
+            <tr><td><strong>Purchasing</strong></td><td>Purchase order · Raw-material receipt note</td><td><span class="chip chip-info chip-plain">Invoice</span><span class="chip chip-info chip-plain">Note</span></td><td><span class="chip chip-warning chip-plain">Important</span></td></tr>
+            <tr><td><strong>Suppliers</strong></td><td>Supplier statement</td><td><span class="chip chip-info chip-plain">Statement</span></td><td><span class="chip chip-warning chip-plain">Important</span></td></tr>
+            <tr><td><strong>Finance</strong></td><td><b>Monthly sales report</b> · Treasury movement · <b>Receipt voucher</b> · <b>Payment voucher</b> · <b>Debt aging</b> · Quotation</td><td><span class="chip chip-info chip-plain">Report</span><span class="chip chip-info chip-plain">Voucher</span><span class="chip chip-info chip-plain">Debt aging</span></td><td><span class="chip chip-danger chip-plain">Essential</span></td></tr>
+            <tr><td><strong>Human Resources</strong></td><td><b>Payslip</b> · <b>Monthly payroll register</b> · Attendance sheet · Official letter / certificate</td><td><span class="chip chip-info chip-plain">Payslip</span><span class="chip chip-info chip-plain">Payroll register</span><span class="chip chip-info chip-plain">Report</span></td><td><span class="chip chip-warning chip-plain">Important</span></td></tr>
+            <tr><td><strong>Dashboard</strong></td><td>Executive summary for management (monthly / weekly)</td><td><span class="chip chip-info chip-plain">Report</span></td><td><span class="chip chip-warning chip-plain">Important</span></td></tr>
+            <tr><td><strong>Products</strong></td><td>Price list · Item specification sheet (the current printed catalogue stays in use)</td><td><span class="chip chip-plain">Catalogue</span></td><td><span class="chip chip-plain">Later</span></td></tr>
+            <tr><td><strong>Settings</strong></td><td>No documents — but it is the source of the header data (Tax ID, Commercial Register, stamp, logo)</td><td>—</td><td>—</td></tr>
+          </tbody></table></div></div>
+      </div></section>
+
+      <section class="ds-section" id="kit"><div class="container">
+        <h2 class="t-h1">Unified document specification</h2>
+        <p class="lead">All documents share the same header, footer and colours, so any file leaving the system is clearly issued by Egyptian-German. The English edition uses the identical grid, mirrored for left-to-right reading.</p>
+        <div class="grid" style="grid-template-columns:auto 1fr;gap:var(--space-8);align-items:start">
+          <div class="stack-sm" style="align-items:center"><div class="schem"><div class="z-head">Header · 28mm</div><div class="z-body">Content</div><div class="z-foot">Footer · 14mm</div><span class="m"></span></div><span class="t-caption num">A4 · 210×297mm · margins 14mm</span></div>
+          <div class="grid grid-2">
+            <div class="card stack-sm"><h3 class="t-h3">Header</h3><p class="t-dense">Colour horizontal logo, the document title in a navy pill, then document number, date and status. A short red line under the navy rule acts as the brand signature. The Arabic title appears as a small bilingual subtitle.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">Footer</h3><p class="t-dense">Address, hotline <span class="num">15536</span>, email and website, ISO and "Made in Egypt" badges, and the page number "1 / 3".</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">Fonts &amp; sizes</h3><p class="t-dense">Title 14pt · body 9.5pt · tables 9pt · minimum 8pt. Latin tabular numerals keep digits aligned.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">Print-friendly</h3><p class="t-dense">Table headers use a light navy tint; solid navy only for the title pill and the grand-total row. Reads clearly even in black and white.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">Data from Settings</h3><p class="t-dense">Tax ID · Commercial Register · stamp and signature · company details — entered once and shown on every document.</p></div>
+            <div class="card stack-sm"><h3 class="t-h3">Document statuses</h3><div class="cluster"><span class="doc-status">Draft</span><span class="doc-status info">Confirmed</span><span class="doc-status warn">Partial</span><span class="doc-status ok">Paid</span><span class="doc-status bad">Cancelled</span></div></div>
+          </div>
+        </div>
+      </div></section>
+
+      <section class="docs-root" id="templates"><div class="container">
+        <div class="docs-title" style="padding-block:var(--space-8) 0"><h2 class="t-h1">The eleven templates</h2><p class="lead" style="margin:0">Sample data is fictional (dummy customers, figures and prices) and only demonstrates the layout. Currency: Egyptian pounds (EGP).</p></div>
+
+<div class="doc-wrap" data-doc="invoice">
+          <div class="a4-scroll"><section class="a4" data-ar="Sales Invoice" data-en="فاتورة مبيعات" data-no="INV-2026-0187" data-date="2026-10-25" data-status="Partially paid" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Customer</h4><dl class="doc-kv"><dt>Name</dt><dd>Nile Contracting</dd><dt>Tax ID</dt><dd><span class="ph">__________</span></dd><dt>Address</dt><dd>Mansoura – Dakahlia</dd><dt>Phone</dt><dd class="num">0100 000 0000</dd></dl></div>
+                <div class="doc-box"><h4>Order Details</h4><dl class="doc-kv"><dt>Sales order</dt><dd class="num">SO-1043</dd><dt>Payment terms</dt><dd>50% advance · 50% on delivery</dd><dt>Delivery</dt><dd>Ex-works – Gamasa</dd><dt>Handled by</dt><dd>Sales Department</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>Item</th><th class="c">Finish</th><th class="e">Quantity</th><th class="e">Unit price</th><th class="e">Total</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>WPC Door · D134 · 90×215 cm<small class="sku">D134-C132-90</small></td><td class="c num">C132</td><td class="e num">6</td><td class="e num">7,100.00</td><td class="e num">42,600.00</td></tr>
+                <tr><td class="num">2</td><td>WPC Wood-Alternative Cladding · 17×280 cm<small class="sku">K71-3</small></td><td class="c">—</td><td class="e num">40</td><td class="e num">250.00</td><td class="e num">10,000.00</td></tr>
+                <tr><td class="num">3</td><td>PVC Foam Board Sheets · 6 mm · 122×244 cm<small class="sku">FOAM-6MM-C8001</small></td><td class="c num">C8001</td><td class="e num">12</td><td class="e num">480.00</td><td class="e num">5,760.00</td></tr>
+              </tbody></table>
+              <div class="doc-row" style="align-items:flex-start">
+                <div class="stack-sm" style="flex:1"><div class="doc-words"><b>Amount in words:</b> Sixty-three thousand two hundred and three Egyptian pounds and eighty-eight piasters only.</div>
+                  <div class="doc-notes"><b>Terms:</b><ol><li>Goods sold are not returnable or exchangeable after installation.</li><li>Prices are in Egyptian pounds and include packing.</li></ol></div></div>
+                <div class="doc-totals"><div><span>Total before discount</span><b class="num">58,360.00</b></div><div><span>Discount 5%</span><b class="num">− 2,918.00</b></div><div><span>Net</span><b class="num">55,442.00</b></div><div><span>VAT (sample rate 14%)</span><b class="num">7,761.88</b></div><div class="grand"><span>Total due</span><span class="num">63,203.88 EGP</span></div></div>
+              </div>
+              <div class="doc-row"><div class="doc-qr">QR<br>E-Invoice</div><div class="doc-stamp">Stamp</div><div class="doc-sign" style="flex:1;margin:0"><div>Seller</div><div>Recipient</div></div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Invoice / Commercial Document</h3><p class="t-dense">Printed when the invoice is issued and sent to the customer. Same template for: quotation · sales order · purchase order (the title and badge colour change).</p><ul><li>Customer details and order reference</li><li>Item table with SKU and finish</li><li>Discount, VAT, total and amount in words</li><li>Placeholders for the e-invoice QR code and stamp</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="invoice"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/invoice.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/invoice.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="delivery">
+          <div class="a4-scroll"><section class="a4" data-ar="Delivery Note" data-en="إذن تسليم" data-no="DN-2026-0092" data-date="2026-10-26" data-status="Shipped" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Recipient</h4><dl class="doc-kv"><dt>Customer</dt><dd>Nile Contracting</dd><dt>Delivery site</dt><dd>Mansoura – Dakahlia</dd><dt>Phone</dt><dd class="num">0100 000 0000</dd></dl></div>
+                <div class="doc-box"><h4>Transport</h4><dl class="doc-kv"><dt>Warehouse</dt><dd>Finished Goods – Gamasa</dd><dt>Driver</dt><dd>—</dd><dt>Vehicle no.</dt><dd>—</dd><dt>Reference</dt><dd class="num">SO-1043 · INV-2026-0187</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>Item</th><th>SKU</th><th class="e">Quantity</th><th class="c">Unit</th><th>Packing / Notes</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>WPC Door · D134 · 90×215 cm · C132</td><td class="sku">D134-C132-90</td><td class="e num">6</td><td class="c">Piece</td><td>Wrapped · intact</td></tr>
+                <tr><td class="num">2</td><td>WPC Cladding · 17×280 cm</td><td class="sku">K71-3</td><td class="e num">40</td><td class="c">Piece</td><td>3 bundles</td></tr>
+                <tr><td class="num">3</td><td>Foam Board 6 mm · C8001</td><td class="sku">FOAM-6MM-C8001</td><td class="e num">12</td><td class="c">Sheet</td><td>On pallet</td></tr>
+              </tbody><tfoot><tr><td colspan="3">Total: 3 items</td><td class="e num">58</td><td colspan="2"></td></tr></tfoot></table>
+              <div class="doc-box"><h4>Acknowledgement of Receipt</h4><p style="margin:0;font-size:9pt">I have received the goods listed above complete, intact and conforming to specifications. Any remarks must be recorded before signing.</p></div>
+              <div class="doc-sign"><div>Storekeeper</div><div>Driver</div><div>Recipient</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Note (Delivery · Receipt · Issue · Goods Received)</h3><p class="t-dense">A warehouse document without prices. Printed by the storekeeper and signed by the recipient. Same template for goods receipt notes, issue notes and supplier raw-material receipt notes.</p><ul><li>No prices — quantities and units only</li><li>Transport and vehicle details</li><li>Acknowledgement of receipt and three signatures</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="delivery"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/delivery.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/delivery.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="statement">
+          <div class="a4-scroll"><section class="a4" data-ar="Customer Statement" data-en="كشف حساب عميل" data-no="SOA-2026-10-031" data-date="2026-10-31" data-status="Balance due" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Customer</h4><dl class="doc-kv"><dt>Name</dt><dd>Nile Contracting</dd><dt>Customer no.</dt><dd class="num">C-0058</dd><dt>Period</dt><dd class="num">2026-10-01 → 2026-10-31</dd></dl></div>
+                <div class="doc-box"><h4>Summary</h4><dl class="doc-kv"><dt>Opening balance</dt><dd class="num">12,500.00</dd><dt>Total debit</dt><dd class="num">121,954.38</dd><dt>Total credit</dt><dd class="num">75,000.00</dd><dt>Closing balance</dt><dd class="num" style="color:var(--eg-red-deep)">59,454.38</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th>Date</th><th>Document</th><th>Description</th><th class="e">Debit</th><th class="e">Credit</th><th class="e">Balance</th></tr></thead><tbody>
+                <tr><td class="num">10-01</td><td></td><td>Opening balance</td><td class="e"></td><td class="e"></td><td class="e num">12,500.00</td></tr>
+                <tr><td class="num">10-03</td><td class="sku">INV-0171</td><td>Sales invoice</td><td class="e num">40,000.00</td><td class="e"></td><td class="e num">52,500.00</td></tr>
+                <tr><td class="num">10-07</td><td class="sku">RC-0455</td><td>Receipt voucher</td><td class="e"></td><td class="e num">20,000.00</td><td class="e num">32,500.00</td></tr>
+                <tr><td class="num">10-12</td><td class="sku">INV-0178</td><td>Sales invoice</td><td class="e num">18,750.50</td><td class="e"></td><td class="e num">51,250.50</td></tr>
+                <tr><td class="num">10-18</td><td class="sku">RC-0467</td><td>Receipt voucher</td><td class="e"></td><td class="e num">30,000.00</td><td class="e num">21,250.50</td></tr>
+                <tr><td class="num">10-25</td><td class="sku">INV-0187</td><td>Sales invoice</td><td class="e num">63,203.88</td><td class="e"></td><td class="e num">84,454.38</td></tr>
+                <tr><td class="num">10-29</td><td class="sku">RC-0480</td><td>Receipt voucher</td><td class="e"></td><td class="e num">25,000.00</td><td class="e num">59,454.38</td></tr>
+              </tbody><tfoot><tr><td colspan="3">Total</td><td class="e num">121,954.38</td><td class="e num">75,000.00</td><td class="e num">59,454.38</td></tr></tfoot></table>
+              <h3 class="doc-h">Ageing of Receivables</h3>
+              <table class="doc-table"><thead><tr><th class="e">0 – 30 days</th><th class="e">31 – 60 days</th><th class="e">61 – 90 days</th><th class="e">Over 90</th><th class="e">Total</th></tr></thead><tbody><tr><td class="e num">45,454.38</td><td class="e num">14,000.00</td><td class="e num">0.00</td><td class="e num">0.00</td><td class="e num"><b>59,454.38</b></td></tr></tbody></table>
+              <div class="doc-notes">For enquiries about this statement, please contact the Accounts Department on the hotline <span class="num">15536</span>.</div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Statement of Account (Customer · Supplier)</h3><p class="t-dense">Sent monthly to the customer or on request for payment. Same template for the supplier statement.</p><ul><li>Opening balance, movements and closing balance</li><li>Debit / credit / running balance</li><li>Ageing of receivables at the foot of the statement</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="statement"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/statement.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/statement.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="report">
+          <div class="a4-scroll"><section class="a4" data-ar="Monthly Sales Report" data-en="تقرير المبيعات الشهري" data-no="RP-2026-10" data-date="2026-11-01" data-status="Final" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-box"><dl class="doc-kv" style="grid-template-columns:26mm 1fr 26mm 1fr"><dt>Period</dt><dd>October 2026</dd><dt>Prepared by</dt><dd>Sales Department</dd></dl></div>
+              <div class="doc-kpis">
+                <div class="doc-kpi"><small>Total sales</small><b class="num">374,950</b></div>
+                <div class="doc-kpi is-red"><small>Sales orders</small><b class="num">14</b></div>
+                <div class="doc-kpi"><small>Average order</small><b class="num">26,782</b></div>
+                <div class="doc-kpi"><small>Collection rate</small><b class="num">68%</b></div>
+              </div>
+              <h3 class="doc-h">Sales by Product Line</h3>
+              <div class="doc-bars">
+                <div class="doc-bar is-top"><span>WPC &amp; PVC Doors</span><i style="--v:100%"></i><b class="num">238,400</b></div>
+                <div class="doc-bar"><span>WPC Cladding</span><i style="--v:40.4%"></i><b class="num">96,300</b></div>
+                <div class="doc-bar"><span>PVC Foam Board</span><i style="--v:16.9%"></i><b class="num">40,250</b></div>
+              </div>
+              <h3 class="doc-h">Top Customers</h3>
+              <table class="doc-table"><thead><tr><th>Customer</th><th class="e">Total</th><th class="e">Share</th></tr></thead><tbody>
+                <tr><td>Al Adas – Sultanate of Oman</td><td class="e num">184,500.00</td><td class="e num">49.2%</td></tr>
+                <tr><td>Nile Contracting</td><td class="e num">63,203.88</td><td class="e num">16.9%</td></tr>
+                <tr><td>Delta Doors Showroom</td><td class="e num">51,000.00</td><td class="e num">13.6%</td></tr>
+                <tr><td>Al-Tameer Company</td><td class="e num">41,246.12</td><td class="e num">11.0%</td></tr>
+                <tr><td>Eng. Ahmed Samir</td><td class="e num">21,300.00</td><td class="e num">5.7%</td></tr>
+                <tr><td>Other customers</td><td class="e num">13,700.00</td><td class="e num">3.6%</td></tr>
+              </tbody><tfoot><tr><td>Total</td><td class="e num">374,950.00</td><td class="e num">100%</td></tr></tfoot></table>
+              <h3 class="doc-h">Order Status</h3>
+              <div class="cluster" style="gap:3mm"><span class="doc-status info">Confirmed · 4</span><span class="doc-status warn">In production · 3</span><span class="doc-status ok">Shipped · 5</span><span class="doc-status bad">Cancelled · 1</span><span class="doc-status">Draft · 1</span></div>
+              <div class="doc-notes" style="margin-block-start:auto">All amounts are in Egyptian pounds before VAT.</div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Report</h3><p class="t-dense">For management and finance. Used for all reports: stock balance, items below minimum level, daily production, attendance, cash, executive summary.</p><ul><li>Four indicators at the top</li><li>Simple horizontal bars (red for the top item only)</li><li>Table with total and statuses shown in text and colour</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="report"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/report.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/report.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="workorder">
+          <div class="a4-scroll"><section class="a4" data-ar="Work Order" data-en="أمر تشغيل" data-no="WO-2026-0218" data-date="2026-10-27" data-status="In progress" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Product</h4><dl class="doc-kv"><dt>Item</dt><dd>WPC Door · D134 · 90×215 cm</dd><dt>SKU</dt><dd class="sku">D134-C132-90</dd><dt>Finish</dt><dd class="num">C132</dd><dt>Planned quantity</dt><dd class="num">60 pcs</dd></dl></div>
+                <div class="doc-box"><h4>Scheduling</h4><dl class="doc-kv"><dt>Sales order</dt><dd class="num">SO-1043</dd><dt>Start date</dt><dd class="num">2026-10-27</dd><dt>Expected delivery</dt><dd class="num">2026-11-05</dd><dt>Production line</dt><dd>Line 1 · Supervisor: __________</dd></dl></div>
+              </div>
+              <div class="doc-box"><h4>Progress</h4><div class="doc-row" style="align-items:center"><div class="doc-progress" style="--v:72%;flex:1"></div><b class="num">43 / 60 · 72%</b></div></div>
+              <h3 class="doc-h">Materials</h3>
+              <table class="doc-table"><thead><tr><th>Material</th><th class="e">Required</th><th class="e">Issued</th><th class="c">Unit</th></tr></thead><tbody>
+                <tr><td>WPC compound</td><td class="e num">1,150</td><td class="e num">830</td><td class="c">kg</td></tr>
+                <tr><td>Coloured UPVC layer C132</td><td class="e num">180</td><td class="e num">130</td><td class="c">m²</td></tr>
+                <tr><td>Packing materials</td><td class="e num">60</td><td class="e num">43</td><td class="c">set</td></tr>
+              </tbody></table>
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Production Stages</h4><div style="display:grid;gap:1.2mm;font-size:9pt"><span><i class="doc-check on"></i>Extrusion and leaf forming</span><span><i class="doc-check on"></i>Cutting and preparation</span><span><i class="doc-check on"></i>Colour layer coating</span><span><i class="doc-check"></i>Assembly and fitting</span><span><i class="doc-check"></i>Quality inspection</span><span><i class="doc-check"></i>Packing</span></div></div>
+                <div class="doc-box"><h4>Quality Inspection</h4><div style="display:grid;gap:1.2mm;font-size:9pt"><span><i class="doc-check"></i>Size 90×215 cm conforms</span><span><i class="doc-check"></i>Leaf thickness 4.5 cm</span><span><i class="doc-check"></i>Colour matches finish C132</span><span><i class="doc-check"></i>Surface free of defects</span></div></div>
+              </div>
+              <div class="doc-sign"><div>Production Supervisor</div><div>Quality Controller</div><div>Factory Manager</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Work Order</h3><p class="t-dense">Printed and handed to the production line. The supervisor tracks execution and ticks off the stages by hand or on screen. The stages and materials shown are samples and are replaced by the factory's actual operations.</p><ul><li>Product, finish and quantity</li><li>Progress bar and materials table</li><li>Stages and quality inspection with checkboxes</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="workorder"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/workorder.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/workorder.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="payslip">
+          <div class="a4-scroll"><section class="a4" data-ar="Payslip (Confidential)" data-en="مفردات مرتب" data-no="PAY-2026-10-014" data-date="2026-10-31" data-status="Confidential" data-sc="bad" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Employee</h4><dl class="doc-kv"><dt>Name</dt><dd>Ahmed Mahmoud (Sample)</dd><dt>Employee no.</dt><dd class="num">EMP-014</dd><dt>Department</dt><dd>Production</dd><dt>Job title</dt><dd>Operations Technician</dd></dl></div>
+                <div class="doc-box"><h4>Period and Attendance</h4><dl class="doc-kv"><dt>Month</dt><dd>October 2026</dd><dt>Working days</dt><dd class="num">26</dd><dt>Leave</dt><dd class="num">2</dd><dt>Absence</dt><dd class="num">0</dd></dl></div>
+              </div>
+              <div class="doc-cols">
+                <table class="doc-table"><thead><tr><th>Earnings</th><th class="e">Amount</th></tr></thead><tbody>
+                  <tr><td>Basic wage</td><td class="e num">6,000.00</td></tr><tr><td>Transport allowance</td><td class="e num">500.00</td></tr><tr><td>Production incentives</td><td class="e num">750.00</td></tr><tr><td>Overtime</td><td class="e num">420.00</td></tr>
+                </tbody><tfoot><tr><td>Total earnings</td><td class="e num">7,670.00</td></tr></tfoot></table>
+                <table class="doc-table"><thead><tr><th>Deductions</th><th class="e">Amount</th></tr></thead><tbody>
+                  <tr><td>Social insurance</td><td class="e num">660.00</td></tr><tr><td>Employment income tax</td><td class="e num">85.00</td></tr><tr><td>Advance</td><td class="e num">500.00</td></tr><tr><td>&nbsp;</td><td></td></tr>
+                </tbody><tfoot><tr><td>Total deductions</td><td class="e num">1,245.00</td></tr></tfoot></table>
+              </div>
+              <div class="doc-totals" style="width:100%"><div class="grand"><span>Net salary</span><span class="num">6,425.00 EGP</span></div></div>
+              <div class="doc-words"><b>Amount in words:</b> Six thousand four hundred and twenty-five Egyptian pounds only.</div>
+              <div class="doc-sign"><div>HR</div><div>Accounts</div><div>Employee signature</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-warning chip-plain">Important</span><h3 class="t-h2">Payslip</h3><p class="t-dense">A confidential document handed to the employee monthly. A "Confidential" badge appears in the header. Same template for attendance sheets and official letters after the content is adapted.</p><ul><li>Earnings and deductions side by side</li><li>Prominent net salary, also in words</li><li>Printed for the employee only (HR permission)</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="payslip"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/payslip.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/payslip.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="quotation">
+          <div class="a4-scroll"><section class="a4" data-ar="Quotation" data-en="عرض سعر" data-no="QT-2026-0112" data-date="2026-11-02" data-status="Valid until 2026-11-16" data-sc="info" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Submitted to</h4><dl class="doc-kv"><dt>Customer</dt><dd>Delta Doors Showroom</dd><dt>Attention</dt><dd>Eng. Karim Adel</dd><dt>Address</dt><dd>Tanta – Gharbia</dd><dt>Phone</dt><dd class="num">0100 000 0000</dd></dl></div>
+                <div class="doc-box"><h4>Quotation terms</h4><dl class="doc-kv"><dt>Validity</dt><dd>14 days</dd><dt>Delivery time</dt><dd>10 working days</dd><dt>Payment</dt><dd>50% advance · 50% before shipment</dd><dt>Price list</dt><dd>Dealer prices</dd></dl></div>
+              </div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>Item</th><th class="c">Finish</th><th class="e">Qty</th><th class="e">Unit price</th><th class="e">Total</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>WPC door · D132 · 90×215 cm<small class="sku">D132-C091-90</small></td><td class="c num">C091</td><td class="e num">20</td><td class="e num">6,750.00</td><td class="e num">135,000.00</td></tr>
+                <tr><td class="num">2</td><td>WPC door · D134 · 80×215 cm<small class="sku">D134-C102-80</small></td><td class="c num">C102</td><td class="e num">10</td><td class="e num">6,750.00</td><td class="e num">67,500.00</td></tr>
+                <tr><td class="num">3</td><td>Door accessories kit<small class="sku">ACC-DOOR-KIT</small></td><td class="c">—</td><td class="e num">30</td><td class="e num">420.00</td><td class="e num">12,600.00</td></tr>
+              </tbody></table>
+              <div class="doc-row" style="align-items:flex-start">
+                <div class="stack-sm" style="flex:1"><div class="doc-words"><b>Amount in words:</b> Two hundred and forty-five thousand two hundred and fourteen Egyptian pounds only.</div>
+                  <div class="doc-notes"><b>Notes:</b><ol><li>Prices are in Egyptian pounds and are subject to company policies.</li><li>The quotation is not binding on the company after the validity period expires.</li><li>This quotation is not a sales order until confirmed by Sales.</li></ol></div></div>
+                <div class="doc-totals"><div><span>Total</span><b class="num">215,100.00</b></div><div><span>VAT (sample rate 14%)</span><b class="num">30,114.00</b></div><div class="grand"><span>Total incl. VAT</span><span class="num">245,214.00 EGP</span></div></div>
+              </div>
+              <div class="doc-row"><div class="doc-stamp">Stamp</div><div class="doc-sign" style="flex:1;margin:0"><div>Sales Manager</div><div>Customer approval (signature and stamp)</div></div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-warning chip-plain">Important</span><h3 class="t-h2">Quotation</h3><p class="t-dense">Sent to the customer or dealer before the sales order. Carries the validity period, the payment terms and a customer approval box. On acceptance it becomes a sales order (no automatic confirmation).</p><ul><li>Quotation validity and delivery time</li><li>Dealer price list when needed</li><li>Customer approval by signature and stamp</li><li>Prices according to user permissions</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="quotation"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/quotation.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/quotation.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="voucher">
+          <div class="a4-scroll"><section class="a4" data-ar="Receipt Voucher" data-en="سند قبض" data-no="RV-2026-0231" data-date="2026-10-28" data-status="Posted" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-amount"><div><small>Amount received</small><b class="num">31,601.94 EGP</b></div><div class="doc-qr">QR<br>Reference</div></div>
+              <div class="doc-box"><dl class="doc-kv" style="grid-template-columns:34mm 1fr"><dt>Received from Mr.</dt><dd>Nile Contracting</dd><dt>The sum of</dt><dd>Thirty-one thousand six hundred and one Egyptian pounds and ninety-four piasters only</dd><dt>Being</dt><dd>part payment of invoice <span class="num">INV-2026-0187</span> (50% advance payment)</dd></dl></div>
+              <div class="doc-box"><h4>Payment method</h4><div class="doc-methods"><span><i class="doc-check"></i>Cash</span><span><i class="doc-check on"></i>Bank transfer</span><span><i class="doc-check"></i>Cheque</span><span><i class="doc-check"></i>Card</span></div>
+                <dl class="doc-kv" style="margin-block-start:2mm"><dt>Transfer reference</dt><dd class="num">TRX-20261028-7741</dd><dt>Account</dt><dd>Bank — current account (name is a sample)</dd></dl></div>
+              <h3 class="doc-h">Allocation of the amount to invoices</h3>
+              <table class="doc-table"><thead><tr><th>Invoice</th><th class="e">Invoice total</th><th class="e">Paid by this voucher</th><th class="e">Remaining</th></tr></thead><tbody>
+                <tr><td class="num">INV-2026-0187</td><td class="e num">63,203.88</td><td class="e num">31,601.94</td><td class="e num">31,601.94</td></tr></tbody><tfoot><tr><td>Total</td><td class="e num">63,203.88</td><td class="e num">31,601.94</td><td class="e num">31,601.94</td></tr></tfoot></table>
+              <div class="doc-notes" style="margin-block-start:auto">The payment voucher (PV-) uses the same template, titled “Payment Voucher” and “Paid to Mr.”.</div>
+              <div class="doc-row"><div class="doc-stamp">Stamp</div><div class="doc-sign" style="flex:1;margin:0"><div>Treasurer</div><div>Accountant</div><div>Recipient</div></div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Receipt Voucher / Payment Voucher</h3><p class="t-dense">Issued when collecting from a customer or paying a supplier. Links the amount to the invoices settled and records the payment method and reference. The voucher is posted to the accounts.</p><ul><li>Prominent amount, also written in words</li><li>Payment method (cash · transfer · cheque · card)</li><li>Allocation of the amount to invoices</li><li>Treasurer, accountant and recipient</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="voucher"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/voucher.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/voucher.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="payroll">
+          <div class="a4-scroll"><section class="a4" data-ar="Payroll Register" data-en="كشف مرتبات" data-no="PR-2026-10" data-date="2026-10-31" data-status="Approved" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-row" style="align-items:center"><span class="doc-conf">Confidential · HR and Accounts only</span><span class="t-dense">Period: October 2026</span></div>
+              <div class="doc-kpis"><div class="doc-kpi"><small>Employees</small><b class="num">8</b></div><div class="doc-kpi"><small>Total earnings</small><b class="num">83,260.00</b></div><div class="doc-kpi"><small>Total deductions</small><b class="num">9,100.00</b></div><div class="doc-kpi is-red"><small>Net payroll</small><b class="num">74,160.00</b></div></div>
+              <table class="doc-table dense"><thead><tr><th>No.</th><th>Name</th><th>Department</th><th class="e">Basic</th><th class="e">Allowances</th><th class="e">Overtime</th><th class="e">Deductions</th><th class="e">Net</th></tr></thead><tbody><tr><td class="num">EMP-001</td><td>System Administrator</td><td>Management</td><td class="e num">18,000.00</td><td class="e num">2,000.00</td><td class="e num">0.00</td><td class="e num">2,150.00</td><td class="e num"><b>17,850.00</b></td></tr><tr><td class="num">EMP-014</td><td>Ahmed Mahmoud</td><td>Production</td><td class="e num">6,000.00</td><td class="e num">1,250.00</td><td class="e num">420.00</td><td class="e num">1,245.00</td><td class="e num"><b>6,425.00</b></td></tr><tr><td class="num">EMP-021</td><td>Sara Ali</td><td>Sales</td><td class="e num">9,500.00</td><td class="e num">1,500.00</td><td class="e num">0.00</td><td class="e num">1,180.00</td><td class="e num"><b>9,820.00</b></td></tr><tr><td class="num">EMP-027</td><td>Hany Fathy</td><td>Warehouses</td><td class="e num">7,200.00</td><td class="e num">900.00</td><td class="e num">350.00</td><td class="e num">905.00</td><td class="e num"><b>7,545.00</b></td></tr><tr><td class="num">EMP-033</td><td>Mostafa Saeed</td><td>Production</td><td class="e num">8,800.00</td><td class="e num">1,300.00</td><td class="e num">640.00</td><td class="e num">1,090.00</td><td class="e num"><b>9,650.00</b></td></tr><tr><td class="num">EMP-038</td><td>Yasmin Khaled</td><td>Quality</td><td class="e num">7,500.00</td><td class="e num">800.00</td><td class="e num">0.00</td><td class="e num">820.00</td><td class="e num"><b>7,480.00</b></td></tr><tr><td class="num">EMP-041</td><td>Karim Adel</td><td>Procurement</td><td class="e num">7,000.00</td><td class="e num">700.00</td><td class="e num">0.00</td><td class="e num">760.00</td><td class="e num"><b>6,940.00</b></td></tr><tr><td class="num">EMP-047</td><td>Mona Hassan</td><td>Accounts</td><td class="e num">8,500.00</td><td class="e num">900.00</td><td class="e num">0.00</td><td class="e num">950.00</td><td class="e num"><b>8,450.00</b></td></tr></tbody>
+                <tfoot><tr><td colspan="3">Total</td><td class="e num">72,500.00</td><td class="e num">9,350.00</td><td class="e num">1,410.00</td><td class="e num">9,100.00</td><td class="e num">74,160.00</td></tr></tfoot></table>
+              <div class="doc-words"><b>Net payroll in words:</b> Seventy-four thousand one hundred and sixty Egyptian pounds only (illustrative amount).</div>
+              <div class="doc-notes">Actual salaries and deductions (insurance, taxes) are calculated according to the approved regulations. The figures in this template are fictitious, and it shows 8 employees for illustration only (the system prints all employees on consecutive pages).</div>
+              <div class="doc-sign"><div>HR Manager</div><div>Accountant</div><div>General Manager (GM)</div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-warning chip-plain">Important</span><h3 class="t-h2">Monthly Payroll Register</h3><p class="t-dense">A confidential report that gathers the salaries of all employees with totals for earnings, deductions and net pay, and is approved before salaries are paid. Each employee's details are issued on the “Payslip” template.</p><ul><li>Prominent “Confidential” badge</li><li>Totals for earnings, deductions and net pay</li><li>Approval: HR · Accounts · General Manager</li><li>HR and Accounts permissions only</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="payroll"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/payroll.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/payroll.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="aging">
+          <div class="a4-scroll"><section class="a4" data-ar="Receivables Aging" data-en="أعمار الديون" data-no="AG-2026-10-31" data-date="2026-10-31" data-status="Final" data-sc="ok" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-kpis"><div class="doc-kpi"><small>Total receivables</small><b class="num">323,000</b></div><div class="doc-kpi"><small>Not yet due</small><b class="num">160,000</b></div><div class="doc-kpi is-red"><small>Oldest buckets (61+ days)</small><b class="num">45,000</b></div><div class="doc-kpi"><small>Number of customers</small><b class="num">5</b></div></div>
+              <h3 class="doc-h">Receivables by age</h3>
+              <div class="doc-stackbar"><i style="--w:49.5%;--c:#012864"></i><i style="--w:22.3%;--c:#345383"></i><i style="--w:14.2%;--c:#9fb3d6"></i><i style="--w:9.3%;--c:#e0a33a"></i><i style="--w:4.6%;--c:#c41218"></i></div>
+              <div class="cluster" style="gap:2mm 5mm"><span class="doc-status" style="background:none;color:#333"><i style="display:inline-block;width:2.5mm;height:2.5mm;background:#012864;border-radius:.6mm;margin-inline-end:1.5mm;vertical-align:-.3mm"></i>Not yet due · 49.5%</span><span class="doc-status" style="background:none;color:#333"><i style="display:inline-block;width:2.5mm;height:2.5mm;background:#345383;border-radius:.6mm;margin-inline-end:1.5mm;vertical-align:-.3mm"></i>1–30 days · 22.3%</span><span class="doc-status" style="background:none;color:#333"><i style="display:inline-block;width:2.5mm;height:2.5mm;background:#9fb3d6;border-radius:.6mm;margin-inline-end:1.5mm;vertical-align:-.3mm"></i>31–60 days · 14.2%</span><span class="doc-status" style="background:none;color:#333"><i style="display:inline-block;width:2.5mm;height:2.5mm;background:#e0a33a;border-radius:.6mm;margin-inline-end:1.5mm;vertical-align:-.3mm"></i>61–90 days · 9.3%</span><span class="doc-status" style="background:none;color:#333"><i style="display:inline-block;width:2.5mm;height:2.5mm;background:#c41218;border-radius:.6mm;margin-inline-end:1.5mm;vertical-align:-.3mm"></i>Over 90 days · 4.6%</span></div>
+              <table class="doc-table"><thead><tr><th>Customer</th><th class="e">Not yet due</th><th class="e">1–30</th><th class="e">31–60</th><th class="e">61–90</th><th class="e">+90</th><th class="e">Total</th></tr></thead><tbody><tr><td>Al-Adas – Sultanate of Oman</td><td class="e num">80,000</td><td class="e num">45,000</td><td class="e num">40,000</td><td class="e num">25,000</td><td class="e num">15,000</td><td class="e num"><b>205,000</b></td></tr><tr><td>Nile Contracting</td><td class="e num">31,600</td><td class="e num">—</td><td class="e num">—</td><td class="e num">—</td><td class="e num">—</td><td class="e num"><b>31,600</b></td></tr><tr><td>Delta Doors Showroom</td><td class="e num">22,000</td><td class="e num">12,000</td><td class="e num">—</td><td class="e num">—</td><td class="e num">—</td><td class="e num"><b>34,000</b></td></tr><tr><td>Al-Tameer Company</td><td class="e num">5,100</td><td class="e num">15,000</td><td class="e num">6,000</td><td class="e num">5,000</td><td class="e num">—</td><td class="e num"><b>31,100</b></td></tr><tr><td>Eng. Ahmed Samir</td><td class="e num">21,300</td><td class="e num">—</td><td class="e num">—</td><td class="e num">—</td><td class="e num">—</td><td class="e num"><b>21,300</b></td></tr></tbody>
+                <tfoot><tr><td>Total</td><td class="e num">160,000</td><td class="e num">72,000</td><td class="e num">46,000</td><td class="e num">30,000</td><td class="e num">15,000</td><td class="e num">323,000</td></tr></tfoot></table>
+              <h3 class="doc-h">Proposed collection actions</h3>
+              <table class="doc-table dense"><thead><tr><th>Customer</th><th>Action</th><th>Owner</th><th>Due date</th></tr></thead><tbody>
+                <tr><td>Al-Adas – Sultanate of Oman</td><td>Review the repayment schedule with management</td><td>Sales Manager</td><td class="num">2026-11-05</td></tr>
+                <tr><td>Al-Tameer Company</td><td>Follow up collection with the customer (policy Open)</td><td>Accountant</td><td class="num">2026-11-03</td></tr></tbody></table>
+              <div class="doc-notes" style="margin-block-start:auto">Amounts are in Egyptian pounds. Balances are aged from the invoice due date. The policy for alerts or restricting orders due to late payment has not been defined yet (Open).</div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Receivables Aging</h3><p class="t-dense">A financial report that distributes receivables by due-date age and proposes collection actions. Issued to management and accountants; sales staff cannot see it.</p><ul><li>Stacked bar using the same colour palette (red for overdue only)</li><li>Customers × due-period table</li><li>Proposed collection actions</li><li>Available to Finance and Management only</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="aging"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/aging.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/aging.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+
+<div class="doc-wrap" data-doc="proforma">
+          <div class="a4-scroll"><section class="a4" data-ar="Proforma Invoice (Dealer Order)" data-en="فاتورة مبدئية" data-no="PF-2026-0146" data-date="2026-11-03" data-status="Awaiting phone confirmation" data-sc="warn" data-pg="1 / 1">
+            <div class="doc-body">
+              <div class="doc-cols">
+                <div class="doc-box"><h4>Dealer</h4><dl class="doc-kv"><dt>Name</dt><dd>Nile Contracting Company</dd><dt>Tax ID</dt><dd><span class="ph">__________</span></dd><dt>Price list</dt><dd>Dealer prices</dd><dt>Account</dt><dd class="num">CUS-004</dd></dl></div>
+                <div class="doc-box"><h4>Order</h4><dl class="doc-kv"><dt>Order no.</dt><dd class="num">SO-2025-0146</dd><dt>Source</dt><dd>Dealer portal</dd><dt>Collection</dt><dd>From the factory – Gamasa</dd><dt>Notes</dt><dd>Delivery before the end of the month</dd></dl></div>
+              </div>
+              <div class="doc-call"><div class="doc-qr" style="width:14mm;height:14mm;border-radius:50%">☎</div><div><b>A sales representative will call you to confirm this order</b><small>Registered number: <bdi dir="ltr" class="num">0100 000 0000</bdi> · Best time: morning (9 am – 12 pm) · Working hours 9 am – 5 pm · Hotline <span class="num">15536</span></small></div></div>
+              <div class="doc-steps"><div class="done">1 · Order sent</div><div class="on">2 · Call from Sales</div><div>3 · Order confirmation</div><div>4 · Tax invoice and delivery</div></div>
+              <table class="doc-table"><thead><tr><th style="width:8mm">#</th><th>Item</th><th class="c">Finish</th><th class="e">Qty</th><th class="e">Unit price</th><th class="e">Total</th></tr></thead><tbody>
+                <tr><td class="num">1</td><td>WPC door · D134 · 90×215 cm<small class="sku">D134-C091-90</small></td><td class="c num">C091</td><td class="e num">24 pcs</td><td class="e num">7,100.00</td><td class="e num">170,400.00</td></tr>
+                <tr><td class="num">2</td><td>WPC wood-alternative cladding · 17×280 cm<small class="sku">K71-2-C102</small></td><td class="c num">C102</td><td class="e num">120 m²</td><td class="e num">250.00</td><td class="e num">30,000.00</td></tr>
+                <tr><td class="num">3</td><td>PVC foam board sheets · 10 mm · 122×244 cm<small class="sku">FOAM-10MM-C3003</small></td><td class="c num">C3003</td><td class="e num">4 pcs</td><td class="e num">720.00</td><td class="e num">2,880.00</td></tr>
+              </tbody></table>
+              <div class="doc-row" style="align-items:flex-start">
+                <div class="stack-sm" style="flex:1"><div class="doc-words"><b>Amount in words:</b> Two hundred and thirty-one thousand seven hundred and thirty-nine Egyptian pounds and twenty piasters only.</div>
+                  <div class="doc-notes"><b>Notice:</b><ol><li>This is a proforma invoice for the order and not a tax invoice.</li><li>The order is not confirmed automatically, and execution does not begin until after the call and confirmation.</li><li>Prices are in Egyptian pounds according to the dealer price list and are subject to company policies.</li></ol></div></div>
+                <div class="doc-totals"><div><span>Total</span><b class="num">203,280.00</b></div><div><span>VAT (sample rate 14%)</span><b class="num">28,459.20</b></div><div class="grand"><span>Estimated total</span><span class="num">231,739.20 EGP</span></div></div>
+              </div>
+              <div class="doc-row"><div class="doc-stamp">Stamp</div><div class="doc-sign" style="flex:1;margin:0"><div>Sales representative (after the call)</div><div>Dealer confirmation</div></div></div>
+            </div>
+          </section></div>
+          <aside class="doc-info"><span class="chip chip-danger chip-plain">Essential</span><h3 class="t-h2">Dealer Proforma Invoice</h3><p class="t-dense">Generated in front of the dealer while building the order in the catalogue, and saved with the order. Carries a proforma number and a clear notice that the order is not confirmed until Sales calls by phone. After confirmation the tax invoice is issued.</p><ul><li>Dealer prices, items, finish and size</li><li>Tax at a sample (unapproved) rate and the total in words</li><li>“A sales representative will call you” box and dealer number</li><li>Stages: submit → call → confirm → tax invoice</li></ul>
+            <div class="cluster doc-actions"><button class="btn btn-accent" type="button" data-print="proforma"><svg class="icon"><use href="#i-download"/></svg>Print / Save PDF</button><a class="btn btn-ghost" href="./assets/samples/en/proforma.pdf" target="_blank">Open sample PDF</a><a class="btn btn-ghost" href="./assets/samples/proforma.pdf" target="_blank" hreflang="ar" lang="ar" dir="rtl">PDF بالعربية</a></div></aside>
+        </div>
+      </div></section>
+    </main>
+
+    <script src="./js/icons.js"></script>
+    <script src="./js/flow.js"></script>
+    <script src="./js/demo-data.js"></script>
+    <script>
+      (function () {
+        var c = EG.company;
+        document.querySelectorAll(".a4").forEach(function (a) {
+          var d = a.dataset;
+          var head = '<header class="doc-head"><div class="doc-brand"><img src="./assets/images/logo/wordmark-color.png" alt="Egyptian-German" /><small>Tax ID: <span class="ph">__________</span> · C.R.: <span class="ph">__________</span></small></div>' +
+            '<div class="doc-title"><span class="doc-pill">' + d.ar + '</span><span class="doc-en" lang="ar" dir="rtl" style="text-transform:none;letter-spacing:0;font-family:var(--font-ar);font-size:9pt">' + d.en + '</span><dl class="doc-meta"><dt>No.</dt><dd class="num">' + d.no + '</dd><dt>Date</dt><dd class="num">' + d.date + '</dd><dt>Status</dt><dd><span class="doc-status ' + d.sc + '">' + d.status + "</span></dd></dl></div></header>";
+          var foot = '<footer class="doc-foot"><div><b>' + c.shortName.en + "</b> · " + c.address.en + '<br>Hotline <b class="num">' + c.hotline + '</b> · ' + c.email + " · egerman-upvc.com</div>" +
+            '<div class="badges">' + EG.certifications.map(function (x) { return '<img src="' + x.image + '" alt="" />'; }).join("") + '<span class="pg">' + d.pg + "</span></div></footer>";
+          a.insertAdjacentHTML("afterbegin", head + '<span class="doc-sample">Sample — dummy data</span>');
+          a.insertAdjacentHTML("beforeend", foot);
+        });
+        document.querySelectorAll(".doc-wrap").forEach(function (w) { w.id = "doc-" + w.dataset.doc; });
+        function only(id) {
+          document.body.dataset.printOnly = id;
+          document.querySelectorAll(".doc-wrap").forEach(function (w) { w.classList.toggle("is-printing", w.dataset.doc === id); });
+        }
+        function clear() { delete document.body.dataset.printOnly; document.querySelectorAll(".is-printing").forEach(function (w) { w.classList.remove("is-printing"); }); }
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest("[data-print]"); if (!b) return;
+          only(b.dataset.print); window.print();
+        });
+        window.addEventListener("afterprint", clear);
+        var q = new URLSearchParams(location.search).get("doc");
+        if (q) only(q);
+      })();
+    </script>
+  </body>
+</html>

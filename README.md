@@ -20,9 +20,9 @@ Parent folder for multiple design-system packages. Each product lives in its own
 | 4 | `catalog.html` | الكتالوج العام، أنشئ طلبك (ديناميكي)، بوابة التاجر، مراجعة المبيعات |
 | 5 | `finance-hr.html` | الفواتير والتحصيل والسندات، الحضور والمرتبات، وإعداداتهما |
 | 6 | `mobile.html` | EG-Mobile: الدخول والمكونات والشاشات والإشعارات |
-| 7 | `documents.html` | 11 قالب PDF |
+| 7 | `documents.html` · `documents-en.html` | 11 قالب PDF (عربي + English) |
 | 8 | [`HR.html`](./EG/HR.html) | **الموارد البشرية — الصفحة الأم** وبعدها `hr-acquire` · `hr-people` · `hr-time` · `hr-payroll` · `hr-protect` · `hr-exit` · `hr-platform` |
-| 9 | `hr-documents.html` · `reports.html` | 17 قالب مستند HR + كتالوج التقارير (77) |
+| 9 | `hr-documents.html` · `hr-documents-en.html` · `reports.html` | 17 قالب مستند HR (عربي + English) + كتالوج التقارير (77) |
 | 10 | `super-admin-access` · `super-admin-org` · `super-admin-oversight` · `super-admin-data-system` | Super Admin كامل: كل الشاشات والـUse Cases والقواعد (امتداد لـ`super-admin.html`) |
 
 التوثيق التفصيلي: `EG/docs/super-admin/` (28 فيتشر) و`EG/docs/hr/` (34 فيتشر) · مراجعة المستندات: `EG/docs/documents-audit.md`

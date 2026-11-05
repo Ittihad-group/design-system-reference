@@ -1,0 +1,40 @@
+/* EG Design System — print-en.css
+   English (LTR) edition of the A4 documents. Loaded only by documents-en.html / hr-documents-en.html.
+   Latin text set in Poppins is wider than the Arabic originals, so the English edition tightens
+   leading, label columns and table padding — never below the 8pt minimum of print.css. */
+
+html[lang="en"] .a4 { font-size: 9pt; line-height: 1.42; }
+html[lang="en"] .a4 .doc-body { gap: 3mm; }
+html[lang="en"] .a4 .doc-title { max-width: 125mm; }
+html[lang="en"] .a4 .doc-pill { font-size: 12.5pt; line-height: 1.4; white-space: nowrap; }
+html[lang="en"] .a4 .doc-brand small { white-space: nowrap; }
+html[lang="en"] .a4 .doc-meta { font-size: 8.3pt; line-height: 1.4; }
+
+html[lang="en"] .a4 .doc-box { padding: 2mm 3.2mm; }
+html[lang="en"] .a4 .doc-box h4 { font-size: 8pt; margin-bottom: .8mm; }
+html[lang="en"] .a4 .doc-kv { grid-template-columns: 29mm 1fr; gap: .2mm 2.5mm; font-size: 8.5pt; line-height: 1.35; }
+
+html[lang="en"] .a4 .doc-table { font-size: 8.5pt; }
+html[lang="en"] .a4 .doc-table th { font-size: 8pt; padding: 1mm 2mm; }
+html[lang="en"] .a4 .doc-table td { padding: 1mm 2mm; }
+html[lang="en"] .a4 .doc-table small { font-size: 8pt; }
+
+html[lang="en"] .a4 .doc-h { font-size: 9.5pt; }
+html[lang="en"] .a4 .hrd-p { font-size: 9pt; line-height: 1.45; text-align: left; }
+html[lang="en"] .a4 .hrd-clauses { font-size: 8.7pt; line-height: 1.4; gap: 1.1mm; text-align: left; }
+html[lang="en"] .a4 .hrd-copies { font-size: 8.5pt; padding: 2mm 3.5mm; }
+html[lang="en"] .a4 .hrd-en { font-size: 8.5pt; line-height: 1.42; }
+html[lang="en"] .a4 .doc-notes { font-size: 8pt; line-height: 1.4; }
+html[lang="en"] .a4 .doc-words { font-size: 8.5pt; }
+html[lang="en"] .a4 .doc-sign div { min-height: 9mm; font-size: 8pt; }
+html[lang="en"] .a4 .doc-stamp { width: 20mm; height: 20mm; }
+html[lang="en"] .a4 .doc-qr { width: 18mm; height: 18mm; }
+html[lang="en"] .a4 .doc-foot { font-size: 8pt; line-height: 1.35; }
+html[lang="en"] .a4 .doc-sign { gap: 5mm; }
+
+/* Final settlement: the entitlements / deductions rows of the totals box repeat the table footers above and
+   squeezed the "Net settlement" row out of the page. Keep only the net row. */
+html[lang="en"] .doc-wrap[data-doc="settlement"] .doc-totals > div:not(.grand) { display: none; }
+html[lang="en"] .doc-wrap[data-doc="settlement"] .doc-totals { flex-shrink: 0; }
+html[lang="en"] .doc-wrap[data-doc="settlement"] .doc-stamp { width: 15mm; height: 15mm; }
+html[lang="en"] .doc-wrap[data-doc="settlement"] .a4 .doc-sign div { min-height: 6mm; }
