@@ -25,7 +25,8 @@
     }
   };
   const has = (s, q) => String(s || '').toLowerCase().indexOf(q) >= 0;
-  SA.search.register({ id: 'modules', label: 'الشاشات', query: (q) => SA.navModules().filter((m) => !q || has(m.title, q) || has(m.desc, q) || has(m.route, q)).map((m) => ({ title: m.title, sub: (SA.catalog.groups.find((g) => g.id === m.group) || {}).title, icon: m.icon || 'grid', route: m.route })) });
+  SA.search.register({ id: 'modules', label: 'الشاشات', query: (q) => SA.navModules().filter((m) => !q || has(m.title, q) || has(m.desc, q) || has(m.route, q)).map((m) => ({ title: m.title, sub: ((SA.catalog.appById(m.app) || {}).short || '') + ' · ' + ((SA.catalog.groupsOf(m.app).find((g) => g.id === m.group) || {}).title || ''), icon: m.icon || 'grid', route: m.route })) });
+  const appTitle = (id) => (SA.catalog.appById(id) || {}).title || 'Super Admin';
   SA.search.register({ id: 'users', label: 'المستخدمون', perm: 'sa.users.view', query: (q) => (q ? (SA.store.get('users') || []).filter((u) => has(u.name, q) || has(u.email, q)).map((u) => ({ title: u.name, sub: u.email + ' · ' + SA.roleName(u.roleId), icon: 'user', route: 'users/' + u.id })) : []) });
   SA.search.register({ id: 'roles', label: 'الأدوار', perm: 'sa.roles.view', query: (q) => (q ? (SA.store.get('roles') || []).filter((r) => has(r.nameAr, q) || has(r.nameEn, q)).map((r) => ({ title: r.nameAr, sub: r.description, icon: 'key', route: 'roles/' + r.id })) : []) });
   SA.search.register({ id: 'customers', label: 'العملاء', perm: 'sa.customers.view', query: (q) => (q ? SA.scopeFilter('customers', SA.store.get('customers') || [], 'salesRepId').filter((c) => has(c.name, q) || has(c.code, q)).map((c) => ({ title: c.name, sub: c.code + ' · ' + c.city, icon: 'users', route: 'customers?q=' + encodeURIComponent(c.code) })) : []) });
@@ -95,11 +96,11 @@
   let navEl, bellBtn, bellCount, crumbEl, bannerEl, subs = [];
   function spacesBlock() {
     const apps = SA.appsFor(); if (apps.length < 2) return null; const cur = SA.currentApp();
-    return h('div.sap-spaces', {}, h('div.sap-nav-label', {}, 'المساحات'), apps.map((a) => h('button.sap-space' + (a.id === cur ? '.is-cur' : ''), { type: 'button', title: a.title, 'aria-pressed': String(a.id === cur), onclick: () => SA.setApp(a.id) }, SA.icon(a.icon), h('span.sap-nav-text', {}, a.title))));
+    return h('div.sap-spaces' + (apps.length > 4 ? '.is-grid' : ''), {}, h('div.sap-nav-label', {}, 'المساحات'), h('div.sap-spaces-list', {}, apps.map((a) => h('button.sap-space' + (a.id === cur ? '.is-cur' : ''), { type: 'button', title: a.title, 'aria-pressed': String(a.id === cur), onclick: () => SA.setApp(a.id) }, SA.icon(a.icon), h('span.sap-nav-text', {}, apps.length > 4 ? a.short : a.title)))));
   }
   function buildNav() {
     if (!navEl) return; SA.clear(navEl); const app = SA.currentApp();
-    const bs = document.querySelector('.sap-brand small'); if (bs) bs.textContent = app === 'hr' ? 'الموارد البشرية' : 'Super Admin';
+    const bs = document.querySelector('.sap-brand small'); if (bs) bs.textContent = appTitle(app);
     const sp = spacesBlock(); if (sp) navEl.appendChild(sp);
     const mods = SA.navModules(app); const cur = SA.route && SA.route.module;
     SA.catalog.groupsOf(app).forEach((g) => {
@@ -115,6 +116,11 @@
   let appSw = null;
   function drawAppSwitch() {
     SA.clear(appSw); const apps = SA.appsFor(); appSw.hidden = apps.length < 2; const cur = SA.currentApp();
+    if (apps.length > 3) {
+      const ca = SA.catalog.appById(cur) || apps[0];
+      appSw.appendChild(h('button.sap-appbtn.sap-appdrop', { type: 'button', 'aria-pressed': 'true', 'aria-haspopup': 'menu', title: 'تبديل المساحة', onclick: (e) => SA.menu(e.currentTarget, apps.map((a) => ({ label: a.title + (a.id === cur ? ' ✓' : ''), icon: a.icon, onClick: () => SA.setApp(a.id) }))) }, SA.icon(ca.icon, 'icon-sm'), h('span', {}, ca.short), SA.icon('chevdown', 'icon-sm')));
+      return;
+    }
     apps.forEach((a) => appSw.appendChild(h('button.sap-appbtn', { type: 'button', 'aria-pressed': String(a.id === cur), onclick: () => SA.setApp(a.id) }, SA.icon(a.icon, 'icon-sm'), h('span', {}, a.short))));
   }
   function updateBell() {
@@ -130,17 +136,17 @@
   function setCrumbs(items) {
     if (!crumbEl) return; SA.clear(crumbEl); const m = SA.route.module; const home = SA.homeRoute();
     const list = items || (m ? [{ label: (SA.catalog.groupsOf(m.app).find((g) => g.id === m.group) || {}).title }, { label: m.title }] : []);
-    crumbEl.appendChild(h('li', {}, h('a', { href: '#/' + home }, m && m.app === 'hr' ? 'الموارد البشرية' : 'Super Admin')));
+    crumbEl.appendChild(h('li', {}, h('a', { href: '#/' + (m ? SA.homeRoute(m.app) || home : home) }, appTitle(m ? m.app : 'sa'))));
     list.forEach((c, i) => { crumbEl.appendChild(h('li.sap-crumb-sep', { 'aria-hidden': 'true' }, SA.icon('chevron', 'icon-sm icon-flip'))); crumbEl.appendChild(h('li', { 'aria-current': i === list.length - 1 ? 'page' : null }, c.href && i < list.length - 1 ? h('a', { href: c.href }, c.label) : c.label)); });
   }
   S.setCrumbs = setCrumbs;
 
   S.mount = function (host) {
-    const mode = SA.isEss() ? 'ess' : 'shell';
+    const mode = SA.isEss() ? 'ess' : SA.isPortal() ? 'portal' : 'shell';
     if (S.host === host && host.firstChild && host.dataset.mode === mode) return;
     if (S.cleanup) { try { S.cleanup(); } catch (e) { /* noop */ } S.cleanup = null; }
-    S.host = host; host.dataset.mode = mode; SA.clear(host);
-    if (mode === 'ess') return mountEss(host); subs.forEach((f) => f()); subs = [];
+    S.host = host; host.dataset.mode = mode; SA.clear(host); S.portalTabs = null;
+    if (mode === 'ess') return mountEss(host); if (mode === 'portal') return mountPortal(host); subs.forEach((f) => f()); subs = [];
     const u = SA.session.user;
     const collapsed = !!(SA.store.get('ui') || {}).sidebarCollapsed;
     navEl = h('nav.sap-nav', { 'aria-label': 'القائمة الرئيسية' });
@@ -182,7 +188,7 @@
     SA.closeMenu(); SA.clear(S.main); const m = route.module; const main = S.main;
     if (S.app) S.app.classList.remove('is-nav-open');
     buildNav(); updateBanners();
-    const done = (title) => { document.title = (title ? title + ' — ' : '') + 'Super Admin · نموذج EG'; if (!S.crumbs) setCrumbs(); main.scrollTop = 0; window.scrollTo(0, 0); };
+    const done = (title) => { document.title = (title ? title + ' — ' : '') + 'نظام المصرية الألمانية · نموذج EG'; if (!S.crumbs) setCrumbs(); if (S.portalTabs) S.portalTabs(); main.scrollTop = 0; window.scrollTo(0, 0); };
     S.crumbs = null;
     if (!route.segs.length) { const hr = SA.homeRoute(); if (hr) return SA.nav(hr, { replace: true }); main.appendChild(SA.empty({ icon: 'shield', title: 'لا توجد شاشات متاحة', text: 'دورك الحالي ما عندوش صلاحيات في Super Admin. اطلب من مدير النظام.' })); return done('بدون صلاحيات'); }
     if (!m) { notFound(main, route); setCrumbs([{ label: 'غير موجود' }]); S.crumbs = true; return done('404'); }
@@ -191,7 +197,7 @@
       main.appendChild(SA.denied({ perm: m.perm, title: 'هذه الشاشة ليست من صلاحياتك', text: 'شاشة «' + m.title + '» تحتاج صلاحية ' + SA.catalog.permLabel(m.perm) + '. اطلب من مدير النظام إضافتها لدورك. (تم تسجيل المحاولة.)' }));
       setCrumbs([{ label: m.title }, { label: 'ممنوع' }]); S.crumbs = true; return done('ممنوع');
     }
-    if (m.app === 'hr' && !SA.appEnabled('hr')) { main.appendChild(h('div.denied.sap-denied', {}, h('span.dot', {}, SA.icon('layers')), h('strong', {}, 'موديول الموارد البشرية معطّل'), h('span.t-muted', {}, 'الإدارة عطّلت الموديول من «الموديولات» (SA-09). فعّله من هناك لتظهر شاشات HR.'), SA.can('sa.modules.toggle') ? SA.btn({ label: 'فتح الموديولات', kind: 'ghost', icon: 'layers', onClick: () => SA.nav('modules') }) : null)); setCrumbs([{ label: m.title }, { label: 'معطّل' }]); S.crumbs = true; return done('معطّل'); }
+    if (!SA.appEnabled(m.app) || !SA.moduleOn(m.moduleKey)) { const nm = m.app === 'hr' ? 'الموارد البشرية' : appTitle(m.app); main.appendChild(h('div.denied.sap-denied', {}, h('span.dot', {}, SA.icon('layers')), h('strong', {}, 'موديول ' + nm + ' معطّل'), h('span.t-muted', {}, 'الإدارة عطّلت الموديول من «الموديولات» (SA-09). فعّله من هناك لتظهر شاشاته.'), SA.can('sa.modules.toggle') ? SA.btn({ label: 'فتح الموديولات', kind: 'ghost', icon: 'layers', onClick: () => SA.nav('modules') }) : null)); setCrumbs([{ label: m.title }, { label: 'معطّل' }]); S.crumbs = true; return done('معطّل'); }
     const ctx = { path: route.rest, params: route.query, route, module: m, root: main, setCrumbs: (c) => { setCrumbs(c); S.crumbs = true; }, setTitle: (t) => { document.title = t + ' — Super Admin · نموذج EG'; } };
     const showError = (e) => { console.error(e); SA.clear(main); main.appendChild(SA.errorState({ text: SA.errorText(e), onRetry: () => S.route(SA.route) })); };
     try {
@@ -215,6 +221,22 @@
     ['approvals', 'notifications', 'roles', 'users', 'session', 'sessions', 'leaveRequests'].forEach((p) => subs.push(SA.store.subscribe(p, () => { updateBell(); updateBanners(); })));
     subs.push(SA.store.subscribe('tour.sim', updateBanners), SA.store.subscribe('ui', SA.applyUi));
     updateBell(); updateBanners();
+  }
+
+  /* ───────────────────────── Dealer portal shell (external account — بند 34): brand top bar + tabs from navModules('portal') ───────────────────────── */
+  function mountPortal(host) {
+    const u = SA.session.user;
+    bellCount = h('span.sap-bell-count', { hidden: true });
+    bellBtn = h('button.sap-iconbtn', { type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', onclick: (e) => openBell(e.currentTarget) }, SA.icon('bell'), bellCount);
+    bannerEl = h('div.sap-banners'); navEl = null; crumbEl = null; appSw = null;
+    const tabs = h('nav.sap-portal-tabs', { 'aria-label': 'بوابة التاجر' });
+    S.portalTabs = () => { SA.clear(tabs); const cur = SA.route && SA.route.module; SA.navModules('portal').forEach((m) => tabs.appendChild(h('a.sap-portal-tab', { href: '#/' + m.route, 'aria-current': cur && cur.id === m.id ? 'page' : null }, SA.icon(m.icon || 'grid', 'icon-sm'), h('span', {}, m.title)))); };
+    S.main = h('main#sap-main.sap-content.sap-portal-main', { tabindex: '-1' });
+    host.append(h('div.sap-portal', {}, h('header.sap-portal-top', {}, h('a.sap-ess-brand', { href: '#/' + SA.homeRoute() }, h('img', { src: '../../assets/images/logo/wordmark-color.png', alt: 'المصرية الألمانية', style: { height: '30px', width: 'auto' } }), h('span.sap-portal-name', {}, 'بوابة التاجر')), tabs, h('div.sap-top-actions', {}, bellBtn, h('button.sap-persona-chip', { type: 'button', 'aria-haspopup': 'menu', onclick: (e) => accountMenu(e.currentTarget) }, SA.avatar(u.name), h('span.sap-pc-text', {}, h('b', {}, u.name), h('small', {}, u.jobTitle || SA.roleName(u.roleId))), SA.icon('chevdown', 'icon-sm')))), bannerEl, S.main));
+    SA.applyUi(); subs.forEach((f) => f()); subs = [];
+    ['approvals', 'notifications', 'roles', 'users', 'session', 'sessions', 'salesOrders'].forEach((p) => subs.push(SA.store.subscribe(p, () => { updateBell(); updateBanners(); })));
+    subs.push(SA.store.subscribe('tour.sim', updateBanners), SA.store.subscribe('ui', SA.applyUi), SA.on('modules', () => S.portalTabs && S.portalTabs()));
+    S.portalTabs(); updateBell(); updateBanners();
   }
 
   /* ───────────────────────── HR navigation catalogue + placeholders (Phase 2 replaces each by SA.register with the SAME id) ───────────────────────── */

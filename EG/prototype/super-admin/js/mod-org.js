@@ -344,8 +344,8 @@
   SA.register({ id: 'departments', group: 'org', title: 'الأقسام', icon: 'building', route: 'departments', perm: 'sa.departments.view', order: 20, desc: 'هيكل الأقسام والمديرون', render: departmentsRender });
 
   /* ═══════════════════════ SA-09 · الموديولات ═══════════════════════ */
-  const DEPS = { sales: ['customers', 'products', 'inventory'], customers: [], products: [], inventory: ['products'], manufacturing: ['inventory', 'products'], purchasing: ['inventory', 'products'], finance: ['sales', 'purchasing'], hr: [], quality: ['manufacturing'], super_admin: [] };
-  const MODICON = { sales: 'cart', customers: 'users', products: 'box', inventory: 'warehouse', manufacturing: 'factory', purchasing: 'truck', finance: 'coins', hr: 'id', quality: 'clipboard', super_admin: 'shield' };
+  const DEPS = { sales: ['customers', 'products', 'inventory'], customers: [], products: [], inventory: ['products'], manufacturing: ['inventory', 'products'], purchasing: ['inventory', 'products'], finance: ['sales', 'purchasing'], hr: [], quality: ['manufacturing'], super_admin: [], exec: [], crm: ['sales'], logistics: ['sales', 'inventory'], care: [], expo: ['crm'], portal: ['sales', 'products'] };
+  const MODICON = { sales: 'cart', customers: 'users', products: 'box', inventory: 'warehouse', manufacturing: 'factory', purchasing: 'truck', finance: 'coins', hr: 'id', quality: 'clipboard', super_admin: 'shield', exec: 'gauge', crm: 'users', logistics: 'truck', care: 'wrench', expo: 'calendar', portal: 'globe' };
   const modName = (k) => ((st.get('modules') || []).find((m) => m.key === k) || {}).nameAr || k;
   const modOn = (k) => { const m = (st.get('modules') || []).find((x) => x.key === k); return !!(m && m.enabled); };
   function modStatus(m) { if (m.enabled) return ['مفعّل', 'success']; if (m.phase === 'v2') return ['مخطط', 'info']; return ['مخفي', 'neutral']; }

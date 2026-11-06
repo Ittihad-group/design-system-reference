@@ -52,7 +52,7 @@
   function personaTab(host) {
     const users = st.get('users') || []; const cur = SA.session.personaId;
     host.append(h('p.t-muted', {}, 'بدّل الشخصية فورًا من غير ما تخرج من التدفق — البيانات كما هي. الحسابات المعطّلة/الموقوفة مش هتدخل.'));
-    [['sa', 'Super Admin'], ['hr', 'الموارد البشرية']].forEach((grp) => {
+    [['sa', 'الإدارة والمبيعات والمالية']].concat(SA.catalog.apps.filter((a) => a.id !== 'sa').map((a) => [a.id, a.title])).filter((grp) => Object.keys(SA.catalog.personas).some((pid) => (SA.catalog.personas[pid].area || 'sa') === grp[0])).forEach((grp) => {
       host.append(h('h4.sap-sub', {}, grp[1]));
       host.append(h('div.sap-persona-list', {}, Object.keys(SA.catalog.personas).filter((pid) => ((SA.catalog.personas[pid].area || 'sa') === grp[0])).map((pid) => { const u = users.find((x) => x.persona === pid); if (!u) return null; const p = SA.catalog.personas[pid];
         return h('button.sap-persona' + (cur === pid ? '.is-picked' : ''), { type: 'button', 'aria-pressed': String(cur === pid), onclick: () => { if (SA.auth.loginAs(pid)) drawBody(); } }, SA.avatar(u.name), h('span', {}, h('b', {}, p.label), h('small', {}, u.name + ' · ' + p.desc), u.status !== 'active' ? h('small.is-bad', {}, u.status === 'disabled' ? 'معطّل' : u.status === 'locked' ? 'موقوف' : 'بانتظار التفعيل') : null), cur === pid ? SA.chip('الحالي', 'success') : null); })));

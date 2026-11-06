@@ -149,3 +149,34 @@ SA.register({ id:'users', group:'access', title:'المستخدمون', icon:'us
 - `Element.prototype.append` مُعدَّل في `core.js` ليتجاهل `null/false` ويسطّح المصفوفات (لا يظهر نص "null").
 - `SA.hrNav` (قائمة الـstubs) مرجع المعرّفات؛
 - `app.js` في `js/app.js` (يشغّل الـstore والـtest lab والـrouter).
+
+## 10. توسعة ERP: كل أقسام المصنع على نفس التطبيق (2026-11-06)
+> الملفات: `js/erp-core.js` (العقد المشترك) · `js/seed-erp.js` (بيانات المصنع والقصة الحية) · `css/erp.css` · موديول لكل قسم `js/mod-<x>.js`. الخطة الكاملة: [`docs/PLAN.md`](../PLAN.md) (القسم 11 للديمو).
+
+### 10.1 المساحات الجديدة (`SA.catalog.apps`)
+`exec` لوحة القيادة والذكاء الاصطناعي · `crm` المبيعات وCRM · `mfg` التصنيع والجودة · `scm` المشتريات والمخازن والشحن · `fin` المالية والحسابات · `care` الدعم والصيانة · `expo` المعارض والفعاليات · `portal` بوابة التاجر (shell خاص `mountPortal` للتاجر الخارجي) — بجانب `sa` و`hr`.
+- كل app له `home` (معرّف شاشة البداية) و`moduleKey` (يربطه بـSA-09 الموديولات). الشاشة نفسها ممكن يكون لها `moduleKey` (مثلاً الجودة `quality`).
+- مفاتيح الصلاحية `<app>.<res>.<action>` (الكتالوج في `erp-core.js`، وتظهر تلقائيًا في شاشة الأدوار). التكاليف/الأرباح: `data.cost.view` / `data.profit.view` (حساسة، Approved بند 25).
+- `C.groupsOf(app)` من `C.appGroups`، و`SA.register` يستنتج الـapp من أول جزء في الـroute.
+- عقد المسارات (Route contract) في أول `erp-core.js` — `ERP.route(docId)` يحوّل أي رقم مستند (SO-/WO-/QC-/PS-/GRN-/DN-/INV-/RV-/PV-/JE-/TKT-/MWO-/EV-…) لرابطه.
+
+### 10.2 `window.ERP`
+- **بحث:** `ERP.item/customer/supplier/line/machine/wh` · `ERP.fmt.money/short/qty/pct/date` · `ERP.no('SO')` ترقيم بلا تكرار يحدّث `settings.numbering`.
+- **المخزون:** `ERP.stock.qty/available/reserve/move/transfer/low/onOrder/value` — أرصدة `stock[]` + دفتر `stockMoves[]`.
+- **الأستاذ العام:** `ERP.gl.post({memo, ref, lines:[{acc, dr|cr}]})` · `ERP.gl.balance(code, from, to)` — دليل حسابات `accounts[]` وقيود `journal[]`.
+- **دورة العمل (`ERP.flow`)** — كل خطوة تكتب المخزون + القيد + التدقيق + الإشعار:
+  `createOrder → submitOrder` (بوابة ⇒ `pending_review` ثم `logCall`؛ خصم/قيمة فوق الحد ⇒ اعتماد `sales_order`) `→ confirmOrder` (حجز أو أوامر تشغيل) `→ releaseWO → startWO → reportWO` (يفتح فحص نهائي) `→ recordQC` (مخزن تام أو حجر + NCR) `→ createDelivery → dispatch → deliver → invoiceOrder → receivePayment` (+ `chequeStatus`).
+  المشتريات: `mrp() → createPRQ → createPO → submitPO` (اعتماد `purchase_order` فوق الحد) `→ sendPO → receivePO` (GRN + فحص استلام) `→ recordQC` (مخزن خامات + فاتورة مورد) `→ createVoucher` (اعتماد `voucher`) `→ executeVoucher`.
+  الحدود (`ERP.flow.limits`) **قيم تجريبية**؛ الفعلية Open (بنود 33/42). الضريبة `ERP.taxRate()` = `settings.finance.taxRate` أو 14% تجريبية.
+- **الاعتمادات:** `ERP.onApproval(refType, fn)` — مالك كل نوع يحدّث سجله المصدر (idempotent). الأنواع الجديدة في `C.approvalTypes`.
+- **البيانات الخاصة بموديول:** `ERP.addSeed(name, (S, ctx) => …)` يعمل داخل `SA.seed.build`.
+- **الواجهة:** `ERP.chart.columns/line/donut/bars/gauge/meter/funnel/spark` · `ERP.ui.kpi/kpis/status/docLink/itemCell/swatch/cost/chain(soId)/aiCard/insights(area)/demo`.
+
+### 10.3 الشخصيات الجديدة
+`prod` مدير الإنتاج · `qc` الجودة · `buyer` المشتريات · `logistics` الشحن · `cfo` المدير المالي (R-22) · `maint` الصيانة · `cs` خدمة العملاء · `marketing` المعارض · `dealer` التاجر (R-21، حساب خارجي C-001). المالك (R-01) و`gm` يبدآن في `exec`.
+
+### 10.4 القصة الحية في البيانات
+خط التجاليد L-03 متوقف (M-301، `MWO-2026-0087`، اعتماد شراء عاجل `AP-2104`) ويؤثر على طلب تصدير عُمان `SO-2026-0480` · طلب تاجر من البوابة `SO-2026-0481` بانتظار مكالمة · فوم بورد المستشفى بانتظار الفحص النهائي · NCR فرق لون + CAPA · أوامر شراء وسندات صرف بانتظار الاعتماد · 12 شهرًا من الفواتير والتحصيل والشيكات والقيود.
+
+### 10.5 تصحيحات على البيانات الأصلية
+البيانات الأصلية كانت لنشاط ألومنيوم/زجاج؛ اتعدّلت لنشاط WPC & PVC (الأقسام، الموردون، أسماء الخطوط في شاشات HR، اسم الشركة)، واسم حساب صاحب الشركة التجريبي.

@@ -1,0 +1,101 @@
+/* EG ERP prototype — erp.css (shared ERP components; owned by the lead). Module agents add their own CSS inside their mod-*.js (style[data-mod]) with a unique prefix. */
+
+/* ── spaces (many apps): compact grid in the sidebar + dropdown in the top bar ── */
+.sap-spaces.is-grid .sap-spaces-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.sap-spaces.is-grid .sap-space { flex-direction: column; gap: 3px; padding: 7px 2px; min-height: 54px; justify-content: center; text-align: center; font-size: 11.5px; line-height: 1.25; }
+.sap-spaces.is-grid .sap-space .sap-nav-text { white-space: normal; }
+.sap-spaces-list { display: flex; flex-direction: column; gap: 2px; }
+.is-collapsed .sap-spaces.is-grid .sap-spaces-list { grid-template-columns: 1fr; }
+.is-collapsed .sap-spaces.is-grid .sap-space .sap-nav-text { display: none; }
+.sap-appdrop { gap: 6px; }
+
+/* ── dealer portal shell ── */
+.sap-portal { min-height: 100vh; background: var(--color-bg-alt); }
+.sap-portal-top { position: sticky; top: 0; z-index: var(--z-sticky); display: flex; align-items: center; gap: 18px; padding: 10px 22px; background: #fff; border-bottom: 1px solid var(--color-border); flex-wrap: wrap; }
+.sap-portal-name { font-weight: 700; color: var(--eg-navy); border-inline-start: 1px solid var(--color-border); padding-inline-start: 10px; }
+.sap-portal-tabs { display: flex; gap: 4px; flex: 1; flex-wrap: wrap; }
+.sap-portal-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 10px; color: var(--color-text); text-decoration: none; font-weight: 600; font-size: var(--text-dense); min-height: 40px; }
+.sap-portal-tab:hover { background: var(--color-primary-tint); }
+.sap-portal-tab[aria-current="page"] { background: var(--eg-navy); color: #fff; }
+.sap-portal-main { max-width: 1200px; margin: 0 auto; padding: 22px; }
+
+/* ── charts ── */
+.erp-chart { width: 100%; }
+.erp-svg { width: 100%; height: auto; display: block; direction: ltr; overflow: visible; }
+.erp-svg .erp-grid { stroke: var(--color-border); stroke-width: 1; }
+.erp-svg .erp-axis { fill: var(--color-text-muted); font: 500 11px var(--font-en); }
+.erp-svg .erp-bar { transition: opacity .15s; } .erp-svg .erp-bar:hover { opacity: .8; }
+.erp-legend { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--color-text-muted); }
+.erp-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.erp-legend i { width: 10px; height: 10px; border-radius: 3px; border: 2px solid transparent; display: inline-block; }
+.erp-legend b { color: var(--color-text); font-weight: 600; }
+.erp-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.erp-svg.erp-donut { width: auto; max-width: 170px; flex: none; }
+.erp-donut-wrap .erp-legend { flex-direction: column; margin: 0; }
+.erp-donut-v { font: 700 20px var(--font-en); fill: var(--color-text); } .erp-donut-s { font: 500 11px var(--font-ar); fill: var(--color-text-muted); }
+.erp-hbars { display: flex; flex-direction: column; gap: 8px; }
+.erp-hbar { display: grid; grid-template-columns: minmax(110px, 34%) 1fr auto; align-items: center; gap: 10px; text-decoration: none; color: inherit; font-size: var(--text-dense); }
+a.erp-hbar:hover .erp-hbar-l { color: var(--eg-navy); text-decoration: underline; }
+.erp-hbar-l { display: flex; flex-direction: column; line-height: 1.3; min-width: 0; } .erp-hbar-l small { color: var(--color-text-muted); font-size: 11.5px; }
+.erp-hbar-t { height: 10px; background: var(--color-neutral-tint); border-radius: 999px; overflow: hidden; } .erp-hbar-t i { display: block; height: 100%; border-radius: 999px; }
+.erp-hbar-v { font-size: 12.5px; min-width: 64px; text-align: end; }
+.erp-gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.erp-gauge-v { font: 700 22px var(--font-en); fill: var(--color-text); } .erp-gauge-l { font-size: 12.5px; color: var(--color-text-muted); font-weight: 600; }
+.erp-meter { display: flex; flex-direction: column; gap: 5px; }
+.erp-meter-l { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--color-text-muted); }
+.erp-meter-t { height: 8px; border-radius: 999px; background: var(--color-neutral-tint); overflow: hidden; } .erp-meter-t i { display: block; height: 100%; border-radius: 999px; background: var(--eg-navy); }
+.erp-meter.is-success .erp-meter-t i { background: var(--color-success); } .erp-meter.is-warning .erp-meter-t i { background: var(--color-warning); } .erp-meter.is-danger .erp-meter-t i { background: var(--color-danger); } .erp-meter.is-primary .erp-meter-t i { background: var(--eg-navy); }
+.erp-spark { flex: none; }
+.erp-funnel { display: flex; flex-direction: column; gap: 6px; }
+.erp-funnel-row { display: grid; grid-template-columns: 110px 1fr; align-items: center; gap: 10px; font-size: var(--text-dense); }
+.erp-funnel-t i { display: flex; align-items: center; justify-content: flex-end; height: 26px; border-radius: 6px; padding-inline: 8px; color: #fff; font-size: 12px; min-width: 36px; }
+.erp-funnel-s { grid-column: 2; color: var(--color-text-muted); font-size: 11.5px; margin-top: -4px; }
+
+/* ── KPI cards ── */
+.erp-kpis { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.erp-kpi { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; text-decoration: none; color: inherit; min-height: 108px; }
+a.erp-kpi:hover { box-shadow: var(--shadow-float); }
+.erp-kpi-top { display: flex; align-items: center; gap: 8px; } .erp-kpi-l { font-size: 12.5px; color: var(--color-text-muted); font-weight: 600; }
+.erp-kpi-ico { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--color-primary-tint); color: var(--eg-navy); }
+.erp-kpi-mid { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.erp-kpi-v { font-size: 1.45rem; font-weight: 700; color: var(--color-text); line-height: 1.2; }
+.erp-kpi-bot { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--color-text-muted); flex-wrap: wrap; }
+.erp-delta { font: 700 11.5px var(--font-en); padding: 1px 6px; border-radius: 6px; } .erp-delta.is-up { color: var(--color-success); background: var(--color-success-tint); } .erp-delta.is-down { color: var(--color-danger); background: var(--color-danger-tint); }
+.erp-kpi.is-danger { border-inline-start: 3px solid var(--color-danger); } .erp-kpi.is-warning { border-inline-start: 3px solid var(--color-warning); } .erp-kpi.is-success { border-inline-start: 3px solid var(--color-success); } .erp-kpi.is-primary { background: var(--eg-navy); color: #fff; } .erp-kpi.is-primary .erp-kpi-v, .erp-kpi.is-primary .erp-kpi-l, .erp-kpi.is-primary .erp-kpi-bot { color: #fff; } .erp-kpi.is-primary .erp-kpi-ico { background: rgba(255,255,255,.14); color: #fff; }
+
+/* ── grids / sub headers ── */
+.erp-grid { display: grid; gap: 16px; margin-block: 16px; }
+.erp-grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+.erp-grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.erp-grid-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+.erp-sub { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 10px; } .erp-sub h3 { margin: 0; font-size: 1rem; color: var(--eg-navy); }
+
+/* ── shared cells ── */
+.erp-doc { font-weight: 600; color: var(--eg-navy); text-decoration: none; white-space: nowrap; } .erp-doc:hover { text-decoration: underline; }
+.erp-swatch { display: inline-block; width: 16px; height: 16px; border-radius: 5px; border: 1px solid rgba(0,0,0,.18); flex: none; vertical-align: middle; }
+.erp-item { display: inline-flex; align-items: center; gap: 8px; min-width: 0; } .erp-item b { display: block; font-weight: 600; font-size: var(--text-dense); line-height: 1.3; } .erp-item small { color: var(--color-text-muted); font-size: 11.5px; }
+.erp-item-ico { width: 26px; height: 26px; border-radius: 7px; background: var(--color-bg-alt); display: grid; place-items: center; color: var(--color-text-muted); flex: none; }
+.erp-money { white-space: nowrap; }
+.erp-locked { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--color-text-muted); background: var(--color-neutral-tint); padding: 1px 8px; border-radius: 6px; }
+.erp-demo { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--color-warning); background: var(--color-warning-tint); padding: 1px 8px; border-radius: 6px; font-weight: 600; }
+body.sap-hide-tags .erp-demo { display: none; }
+
+/* ── AI insight card ── */
+.erp-ai-card { display: flex; gap: 12px; padding: 12px 14px; border-radius: 12px; background: linear-gradient(135deg, #f5f8ff, #fff); border: 1px solid var(--eg-navy-tint); }
+.erp-ai-card.is-danger { border-color: #f5c2c4; background: linear-gradient(135deg, #fff5f5, #fff); } .erp-ai-card.is-warning { border-color: #f2d6ad; background: linear-gradient(135deg, #fffaf2, #fff); } .erp-ai-card.is-success { border-color: #bfe3cc; background: linear-gradient(135deg, #f3fbf6, #fff); }
+.erp-ai-badge { flex: none; align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; font: 700 11px var(--font-en); color: #fff; background: linear-gradient(135deg, var(--eg-navy), #345383); padding: 4px 8px; border-radius: 999px; }
+.erp-ai-body b { display: block; font-size: var(--text-dense); } .erp-ai-body p { margin: 4px 0 0; font-size: 13px; color: var(--color-text-muted); line-height: 1.7; }
+.erp-ai-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+/* ── document chain (SO → WO → QC → DN → INV → RV) ── */
+.erp-chain { list-style: none; margin: 0; padding: 4px 0; display: flex; gap: 0; overflow-x: auto; }
+.erp-chain-step { position: relative; flex: 1 0 128px; display: flex; gap: 8px; padding-inline-end: 14px; }
+.erp-chain-step:not(:last-child)::after { content: ""; position: absolute; top: 9px; inset-inline-start: 22px; inset-inline-end: 0; height: 2px; background: var(--color-border); }
+.erp-chain-dot { width: 18px; height: 18px; border-radius: 50%; flex: none; background: #fff; border: 3px solid var(--color-border-strong); position: relative; z-index: 1; }
+.erp-chain-step.is-success .erp-chain-dot { background: var(--color-success); border-color: var(--color-success); } .erp-chain-step.is-info .erp-chain-dot { border-color: var(--eg-navy); background: var(--color-primary-tint); }
+.erp-chain-step.is-warning .erp-chain-dot { border-color: var(--color-warning); background: var(--color-warning-tint); } .erp-chain-step.is-danger .erp-chain-dot { border-color: var(--color-danger); background: var(--color-danger-tint); }
+.erp-chain-step > div { display: flex; flex-direction: column; gap: 1px; padding-top: 22px; margin-inline-start: -18px; font-size: 12px; line-height: 1.35; }
+.erp-chain-step small { color: var(--color-text-muted); } .erp-chain-step em { font-style: normal; font-weight: 600; } .erp-chain-step time { color: var(--color-text-muted); font-size: 11px; }
+
+@media (max-width: 760px) { .erp-hbar { grid-template-columns: 1fr auto; } .erp-hbar-t { grid-column: 1 / -1; grid-row: 2; } .sap-portal-top { padding: 10px 12px; } .sap-portal-main { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .erp-svg .erp-bar { transition: none; } }

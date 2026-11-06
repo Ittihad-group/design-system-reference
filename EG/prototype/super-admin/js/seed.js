@@ -82,7 +82,7 @@
   function buildUsers() {
     const U = (id, name, email, roleId, dept, mgr, status, o) => Object.assign({ id, name, email: email + '@eg-demo.test', phone: '+20 10' + String(10000000 + (id.length * 7919 + parseInt(id.slice(2), 10) * 104729) % 89999999), roleId, departmentId: dept, managerId: mgr, warehouseIds: [], status, mfa: false, locale: 'ar', jobTitle: '', lastLogin: null, createdAt: ago(60 * 24 * 60), createdBy: 'U-01', persona: null, failed: 0 }, o);
     return [
-      U('U-01', 'أحمد المنشاوي', 'owner', 'R-01', 'D-01', null, 'active', { mfa: true, persona: 'owner', jobTitle: 'صاحب الشركة والمصنع', lastLogin: ago(95), createdBy: 'SYSTEM' }),
+      U('U-01', 'م. محمد سامي الصعيدي', 'owner', 'R-01', 'D-01', null, 'active', { mfa: true, persona: 'owner', jobTitle: 'صاحب الشركة والمصنع', lastLogin: ago(95), createdBy: 'SYSTEM' }),
       U('U-02', 'منى السيد', 'backup', 'R-01', 'D-01', 'U-01', 'active', { mfa: true, persona: 'backup', jobTitle: 'مسؤول احتياطي', lastLogin: ago(60 * 26) }),
       U('U-03', 'خالد عبد الله', 'gm', 'R-02', 'D-01', 'U-01', 'active', { mfa: true, persona: 'gm', jobTitle: 'المدير العام', lastLogin: ago(240) }),
       U('U-04', 'هبة فاروق', 'sales.mgr', 'R-03', 'D-02', 'U-03', 'active', { persona: 'salesmgr', jobTitle: 'مدير المبيعات', lastLogin: ago(50) }),
@@ -107,7 +107,7 @@
       U('U-23', 'عبد الرحمن فتحي', 'abdelrahman', 'R-08', 'D-06', 'U-14', 'active', { jobTitle: 'مسؤول مشتريات', lastLogin: ago(60 * 11) }),
       U('U-25', 'ريم عبد الحميد', 'hr.officer', 'R-12', 'D-07', 'U-08', 'active', { persona: 'hrofficer', jobTitle: 'أخصائية موارد بشرية', lastLogin: ago(70) }),
       U('U-26', 'أشرف عماد', 'payroll', 'R-13', 'D-03', 'U-06', 'active', { persona: 'payroll', jobTitle: 'مسؤول مرتبات', lastLogin: ago(110) }),
-      U('U-27', 'سيد رمضان', 'supervisor', 'R-14', 'D-09', 'U-13', 'active', { persona: 'supervisor', jobTitle: 'مشرف خط الألومنيوم', lastLogin: ago(40) }),
+      U('U-27', 'سيد رمضان', 'supervisor', 'R-14', 'D-09', 'U-13', 'active', { persona: 'supervisor', jobTitle: 'مشرف خط بثق الأبواب', lastLogin: ago(40) }),
       U('U-28', 'عبير الشافعي', 'ohs', 'R-15', 'D-13', 'U-13', 'active', { persona: 'ohs', jobTitle: 'مسؤولة السلامة والصحة المهنية', lastLogin: ago(200) }),
       U('U-29', 'مصطفى عوض', 'employee', 'R-16', 'D-09', 'U-27', 'active', { persona: 'employee', jobTitle: 'فني تشغيل', lastLogin: ago(300) }),
       U('U-24', 'جيهان سعد', 'gihan', 'R-11', 'D-07', 'U-08', 'active', { jobTitle: 'أخصائية موارد بشرية', lastLogin: ago(60 * 14) })
@@ -121,13 +121,13 @@
       o = o || {}; const u = users[actorId]; const cat = SA.catalog.auditByCode[code];
       rows.push({ id: '', ts: ago(mins), actor: u ? { id: u.id, name: u.name, roleId: u.roleId } : { id: 'SYSTEM', name: 'النظام', roleId: null }, code, target: tid ? { type: tt, id: tid, label: tl } : null, before: o.before === undefined ? null : o.before, after: o.after === undefined ? null : o.after, reason: o.reason || '', severity: o.sev || (cat && cat.severity) || 'info', result: o.result || 'success', ip: o.ip || '192.0.2.' + (10 + (actorId ? parseInt(actorId.slice(2), 10) : 0)), device: o.device || 'Chrome · Windows', via: o.via || 'web', count: o.count || 1, area: code.indexOf('HR.') === 0 ? 'hr' : 'sa', stepUp: !!o.stepUp });
     };
-    A(14, 'AUTH.LOGIN_SUCCESS', 'U-01', 'user', 'U-01', 'أحمد المنشاوي');
+    A(14, 'AUTH.LOGIN_SUCCESS', 'U-01', 'user', 'U-01', 'م. محمد سامي الصعيدي');
     A(22, 'APPROVAL.APPROVED', 'U-04', 'approval', 'AP-2002', 'طلب كبير — خطوة مدير المبيعات', { reason: 'العميل قديم والسداد منتظم', after: { status: 'step 1 approved' } });
     A(41, 'USER.UPDATED', 'U-08', 'user', 'U-24', 'جيهان سعد', { before: { jobTitle: 'موظفة موارد بشرية' }, after: { jobTitle: 'أخصائية موارد بشرية' } });
     A(55, 'AUTH.LOGIN_FAILED', null, 'user', 'U-12', 'دعاء ماهر', { result: 'failure', ip: '198.51.100.23', device: 'Chrome · Android' });
     A(60, 'AUTH.LOGIN_FAILED', null, 'user', 'U-12', 'دعاء ماهر', { result: 'failure', ip: '198.51.100.23', device: 'Chrome · Android', sev: 'medium' });
     A(65, 'AUTH.ACCOUNT_LOCKED', null, 'user', 'U-12', 'دعاء ماهر', { result: 'failure', sev: 'high', reason: 'تجاوز حد المحاولات الفاشلة', ip: '198.51.100.23' });
-    A(95, 'AUTH.LOGIN_SUCCESS', 'U-01', 'user', 'U-01', 'أحمد المنشاوي', { device: 'Safari · macOS' });
+    A(95, 'AUTH.LOGIN_SUCCESS', 'U-01', 'user', 'U-01', 'م. محمد سامي الصعيدي', { device: 'Safari · macOS' });
     A(130, 'AUTH.LOGIN_SUCCESS', 'U-05', 'user', 'U-05', 'ياسر مصطفى', { device: 'Chrome · Android', via: 'mobile' });
     A(190, 'ACCESS.DENIED', 'U-05', 'route', '/roles', 'الأدوار والصلاحيات', { result: 'denied', count: 2 });
     A(250, 'EXPORT.AUDIT', 'U-01', 'audit', 'AUD-EXP-1', 'تصدير سجل التدقيق (CSV)', { stepUp: true, after: { rows: 118, format: 'CSV' } });
@@ -163,7 +163,7 @@
     A(19000, 'AUTH.LOGIN_SUCCESS', 'U-02', 'user', 'U-02', 'منى السيد', { device: 'Chrome · Windows' });
     A(150, 'HR.PAYROLL.PREPARED', 'U-26', 'payroll_run', 'PR-2026-10', 'كشف مرتبات أكتوبر 2026 (تجريبي)', { after: { status: 'prepared', employees: 30 } });
     A(260, 'HR.LEAVE.APPROVED', 'U-27', 'leave_request', 'LV-2026-0002', 'إجازة اعتيادية — مصطفى عوض', { reason: 'لا تعارض مع الجدول', after: { status: 'approved' } });
-    A(480, 'HR.REQUISITION.CREATED', 'U-27', 'requisition', 'RQ-2026-0001', 'فني تشغيل — خط الألومنيوم', { after: { headcount: 2 } });
+    A(480, 'HR.REQUISITION.CREATED', 'U-27', 'requisition', 'RQ-2026-0001', 'فني تشغيل — خط بثق الأبواب', { after: { headcount: 2 } });
     A(900, 'HR.EMPLOYEE.PII_REVEALED', 'U-08', 'employee', 'E-1005', 'ياسر مصطفى', { reason: 'مراجعة مستندات التعيين' });
     A(1800, 'HR.SALARY.VIEWED', 'U-26', 'employee', 'E-1005', 'ياسر مصطفى', { reason: 'تجهيز الكشف' });
     A(3000, 'HR.SETTLEMENT.CALCULATED', 'U-25', 'settlement', 'FS-2026-0001', 'مخالصة كريم زكريا', { after: { status: 'calculated' } });
@@ -179,7 +179,7 @@
     const gm = (n, st, by, at, reason) => step(n, 'R-02', 'المدير العام (General Manager)', st, by, at, reason);
     const mk = (id, type, title, requesterId, amount, disc, status, chain, cur, mins, ctx, extra) => Object.assign({ id, type, area: (SA.catalog.approvalTypes[type] || {}).area || 'sa', title, requesterId, amount, discountPct: disc, currency: 'EGP', status, chain, currentStep: cur, createdAt: ago(mins), updatedAt: ago(Math.max(1, mins - 30)), context: ctx }, extra || {});
     return [
-      mk('AP-2001', 'discount', 'خصم على طلب بيع SO-2026-0412 — معرض النيل للنوافذ', 'U-05', 84500, 8, 'pending', [mgr('pending'), gm(2, 'waiting')], 1, 180, [['العميل', 'معرض النيل للنوافذ'], ['قيمة الطلب', '84,500 ج.م'], ['الخصم المطلوب', '8%'], ['البنود', '14 بابًا + 6 نوافذ'], ['ملاحظة المندوب', 'عميل قديم وبيطلب بكميات متكررة']]),
+      mk('AP-2001', 'discount', 'خصم على طلب بيع SO-2026-0412 — معرض النيل للأبواب والديكور', 'U-05', 84500, 8, 'pending', [mgr('pending'), gm(2, 'waiting')], 1, 180, [['العميل', 'معرض النيل للأبواب والديكور'], ['قيمة الطلب', '84,500 ج.م'], ['الخصم المطلوب', '8%'], ['البنود', '14 بابًا + 14 طقم كالون'], ['ملاحظة المندوب', 'عميل قديم وبيطلب بكميات متكررة']]),
       mk('AP-2002', 'large_order', 'طلب كبير SO-2026-0418 — شركة الأفق للمقاولات', 'U-10', 412000, null, 'pending', [mgr('approved', 'U-04', ago(22), 'العميل قديم والسداد منتظم'), gm(2, 'pending')], 2, 60 * 26, [['العميل', 'شركة الأفق للمقاولات'], ['قيمة الطلب', '412,000 ج.م'], ['شروط الدفع', 'دفعة مقدمة + شيكات'], ['تاريخ التسليم المطلوب', '30 يومًا']]),
       mk('AP-2003', 'price_list', 'تعديل قائمة أسعار تجار الجملة (PL-02)', 'U-04', null, null, 'pending', [gm(1, 'pending')], 1, 60 * 20, [['القائمة', 'تجار الجملة'], ['التغيير', '3 أصناف جديدة + تعديل سعر صنفين'], ['مين يملك التعديل في المبيعات', 'Open (بند 31)']]),
       mk('AP-2004', 'payment_voucher', 'سند صرف PV-2026-0119 — مورد إكسسوارات', 'U-06', 38000, null, 'pending', [gm(1, 'pending')], 1, 60 * 5, [['المورد', 'شركة الإكسسوارات الحديثة'], ['المبلغ', '38,000 ج.م'], ['الإنشاء', 'نهى إبراهيم'], ['التنفيذ', 'بعد الاعتماد — بصلاحية منفصلة']]),
@@ -190,16 +190,16 @@
       mk('AP-2009', 'payroll_run', 'كشف مرتبات PR-2026-10 (بيانات تجريبية) — بانتظار مراجعة HR', 'U-26', null, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية (مراجعة)', 'pending'), step(2, 'R-07', 'المالية (اعتماد الصرف)', 'waiting'), gm(3, 'waiting')], 1, 60 * 8, [['الكشف', 'PR-2026-10'], ['الفترة', 'أكتوبر 2026'], ['عدد الموظفين', '30'], ['ملاحظة', 'الأجور سرية (hr.salary.view). التجهيز/الاعتماد/الإطلاق صلاحيات منفصلة.']], { ref: { type: 'payroll_run', id: 'PR-2026-10' } }),
       mk('AP-2011', 'salary_change', 'تغيير مرتب: ياسر مصطفى (ترقية)', 'U-26', null, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية', 'pending'), gm(2, 'waiting')], 1, 60 * 6, [['الموظف', 'ياسر مصطفى (EMP-0005)'], ['السبب', 'ترقية إلى مندوب أول'], ['ملاحظة', 'مقدّم الطلب لا يعتمده (فصل مهام)']], { ref: { type: 'salary_change', id: 'SC-2026-0001' } }),
       mk('AP-2012', 'final_settlement', 'مخالصة نهائية FS-2026-0001 — موظف منتهي الخدمة', 'U-25', null, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية', 'pending'), step(2, 'R-07', 'المالية (الصرف)', 'waiting')], 1, 60 * 30, [['الموظف', 'كريم زكريا (EMP-0016)'], ['سبب الإنهاء', 'نقل لفرع آخر'], ['ملاحظة', 'من يحسب المخالصة غير من يصرفها']], { ref: { type: 'final_settlement', id: 'FS-2026-0001' } }),
-      mk('AP-2013', 'hiring_requisition', 'طلب توظيف: فني تشغيل — خط الألومنيوم', 'U-27', null, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية', 'pending'), gm(2, 'waiting')], 1, 60 * 12, [['الوظيفة', 'فني تشغيل'], ['القسم', 'خط الألومنيوم'], ['العدد', '2'], ['السبب', 'زيادة الطلب على الإنتاج']], { ref: { type: 'hiring_requisition', id: 'RQ-2026-0001' } }),
+      mk('AP-2013', 'hiring_requisition', 'طلب توظيف: فني تشغيل — خط بثق الأبواب', 'U-27', null, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية', 'pending'), gm(2, 'waiting')], 1, 60 * 12, [['الوظيفة', 'فني تشغيل'], ['القسم', 'خط بثق الأبواب'], ['العدد', '2'], ['السبب', 'زيادة الطلب على الإنتاج']], { ref: { type: 'hiring_requisition', id: 'RQ-2026-0001' } }),
       mk('AP-2014', 'advance', 'سلفة: مصطفى عوض', 'U-29', 3000, null, 'pending', [step(1, 'R-11', 'مدير الموارد البشرية', 'pending'), step(2, 'R-07', 'المالية', 'waiting')], 1, 60 * 4, [['الموظف', 'مصطفى عوض'], ['المبلغ', '3,000 ج.م (تجريبي)'], ['ملاحظة', 'حدود السلف والخصومات {Open}']], { ref: { type: 'advance', id: 'LN-2026-0001' } }),
-      mk('AP-2010', 'payment_voucher', 'سند صرف PV-2026-0118 — مشتريات خامات', 'U-14', 86400, null, 'approved', [gm(1, 'approved', 'U-03', ago(5000), 'مطابق للمستندات')], 1, 60 * 90, [['المورد', 'مصنع الألومنيوم الوطني'], ['المبلغ', '86,400 ج.م']])
+      mk('AP-2010', 'payment_voucher', 'سند صرف PV-2026-0118 — مشتريات خامات', 'U-14', 86400, null, 'approved', [gm(1, 'approved', 'U-03', ago(5000), 'مطابق للمستندات')], 1, 60 * 90, [['المورد', 'الشركة المصرية للبتروكيماويات — راتنج PVC'], ['المبلغ', '86,400 ج.م']])
     ];
   }
 
   function buildSettings() {
     const num = (type, labelAr, prefix, o) => Object.assign({ type, labelAr, prefix, format: 'PREFIX-YYYY-NNNN', pad: 4, includeYear: true, yearlyReset: true, last: 0, issued: 0, locked: false, source: 'بند 47', tag: 'pending' }, o);
     return {
-      company: { nameAr: 'مصنع EG للأبواب والنوافذ (اسم تجريبي)', nameEn: '', address: '', taxId: '', commercialReg: '', phone: '', email: '', website: '', sealUploaded: false, signatureUploaded: false, logoUploaded: true, docLanguage: null, readiness: { note: 'الرقم الضريبي والسجل التجاري والعنوان الرسمي: Open (بند 11)' } },
+      company: { nameAr: 'المصرية الألمانية لتصنيع منتجات WPC & PVC', nameEn: '', address: '', taxId: '', commercialReg: '', phone: '', email: '', website: '', sealUploaded: false, signatureUploaded: false, logoUploaded: true, docLanguage: null, readiness: { note: 'الرقم الضريبي والسجل التجاري والعنوان الرسمي: Open (بند 11)' } },
       numbering: [
         num('INV', 'فاتورة بيع', 'INV', { source: 'بند 14', issued: 187, last: 187, locked: true }),
         num('DN', 'إذن تسليم', 'DN', { source: 'بند 14', issued: 96, last: 96, locked: true }),
@@ -262,7 +262,7 @@
       N(3, 60 * 48, 'تغيير في الصلاحيات', 'تم تحديث دور Sales Manager. راجع سجل التدقيق.', 'info', ['R-01', 'R-10'], '#/audit'),
       N(2, 60 * 72, 'مستخدمان بانتظار التفعيل', 'شيماء لطفي ومحمود الجمال لم يفعّلا حساباتهما بعد.', 'info', ['R-01'], '#/users?status=pending'),
       N(11, 60 * 8, 'كشف المرتبات PR-2026-10 بانتظار المراجعة', 'جهّزه مسؤول المرتبات — بانتظار مدير الموارد البشرية.', 'action', ['R-11', 'R-01'], '#/approvals/AP-2009'),
-      N(10, 60 * 12, 'طلب توظيف جديد', 'مشرف خط الألومنيوم طلب فني تشغيل (2).', 'action', ['R-11', 'R-01'], '#/approvals/AP-2013'),
+      N(10, 60 * 12, 'طلب توظيف جديد', 'مشرف خط بثق الأبواب طلب فني تشغيل (2).', 'action', ['R-11', 'R-01'], '#/approvals/AP-2013'),
       N(9, 60 * 4, 'طلب سلفة', 'مصطفى عوض طلب سلفة — بانتظار HR.', 'action', ['R-11'], '#/approvals/AP-2014'),
       N(1, 60 * 120, 'نموذج تجريبي', 'أهلًا بك. افتح «وضع الاختبار» لتبدأ المهام، وكل البيانات هنا تجريبية ومحفوظة في متصفحك فقط.', 'info', [], '')
     ];
@@ -272,7 +272,7 @@
   /* ───────────────────────── HR collections ───────────────────────── */
   function buildHr() {
     const d = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);
-    const POS = [['P-01', 'المدير العام', 'D-01', 1, 1], ['P-02', 'مدير المبيعات', 'D-02', 2, 2], ['P-03', 'مندوب مبيعات', 'D-02', 6, 5], ['P-04', 'محاسب', 'D-03', 3, 3], ['P-05', 'أمين مخزن', 'D-04', 3, 3], ['P-06', 'مدير الإنتاج', 'D-05', 1, 1], ['P-07', 'مشرف خط', 'D-09', 3, 1], ['P-08', 'فني تشغيل', 'D-09', 12, 10], ['P-09', 'فني دهان', 'D-11', 4, 3], ['P-10', 'فني تركيب', 'D-12', 6, 4], ['P-11', 'مسؤول مشتريات', 'D-06', 2, 2], ['P-12', 'أخصائي موارد بشرية', 'D-07', 3, 3], ['P-13', 'مسؤول سلامة', 'D-13', 1, 1], ['P-14', 'مسؤول مرتبات', 'D-03', 1, 1]];
+    const POS = [['P-01', 'المدير العام', 'D-01', 1, 1], ['P-02', 'مدير المبيعات', 'D-02', 2, 2], ['P-03', 'مندوب مبيعات', 'D-02', 6, 5], ['P-04', 'محاسب', 'D-03', 3, 3], ['P-05', 'أمين مخزن', 'D-04', 3, 3], ['P-06', 'مدير الإنتاج', 'D-05', 1, 1], ['P-07', 'مشرف خط', 'D-09', 3, 1], ['P-08', 'فني تشغيل', 'D-09', 12, 10], ['P-09', 'فني لامينيشن', 'D-11', 4, 3], ['P-10', 'فني تركيب', 'D-12', 6, 4], ['P-11', 'مسؤول مشتريات', 'D-06', 2, 2], ['P-12', 'أخصائي موارد بشرية', 'D-07', 3, 3], ['P-13', 'مسؤول سلامة', 'D-13', 1, 1], ['P-14', 'مسؤول مرتبات', 'D-03', 1, 1]];
     const positions = POS.map((p) => ({ id: p[0], title: p[1], departmentId: p[2], grade: null, headcount: p[3], filled: p[4] }));
     // [id, name, userId, dept, position, status, shift, type, basic, allow, hireDaysAgo, city, mgrEmp]
     const E = [
@@ -340,9 +340,9 @@
           { id: 'D-06', name: 'المشتريات', managerId: 'U-14', parentId: null, active: true },
           { id: 'D-07', name: 'الموارد البشرية', managerId: 'U-08', parentId: null, active: true },
           { id: 'D-08', name: 'تقنية المعلومات', managerId: 'U-09', parentId: null, active: true },
-          { id: 'D-09', name: 'خط الألومنيوم', managerId: 'U-27', parentId: 'D-05', active: true },
-          { id: 'D-10', name: 'خط uPVC', managerId: 'U-13', parentId: 'D-05', active: true },
-          { id: 'D-11', name: 'الدهان والتشطيب', managerId: 'U-13', parentId: 'D-05', active: true },
+          { id: 'D-09', name: 'خط بثق الأبواب', managerId: 'U-27', parentId: 'D-05', active: true },
+          { id: 'D-10', name: 'خط التجاليد', managerId: 'U-13', parentId: 'D-05', active: true },
+          { id: 'D-11', name: 'اللامينيشن والتجميع', managerId: 'U-13', parentId: 'D-05', active: true },
           { id: 'D-12', name: 'التركيب والصيانة', managerId: 'U-13', parentId: 'D-05', active: true },
           { id: 'D-13', name: 'السلامة والصحة المهنية', managerId: 'U-28', parentId: null, active: true }
         ],
@@ -365,7 +365,7 @@
           { id: 'W-04', code: 'WH-SHW', name: 'مخزن المعرض', type: 'FG', managerId: 'U-22', active: false, hasStock: false }
         ],
         customers: [
-          { id: 'C-001', code: 'CUS-001', name: 'معرض النيل للنوافذ', type: 'dealer', city: 'القاهرة', contacts: [{ name: 'م. سامي ناجي', phone: '+20 100 000 0001' }], salesRepId: 'U-05', priceListId: 'PL-02', status: 'active', balance: 31600, openOrders: 2 },
+          { id: 'C-001', code: 'CUS-001', name: 'معرض النيل للأبواب والديكور', type: 'dealer', city: 'القاهرة', contacts: [{ name: 'م. سامي ناجي', phone: '+20 100 000 0001' }], salesRepId: 'U-05', priceListId: 'PL-02', status: 'active', balance: 31600, openOrders: 2 },
           { id: 'C-002', code: 'CUS-002', name: 'شركة الأفق للمقاولات', type: 'contractor', city: 'الجيزة', contacts: [{ name: 'أ. هشام قاسم', phone: '+20 100 000 0002' }], salesRepId: 'U-10', priceListId: 'PL-03', status: 'active', balance: 120000, openOrders: 3 },
           { id: 'C-003', code: 'CUS-003', name: 'مؤسسة السلام', type: 'dealer', city: 'الإسكندرية', contacts: [{ name: 'أ. ماجد رفعت', phone: '+20 100 000 0003' }], salesRepId: 'U-11', priceListId: 'PL-02', status: 'active', balance: 0, openOrders: 0 },
           { id: 'C-004', code: 'CUS-004', name: 'مقاولات الصعيد', type: 'contractor', city: 'أسيوط', contacts: [{ name: 'م. عادل يوسف', phone: '+20 100 000 0004' }], salesRepId: 'U-05', priceListId: 'PL-03', status: 'active', balance: 41246, openOrders: 1 },
@@ -377,10 +377,10 @@
           { id: 'C-010', code: 'CUS-010', name: 'مكتب هندسي — الشروق', type: 'direct', city: 'القاهرة', contacts: [{ name: 'م. شريف لبيب', phone: '+20 100 000 0010' }], salesRepId: 'U-05', priceListId: 'PL-01', status: 'disabled', balance: 0, openOrders: 0 }
         ],
         suppliers: [
-          { id: 'S-001', code: 'SUP-001', name: 'مصنع الألومنيوم الوطني', type: 'raw', contacts: [{ name: 'أ. رضا الشرقاوي', phone: '+20 100 100 0001' }], paymentTerms: null, status: 'active', balance: 86400, openPOs: 2 },
+          { id: 'S-001', code: 'SUP-001', name: 'الشركة المصرية للبتروكيماويات — راتنج PVC', type: 'raw', contacts: [{ name: 'أ. رضا الشرقاوي', phone: '+20 100 100 0001' }], paymentTerms: null, status: 'active', balance: 86400, openPOs: 2 },
           { id: 'S-002', code: 'SUP-002', name: 'شركة الإكسسوارات الحديثة', type: 'accessories', contacts: [{ name: 'أ. ياسمين فرج', phone: '+20 100 100 0002' }], paymentTerms: null, status: 'active', balance: 38000, openPOs: 1 },
-          { id: 'S-003', code: 'SUP-003', name: 'الزجاج المصري', type: 'raw', contacts: [{ name: 'م. سعيد بدر', phone: '+20 100 100 0003' }], paymentTerms: null, status: 'active', balance: 0, openPOs: 0 },
-          { id: 'S-004', code: 'SUP-004', name: 'مصنع الدهانات المتحد', type: 'raw', contacts: [{ name: 'أ. ليلى حمدي', phone: '+20 100 100 0004' }], paymentTerms: null, status: 'active', balance: 12500, openPOs: 1 },
+          { id: 'S-003', code: 'SUP-003', name: 'مطاحن الدلتا لدقيق الخشب', type: 'raw', contacts: [{ name: 'م. سعيد بدر', phone: '+20 100 100 0003' }], paymentTerms: null, status: 'active', balance: 0, openPOs: 0 },
+          { id: 'S-004', code: 'SUP-004', name: 'المتحدة للإضافات الكيماوية', type: 'raw', contacts: [{ name: 'أ. ليلى حمدي', phone: '+20 100 100 0004' }], paymentTerms: null, status: 'active', balance: 12500, openPOs: 1 },
           { id: 'S-005', code: 'SUP-005', name: 'ورشة الفواصل والمقابض', type: 'accessories', contacts: [{ name: 'أ. عصام منير', phone: '+20 100 100 0005' }], paymentTerms: null, status: 'disabled', balance: 0, openPOs: 0 },
           { id: 'S-006', code: 'SUP-006', name: 'شركة العبوات والتغليف', type: 'accessories', contacts: [{ name: 'أ. دينا حافظ', phone: '+20 100 100 0006' }], paymentTerms: null, status: 'active', balance: 4300, openPOs: 0 }
         ],

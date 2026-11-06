@@ -52,7 +52,7 @@
   }
   const catLabel = (c) => SA.auditLabel(c);
   const viaTag = (e) => (e.via === 'mobile' ? h('span.sapa-tag.is-mobile', {}, 'موبايل') : e.via === 'system' ? h('span.sapa-tag', {}, 'النظام') : h('span.sapa-tag', {}, 'ويب'));
-  const areaTag = (e) => h('span.sapa-tag' + (e.area === 'hr' ? '.is-hr' : ''), {}, e.area === 'hr' ? 'HR' : 'SA');
+  const areaTag = (e) => h('span.sapa-tag' + (e.area && e.area !== 'sa' ? '.is-hr' : ''), {}, e.area === 'hr' ? 'HR' : e.area && e.area !== 'sa' ? ((SA.catalog.appById(e.area) || {}).short || e.area) : 'SA');
   const resChip = (r) => SA.chip({ success: 'نجح', failure: 'فشل', denied: 'مرفوض' }[r] || r, r === 'success' ? 'success' : r === 'failure' ? 'danger' : 'warning');
   const actorName = (e) => (e.actor && e.actor.name) || '—';
 
@@ -142,7 +142,7 @@
     const rangeBox = h('span.sapa-range', { hidden: true }, fromIn, h('span', {}, '←'), toIn);
     function syncRange() { const v = table && table.getState().filters.range; rangeBox.hidden = v !== 'custom'; }
     const filtersDef = [
-      { key: 'area', label: 'المساحة', options: [['sa', 'Super Admin'], ['hr', 'الموارد البشرية']] },
+      { key: 'area', label: 'المساحة', options: SA.catalog.apps.map((ap) => [ap.id, ap.title]) },
       { key: 'severity', label: 'الخطورة', options: Object.keys(SA.catalog.severity).map((k) => [k, SA.catalog.severity[k].label]), test: (e, v) => e.severity === v },
       { key: 'result', label: 'النتيجة', options: [['success', 'نجح'], ['failure', 'فشل'], ['denied', 'مرفوض']] },
       { key: 'actorId', label: 'المنفّذ', options: [], test: (e, v) => e.actor && e.actor.id === v },
