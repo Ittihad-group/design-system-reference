@@ -1167,7 +1167,7 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
       return h('div.sap-ksk-top', {}, h('span', {}, SA.icon('scan'), KIOSK.id + ' · ' + 'خط الألومنيوم'), h('span', {}, SA.icon(SA.sim.offline ? 'wifioff' : 'wifi'), SA.sim.offline ? 'غير متصل — البصمة تُحفظ محليًا' : 'متصل'), h('span', {}, SA.icon('battery'), 'البطارية ' + KIOSK.battery + '% (تجريبي)'), h('span', {}, 'آخر نبضة ' + hm(new Date())));
     }
     function safety() {
-      const inj = L('incidents').filter((i) => i.type === 'injury').sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]; const days = inj ? Math.floor((Date.now() - new Date(inj.createdAt).getTime()) / 86400000) : 128;
+      const when = (i) => new Date(i.occurredAt || i.date || i.at || i.createdAt || '').getTime(); const inj = L('incidents').filter((i) => (i.type === 'injury' || i.kind === 'injury' || i.category === 'injury') && isFinite(when(i))).sort((a, b) => when(b) - when(a))[0]; const days = inj ? Math.max(0, Math.floor((Date.now() - when(inj)) / 86400000)) : 128;
       return h('div.sap-ksk-safety', {}, SA.icon('shield'), h('span', {}, 'السلامة أولًا — ارتدِ الخوذة والنظارة والحذاء'), h('em', {}, 'أيام منذ آخر إصابة: ' + days + (inj ? '' : ' (تجريبي)')));
     }
     const msgNode = () => (S.msg ? h('div.sap-ksk-msg' + (S.msg.kind === 'err' ? '.is-err' : S.msg.kind === 'ok' ? '.is-ok' : ''), { role: 'status' }, S.msg.text) : null);

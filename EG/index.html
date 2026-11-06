@@ -126,6 +126,24 @@
         .stats { grid-template-columns: repeat(2, 1fr); } .stat:nth-child(2) { border-inline-end: 0; } .stat:nth-child(-n+2) { border-bottom: 1px solid var(--color-border); }
         .foot-grid { grid-template-columns: 1fr; }
       }
+
+      /* ───────── Three gates ───────── */
+      .gates { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: var(--space-5); margin-top: var(--space-8); }
+      .gate { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-6); border-radius: var(--radius-lg); background: #fff; border: 1px solid var(--color-border); text-decoration: none; color: inherit; box-shadow: var(--shadow-card); }
+      .gate:hover { border-color: var(--eg-navy); }
+      .gate.is-main { background: linear-gradient(135deg, var(--eg-navy) 0%, var(--eg-navy-deep) 100%); color: #fff; border-color: transparent; }
+      .gate .g-eyebrow { font-size: var(--text-caption); font-weight: 700; letter-spacing: .02em; color: var(--eg-red); }
+      .gate.is-main .g-eyebrow { color: #ffb3b6; }
+      .gate h3 { margin: 0; font-size: 1.35rem; }
+      .gate p { margin: 0; color: var(--color-text-muted); font-size: var(--text-dense); }
+      .gate.is-main p { color: #c1cee6; }
+      .gate ul { margin: 0; padding-inline-start: 1.1rem; font-size: var(--text-dense); color: var(--color-text-muted); }
+      .gate.is-main ul { color: #dbe4f5; }
+      .gate .g-cta { margin-top: auto; font-weight: 700; }
+      .gate .g-links { display: flex; flex-wrap: wrap; gap: 6px; }
+      .gate .g-links a { font-size: var(--text-caption); padding: 2px 10px; border-radius: var(--radius-pill); background: var(--eg-bg-soft); border: 1px solid var(--color-border); color: var(--eg-ink); text-decoration: none; }
+      .gate.is-main .g-links a { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.25); color: #fff; }
+      @media (max-width: 900px) { .gates { grid-template-columns: 1fr; } }
     </style>
   </head>
   <body>
@@ -138,7 +156,8 @@
           <h1>هوية ومكونات ومستندات <em>نظام المصرية الألمانية</em> في مكان واحد</h1>
           <p class="lead">كل ما يخص شكل نظام الشركة (ERP) والموقع والموبايل: الشعار والألوان والمقاسات، المكونات الجاهزة للتجربة، وقوالب ملفات PDF للفواتير والتقارير والأوامر.</p>
           <div class="cluster">
-            <a class="btn btn-accent btn-lg" href="./brand.html">ابدأ الرحلة من الخطوة 1 ←</a>
+            <a class="btn btn-accent btn-lg" href="./prototype/index.html">جرّب النظام ←</a>
+            <a class="btn btn-lg" href="./brand.html" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)">ابدأ من الهوية</a>
             <a class="btn btn-lg" href="./documents.html" style="background:rgba(255,255,255,.12);color:#fff;border-color:rgba(255,255,255,.3)">شاهد المستندات (PDF)</a>
           </div>
           <div class="hero-trust"><div class="plate" id="hero-certs"></div><span>معتمدة ISO · صنع في مصر</span></div>
@@ -159,6 +178,35 @@
         <div class="stat"><b class="num">11</b><span>قالب A4 جاهز</span></div>
         <div class="stat"><b class="num">4</b><span>أسطح: النظام · الكتالوج والتاجر · الموبايل · المستندات</span></div>
       </div>
+    </div>
+
+
+    <!-- ═════════ THREE GATES ═════════ -->
+    <div class="container">
+      <section class="gates" id="gates" aria-label="ابدأ من هنا">
+        <div class="gate is-main">
+          <span class="g-eyebrow">جرّب بنفسك · نموذج تفاعلي</span>
+          <h3>جرّب النظام كاملاً: Super Admin + الموارد البشرية</h3>
+          <p>تطبيق واحد متصل، تدخل فيه بصفتك صاحب الشركة أو HR أو مشرف أو موظف. كل إجراء بيأثر على الباقي: الاعتمادات والتدقيق والإشعارات والصلاحيات. ولوحة «وضع الاختبار» فيها مهام جاهزة وتبديل شخصيات وتسجيل ملاحظاتك.</p>
+          <ul><li>دخول + MFA وقفل الحساب وStep-up (كود التجربة <span dir="ltr">123456</span>)</li><li>أكثر من 60 شاشة حية بصلاحيات حقيقية</li><li>لا يتصل بخادم؛ البيانات في متصفحك</li></ul>
+          <div class="g-links"><a href="./prototype/super-admin/index.html#/start?persona=owner">كصاحب الشركة</a><a href="./prototype/super-admin/index.html#/start?persona=hr">كـHR Manager</a><a href="./prototype/super-admin/index.html#/start?persona=payroll">كمسؤول مرتبات</a><a href="./prototype/super-admin/index.html#/start?persona=supervisor">كمشرف</a><a href="./prototype/super-admin/index.html#/start?persona=employee">كموظف</a></div>
+          <a class="btn btn-accent btn-lg g-cta" href="./prototype/index.html">افتح النموذج التفاعلي ←</a>
+        </div>
+        <div class="gate">
+          <span class="g-eyebrow">الأساس البصري</span>
+          <h3>نظام التصميم</h3>
+          <p>الهوية والألوان والمقاسات والمكونات والمستندات. المرجع الوحيد للشكل في الويب والموبايل.</p>
+          <div class="g-links"><a href="./brand.html">الهوية</a><a href="./design-system.html">المكونات</a><a href="./documents.html">المستندات PDF</a><a href="./mobile.html">الموبايل</a><a href="./catalog.html">الكتالوج</a></div>
+          <a class="g-cta" href="./brand.html">ابدأ من الهوية ←</a>
+        </div>
+        <div class="gate">
+          <span class="g-eyebrow">المتطلبات والتفاصيل</span>
+          <h3>مواصفات الفيتشرز</h3>
+          <p>القصة الكاملة لكل فيتشر: الشاشات والـUse Cases والقواعد والصلاحيات. للإدارة والمطوّرين.</p>
+          <div class="g-links"><a href="./HR.html">HR (الصفحة الأم)</a><a href="./super-admin.html">Super Admin</a><a href="./reports.html">التقارير</a><a href="./hr-documents.html">مستندات HR</a><a href="./hr-platform.html#hr-30">الامتثال والقرارات</a></div>
+          <a class="g-cta" href="./HR.html">افتح مواصفات HR ←</a>
+        </div>
+      </section>
     </div>
 
     <main class="container">

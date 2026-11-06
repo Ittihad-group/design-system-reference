@@ -536,3 +536,7 @@ body.sap-picking, body.sap-picking * { cursor: crosshair !important; } .sap-pick
   .sap-pagehead-row .sap-actions { width: 100%; } .sap-pagehead-row .sap-actions .btn { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .sap-drawer, .sap-tl-panel, .sap-toast, .sap-menu, .sap-pop { animation: none !important; } .sap-side { transition: none; } }
+
+/* Test Lab button must never cover drawer/modal footers: tuck it away while a layer is open */
+body:has(.sap-drawer, .sap-modal) .sap-tl-fab { opacity: 0; pointer-events: none; transform: translateY(8px); }
+.sap-tl-fab { transition: opacity .15s ease, transform .15s ease, background .15s ease; }

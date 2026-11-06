@@ -512,16 +512,18 @@
     try { reconcileRuns(); reconcileLoans(); reconcileChanges(); } catch (e) { console.error('[hr-pay] reconcile', e); } finally { busy = false; }
   }
   API.reconcile = reconcile;
+  const countAudit = (code, id, since) => col('audit').filter((a) => a.code === code && a.target && a.target.id === id && (!since || a.ts >= since)).length;
+  const haveAudit = (code, id, since) => countAudit(code, id, since) > 0;
   function reconcileRuns() {
     col('payrollRuns').slice().forEach((r0) => {
       if (!r0.approvalId) return; const ap = st.find('approvals', r0.approvalId); if (!ap) return; const run = SA.clone(r0); let changed = false; const done = ap.chain.filter((s) => s.status === 'approved'); const known = run.approvedSteps || 0;
       if ((ap.status === 'rejected' || ap.status === 'changes_requested') && ORD[run.status] >= ORD.prepared && ORD[run.status] < ORD.locked && run.rejectedApprovalId !== ap.id) {
         const who = lastDecider(ap, 'rejected') || lastDecider(ap); const s = ap.chain.find((x) => x.status === 'rejected');
         run.status = 'calculated'; run.rejectedApprovalId = ap.id; run.approvedSteps = 0; run.rejection = { by: who, at: ap.updatedAt, reason: s ? s.reason : '', step: s ? s.label : '' }; tl(run, 'رُفض/أُعيد من «' + (s ? s.label : 'الاعتماد') + '»', { by: who });
-        aud('HR.PAYROLL.REJECTED', { type: 'payroll_run', id: run.id, label: 'كشف مرتبات ' + run.id }, { actor: actorOf(who), reason: s ? s.reason : '', before: { status: r0.status }, after: { status: 'calculated' } });
+        if (!haveAudit('HR.PAYROLL.REJECTED', run.id, r0.preparedAt)) aud('HR.PAYROLL.REJECTED', { type: 'payroll_run', id: run.id, label: 'كشف مرتبات ' + run.id }, { actor: actorOf(who), reason: s ? s.reason : '', before: { status: r0.status }, after: { status: 'calculated' } });
         SA.notify({ title: 'أُعيد كشف المرتبات ' + run.id, body: (s ? s.label + ': ' : '') + (s && s.reason ? s.reason : 'بدون سبب'), level: 'urgent', toUsers: [run.preparedBy], to: ['R-13'], link: '#/hr/payroll/' + run.id }); changed = true;
       } else if (ap.status === 'pending' || ap.status === 'approved') {
-        if (done.length > known) { done.slice(known).forEach((s) => { tl(run, 'اعتُمدت خطوة «' + s.label + '»', { by: s.decidedBy }); aud('HR.PAYROLL.APPROVED', { type: 'payroll_run', id: run.id, label: 'كشف مرتبات ' + run.id }, { actor: actorOf(s.decidedBy), reason: s.reason, after: { step: s.label, status: 'approved' } }); }); run.approvedSteps = done.length; changed = true; }
+        if (done.length > known) { const have = countAudit('HR.PAYROLL.APPROVED', run.id, run.preparedAt); done.slice(known).forEach((s, i) => { tl(run, 'اعتُمدت خطوة «' + s.label + '»', { by: s.decidedBy }); if (known + i >= have) aud('HR.PAYROLL.APPROVED', { type: 'payroll_run', id: run.id, label: 'كشف مرتبات ' + run.id }, { actor: actorOf(s.decidedBy), reason: s.reason, after: { step: s.label, status: 'approved' } }); }); run.approvedSteps = done.length; changed = true; }
         let ns = run.status; if (ap.status === 'approved') ns = 'gm_approved'; else if (done.length >= 2 && ap.chain.length > 2) ns = 'finance_approved'; else if (done.length >= 1) ns = 'hr_review'; else ns = ORD[run.status] >= ORD.prepared ? ns : 'prepared';
         if (ORD[ns] > ORD[run.status] && ORD[run.status] < ORD.locked) { run.status = ns; changed = true; if (ns === 'gm_approved') { SA.notify({ title: 'كشف المرتبات ' + run.id + ' معتمد', body: 'جاهز لقفل الفترة وإطلاق الصرف (hr.payroll.release).', level: 'action', to: ['R-07', 'R-01'], link: '#/hr/payroll/' + run.id }); } }
       }
@@ -542,19 +544,21 @@
     if (from <= todayISO()) { const tot = monthlyOf(lines), b = basicOf(lines); st.patch('employees', empId, (e) => ({ salary: Object.assign({}, e.salary, { basic: b, allowances: tot - b }) })); }
     return rec;
   }
+  function history(empId, rec) { st.update('employees', (l) => { const e = l.find((x) => x.id === empId); if (!e) return; e.salaryHistory = e.salaryHistory || []; if (!e.salaryHistory.some((x) => x.id === rec.id)) e.salaryHistory.unshift(Object.assign({ at: new Date().toISOString() }, rec)); }); }
   function reconcileChanges() {
     col('salaryChanges').slice().forEach((sc) => {
       if (sc.payApplied || !sc.approvalId) return; const ap = st.find('approvals', sc.approvalId); if (!ap || ap.status !== 'approved') return;
       const cur = compLines(sc.employeeId, todayISO()); let lines = sc.components ? SA.clone(sc.components) : cur.lines.map((l) => (l.code === 'BASIC' ? { code: 'BASIC', amount: sc.toBasic } : l));
-      const from = sc.effectiveFrom || (String(ap.updatedAt || new Date().toISOString()).slice(0, 7) + '-01');
+      const from = sc.effFromReq || sc.effectiveFrom || (String(ap.updatedAt || new Date().toISOString()).slice(0, 7) + '-01');
       applyComp(sc.employeeId, from, lines, 'change', { sourceChangeId: sc.id, approvalId: ap.id, reason: sc.reason || 'تغيير مرتب معتمد' });
       st.patch('salaryChanges', sc.id, { payApplied: true, status: 'approved', effectiveFrom: from });
+      history(sc.employeeId, { id: sc.id, from: sc.fromBasic, to: sc.toBasic, approvalId: ap.id, by: lastDecider(ap), reason: sc.reason || ap.title });
       if (!col('audit').some((a) => a.code === 'HR.SALARY.CHANGE_APPROVED' && a.target && a.target.id === sc.id)) aud('HR.SALARY.CHANGE_APPROVED', { type: 'salary_change', id: sc.id, label: 'تغيير مرتب — ' + empName(sc.employeeId) }, { actor: actorOf(lastDecider(ap)), after: { effectiveFrom: from } });
     });
     col('raiseCycles').slice().forEach((rc) => {
       if (rc.status !== 'submitted' || !rc.approvalId) return; const ap = st.find('approvals', rc.approvalId); if (!ap) return;
       if (ap.status === 'approved') {
-        rc.proposals.forEach((p) => { const cur = compLines(p.empId, todayISO()); const lines = cur.lines.map((l) => (l.code === 'BASIC' ? { code: 'BASIC', amount: p.to } : l)); applyComp(p.empId, rc.effectiveFrom, lines, 'raise', { approvalId: ap.id, reason: 'علاوة سنوية ' + rc.id }); });
+        rc.proposals.forEach((p) => { const cur = compLines(p.empId, todayISO()); const lines = cur.lines.map((l) => (l.code === 'BASIC' ? { code: 'BASIC', amount: p.to } : l)); applyComp(p.empId, rc.effectiveFrom, lines, 'raise', { approvalId: ap.id, reason: 'علاوة سنوية ' + rc.id }); history(p.empId, { id: rc.id + ':' + p.empId, from: p.from, to: p.to, approvalId: ap.id, by: lastDecider(ap), reason: 'علاوة سنوية ' + rc.id }); });
         st.patch('raiseCycles', rc.id, { status: 'applied', appliedAt: new Date().toISOString() }); aud('HR.SALARY.RAISE_CYCLE_APPLIED', { type: 'raise_cycle', id: rc.id, label: 'دورة علاوة ' + rc.id }, { actor: actorOf(lastDecider(ap)), after: { count: rc.proposals.length, effectiveFrom: rc.effectiveFrom } });
       } else if (ap.status === 'rejected' || ap.status === 'changes_requested') st.patch('raiseCycles', rc.id, { status: 'rejected' });
     });
@@ -725,7 +729,7 @@
   function loadScreen(root, ctx, crumb, build) {
     ensure(); reconcile(); ctx.setCrumbs([{ label: 'المرتبات' }, { label: crumb }]); let stopped = false, cleanup = null;
     const go = () => { SA.clear(root); root.append(SA.skeleton({ kind: 'detail', rows: 8 })); SA.delay(SA.sim.slow ? undefined : 120).then(() => { if (stopped) return; SA.clear(root); try { cleanup = build(); } catch (e) { console.error(e); root.append(SA.errorState({ onRetry: go })); } }, (e) => { if (stopped) return; SA.clear(root); root.append(SA.errorState({ text: SA.errorText(e), onRetry: go })); }); };
-    go(); return () => { stopped = true; if (typeof cleanup === 'function') cleanup(); };
+    go(); return () => { stopped = true; if (typeof cleanup === 'function') cleanup(); SA.layers.closeAll(); };
   }
   function reg(id, render, extra) { const old = SA.moduleById(id); if (!old) { console.error('[hr-pay] stub not found: ' + id); return; } SA.register(Object.assign({ id, app: 'hr', group: old.group, title: old.title, icon: old.icon, route: old.route, perm: old.perm, order: old.order, desc: old.desc }, extra || {}, { render })); }
   /** tab host: panel content rebuilt per tab; every builder returns a cleanup */
@@ -898,7 +902,7 @@
       validate: () => blockMsg, async onSubmit(v) {
         const from = (v.eff || PER.cur()) + '-01'; let sc;
         await SA.api(() => {
-          sc = { id: nextSC(), employeeId: empId, fromBasic: basicOf(cl.lines), toBasic: basicOf(lines), components: SA.clone(lines), effectiveFrom: from, reason: v.reason, requestedBy: meId(), status: 'pending', approvalId: null, createdAt: new Date().toISOString() };
+          sc = { id: nextSC(), employeeId: empId, fromBasic: basicOf(cl.lines), toBasic: basicOf(lines), components: SA.clone(lines), effectiveFrom: from, effFromReq: from, reason: v.reason, requestedBy: meId(), status: 'pending', approvalId: null, createdAt: new Date().toISOString() };
           const ap = SA.requestApproval({ type: 'salary_change', title: 'تغيير مرتب: ' + e.name + ' (' + v.reason.slice(0, 40) + ')', requesterId: meId(), chain: [{ roleId: 'R-11', label: 'مدير الموارد البشرية' }, { roleId: 'R-02', label: 'المدير العام' }], ref: { type: 'salary_change', id: sc.id }, context: [['الموظف', e.name + ' (' + e.empNo + ')'], ['يسري من', from], ['السبب', v.reason], ['ملاحظة', 'الأرقام سرية (hr.salary.view). مقدّم الطلب لا يعتمده (فصل مهام).']] });
           sc.approvalId = ap.id; st.insert('salaryChanges', sc, true);
           aud('HR.SALARY.CHANGE_REQUESTED', { type: 'salary_change', id: sc.id, label: 'تغيير مرتب — ' + e.name }, { reason: v.reason, after: { effectiveFrom: from, approval: ap.id } });
@@ -1247,19 +1251,20 @@
     if (!canWages()) { const d = SA.drawer({ title: 'تتبّع حساب موظف', subtitle: 'سري (T3)', body: SA.denied({ perm: 'hr.salary.view', title: 'أجور الأفراد سرية', text: 'تتبّع الحساب يكشف الأجر والتأمينات والضريبة — يحتاج hr.salary.view. لا يُسجَّل اطلاع.', home: false }), onClose }); return d; }
     if (!l) { SA.drawer({ title: 'تتبّع حساب موظف', body: SA.empty({ icon: 'search', title: 'الموظف ليس في هذه الدورة', text: 'قد يكون مستبعدًا (منتهي/موقوف) أو لم يُحسب بعد.' }), onClose }); return; }
     logSalaryView(empId, 'تتبّع حساب ' + run.id);
-    const rows = l.trace.map((t) => h('tr', {}, h('td', {}, h('span.num', {}, t.n)), h('td', {}, h('b', {}, t.label)), h('td.sap-pay-formula', {}, t.formula), h('td', {}, t.p != null ? h('b.sap-pay-amt', {}, fp(t.p)) : h('span.t-muted', {}, t.txt || '—')), h('td', {}, h('span.t-caption', {}, t.setting))));
+    const rows = l.trace.map((t) => h('tr', {}, h('td', {}, h('span.num', {}, t.n)), h('td', {}, h('b', {}, t.label), h('div.sap-pay-formula', {}, t.formula), t.setting ? h('div.t-caption', {}, t.setting) : null), h('td', {}, t.p != null ? h('b.sap-pay-amt', {}, fp(t.p)) : h('span.t-muted', {}, t.txt || '—'))));
     const sl = (l.slices || []).filter((s) => s.slice > 0 || s.rate === 0).slice(0, 8);
     const foot = l.gross - l.totalDed === l.net;
     const pr = col('payProfiles').find((p) => p.employeeId === empId);
     const body = h('div.sap-pay-stack', {}, h('div.sap-pay-chain-bar', {}, ['الاستحقاق ' + fp(l.gross), '− تأمينات ' + fp(l.insEmp), '− ضريبة ' + fp(l.tax), '− سلف/جزاء/دائن ' + fp(l.penalty + l.loan + l.creditor), '= الصافي ' + fp(l.net)].map((x, i) => h('span.' + (i === 4 ? 'is-net' : ''), {}, x))),
       SA.kv([['الموظف', l.name + ' · ' + l.empNo], ['القسم', deptName(l.deptId)], ['أيام الدفع', l.payDays + ' / ' + run.rules.period.month_days], ['طريقة الصرف', { bank: 'بنك' + (pr && pr.last4 ? ' ••••' + pr.last4 : ''), cash: 'نقدي', hold: 'محجوز' }[l.method]], ['الأجر التأميني بعد الحدين', h('span.sap-pay-amt', fp(l.insWage))], ['تكلفة صاحب العمل (داخلية)', h('span.sap-pay-amt', fp(l.employerCost))]]),
       l.flags.length ? SA.alert('warning', l.flags.map((f) => ({ penalty_clipped: 'اقتُصّ الجزاء عند السقف', damage_clipped: 'اقتُصّت التلفيات عند السقف', creditor_clipped: 'اقتُصّ خصم الدائن عند السقف', loan_deferred: 'أُجّل قسط سلفة لتجاوز السقف', deferred: 'أُجّلت خصومات لمنع صافٍ سالب', arrears: 'سطر فروق', reversal: 'سطر عكس' }[f] || f)).join(' · ')) : null,
-      h('div.table-wrap', {}, h('table.table.sap-pay-trace', {}, h('thead', {}, h('tr', {}, ['#', 'الخطوة', 'المعادلة', 'القيمة (ج.م)', 'الإعداد المُستخدم'].map((x) => h('th', {}, x)))), h('tbody', {}, rows))),
+      h('div.table-wrap', {}, h('table.table.sap-pay-trace', {}, h('thead', {}, h('tr', {}, ['#', 'الخطوة · المعادلة · الإعداد المُستخدم', 'القيمة (ج.م)'].map((x) => h('th', {}, x)))), h('tbody', {}, rows))),
       sl.length ? h('div', {}, h('h3.sap-sub', {}, 'شرائح الضريبة المطبّقة (سنويًا بعد الإعفاء)'), h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['من', 'إلى', 'النسبة', 'الجزء الخاضع', 'الضريبة'].map((x) => h('th', {}, x)))), h('tbody', {}, sl.map((s) => h('tr', {}, h('td', {}, h('span.sap-pay-amt', fp(s.from))), h('td', {}, s.to == null ? 'فما فوق' : h('span.sap-pay-amt', fp(s.to))), h('td', {}, h('span.num', {}, s.rate + '%')), h('td', {}, h('span.sap-pay-amt', fp(s.slice))), h('td', {}, h('span.sap-pay-amt', fp(s.tax))))))))) : null,
       h('div.sap-pay-footcheck' + (foot ? '.is-ok' : '.is-bad'), {}, SA.icon(foot ? 'checkcircle' : 'xcircle', 'icon-sm'), foot ? 'الاستحقاق − الاستقطاع = الصافي ✓ (' + fp(l.gross) + ' − ' + fp(l.totalDed) + ' = ' + fp(l.net) + ')' : 'فرق في الجمع'),
       h('p.sap-hint', {}, SA.icon('lock', 'icon-sm'), h('span', {}, 'اطلاعك على هذا الحساب سُجّل (HR.SALARY.VIEWED). ', specLink('scr-prl-07'))));
-    const idx = run.lines.findIndex((x) => x.empId === empId);
-    SA.drawer({ title: l.name, subtitle: 'تتبّع الحساب · ' + run.id, size: 'xl', body, onClose, foot: [h('button.btn.btn-ghost', { type: 'button', disabled: idx <= 0, onclick: (e) => { SA.layers.closeAll(); SA.nav('hr/payroll/' + run.id + '/lines/' + run.lines[idx - 1].empId); } }, 'السابق'), h('button.btn.btn-ghost', { type: 'button', disabled: idx >= run.lines.length - 1, onclick: () => { SA.layers.closeAll(); SA.nav('hr/payroll/' + run.id + '/lines/' + run.lines[idx + 1].empId); } }, 'التالي')] });
+    const idx = run.lines.findIndex((x) => x.empId === empId); const go = (i) => { SA.layers.closeAll(); SA.nav('hr/payroll/' + run.id + '/lines/' + run.lines[i].empId); };
+    body.prepend(h('div.sap-pay-actions', {}, h('button.btn.btn-ghost.btn-sm', { type: 'button', disabled: idx <= 0, onclick: () => go(idx - 1) }, SA.icon('arrowright', 'icon-sm icon-flip'), 'الموظف السابق'), h('span.t-caption', {}, (idx + 1) + ' من ' + run.lines.length), h('button.btn.btn-ghost.btn-sm', { type: 'button', disabled: idx >= run.lines.length - 1, onclick: () => go(idx + 1) }, 'الموظف التالي', SA.icon('arrowleft', 'icon-sm icon-flip'))));
+    SA.drawer({ title: l.name, subtitle: 'تتبّع الحساب · ' + run.id, size: 'xl', body, onClose });
   }
   /* detail screen */
   function payrollDetail(root, ctx) {
