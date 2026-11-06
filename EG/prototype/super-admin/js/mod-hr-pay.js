@@ -2,23 +2,19 @@
    HR-13 هيكل المرتب (hr-salary) · HR-14 دورة المرتبات (hr-payroll) · HR-15 السلف والقروض (hr-loans) · HR-16 الصرف ومفردات المرتب (hr-payments) · HR-17 التأمينات والضريبة (hr-gov)
    Routes: #/hr/salary · #/hr/payroll[/:runId[/lines/:empId]] · #/hr/loans[/:loanId] · #/hr/payments · #/hr/gov     (perm per SA.hrNav; wages need hr.salary.view)
 
-   ── مفتاح القواعد القانونية (يملكه وكيل hr-compliance؛ هذا الملف يقرأه فقط) ───────────────────────────────────────────
-   settings.hrLegal = {                                   // كل جدول = قائمة إصدارات بتاريخ سريان؛ المحرك يقرأ الساري بتاريخ نهاية فترة الدورة
-     period:    { month_days:30, day_hours:8 },
-     insurance: [{ id, from:'2026-01-01', status:'pending|approved', emp_rate:11, er_rate:18.75, min:2700, max:16700,
-                   branches:[{ id:'pension', ar:'المعاش', emp:9, er:12 }, …] }],
-     tax:       [{ id, from:'2024-03-01', status, exemption:20000, months:12, deductible:['ins_employee'], brackets:[{ upTo:40000, rate:0 }, … , { upTo:null, rate:27.5 }] }],
-     overtime:  [{ id, from:'2025-09-01', status, day:1.35, night:1.70 }],
-     minWage:   [{ id, from:'2025-03-01', status, monthly:7000, hourly:28, basis:null|'basic'|'basic_fixed'|'gross_fixed' }],
-     caps:      [{ id, from, status, penalty_days:5, loan_pct:10, creditor_pct:25, alimony_pct:50, damage_days_month:5, damage_months_total:2 }],
-     raise:     [{ id, from, status, pct:3, floor:250 }]
-   }
-   غياب المفتاح/الجدول ⇒ يُستخدم fallback مأخوذ من docs/hr/research/egypt-compliance.md (§1.6 · §2 · §3) موسوم Pending [Law] / DEMO. لا أرقام قانونية خارج هذا الجدول.
+   ── القواعد القانونية (يملكها hr-compliance؛ هذا الملف يقرأ فقط) ───────────────────────────────────────────────────
+   تُقرأ من مجموعة `hrLegal` عبر SA.hrCore.legal(key) / SA.hrCore.setting(key): ins.employee_rates · ins.employer_rates · ins.wage_band ·
+   tax.personal_exemption · tax.brackets (rows) · ot_day_multiplier · ot_night_multiplier · min_wage_monthly · annual_raise_pct · deduction_cap_loan · discipline_deduction_cap.
+   القيمة الناقصة (Open) أو الجدول غير المكتمل (حدود شرائح ناقصة، حدّا الأجر التأميني نص حر) ⇒ fallback مأخوذ من docs/hr/research/egypt-compliance.md (§1.6 · §2 · §3)
+   موسوم Pending [Law] / DEMO. حالة الجدول «معتمد» فقط لو كل مفاتيحه معتمدة. لا أرقام قانونية خارج هذا الجدول وخارج الـfallback الموسوم.
+   بوابة الجاهزية: SA.hrCore.gate('HR-14') تُعرض في معالج الدورة؛ القفل على قواعد Pending يحتاج «تشغيلًا تجريبيًا» مقبولًا بسبب عند فتح الدورة.
+   تكامل مع وكلاء HR: SA.hrTime.overtimeForPeriod/attendanceSummary/dayInfo/periodStatus (مدخلات الأوفرتايم والغياب وحالة قفل الحضور) ·
+   SA.hrPeople.pendingChargebacks + salaryChanges المعتمدة (تعويضات/خصومات) · empFiles[].bank (الحساب البنكي — تغييره من ملف الموظف HR.EMP.BANK_CHANGE_*).
    API للوحدات الأخرى:  SA.hrPay.rules(asOfISO) · SA.hrPay.compFor(empId, asOfISO) · SA.hrPay.payslipFor(empId) · SA.hrPay.loansOf(empId) · SA.hrPay.reconcile()
 
    ── مجموعات الـstore التي تنشئها هذه الوحدة (lazy، flag meta.hrPaySeeded) ──────────────────────────────────────────
    payComponents[] كتالوج المكونات · payGrades[] الدرجات · compAssignments[] التعويضات بتاريخ سريان {employeeId, from, lines:[{code,amount}], source, status} ·
-   payProfiles[] طريقة الصرف/الحساب لكل موظف (مقنّع) · bankChanges[] طلبات تغيير الحساب · payOtInputs[] أوفرتايم تجريبي (يُستخدم فقط إن لم توجد مجموعة أوفرتايم لوكيل الوقت) ·
+   payProfiles[] طريقة الصرف/الحساب لكل موظف (مقنّع) · payOtInputs[] أوفرتايم تجريبي (يُستخدم فقط إن لم توجد مجموعة أوفرتايم لوكيل الوقت) ·
    deductions[] (DED-) · payBatches[] دفعات البنك/النقدي · payslips[] (PAY-) · raiseCycles[] · govCalendar[] · govForms[] · govLog[] (append-only) · settings.hrPayroll
    مُوسَّعة: payrollRuns[] (lines بالقروش، inputs، rules، checks، resolutions، timeline…) · loans[] (schedule، ledger append-only) · salaryChanges[] (effectiveFrom/components)
    المبالغ داخل lines بالقروش (integer)؛ باقي المجموعات والحقول المشتركة (gross/net على الدورة، amount على السلفة) بالجنيه.
@@ -43,6 +39,7 @@
   const emps = () => col('employees');
   const empById = (id) => emps().find((e) => e.id === id) || null;
   const empName = (id) => { const e = empById(id); return e ? e.name : id || '—'; };
+  const deptName = (id) => SA.deptName(id);
   const empOfUser = (uid) => emps().find((e) => e.userId === uid) || null;
   const ago = (days) => new Date(Date.now() - days * 86400000).toISOString();
   const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -128,18 +125,29 @@
     raise: [{ id: 'RS-2025-03', from: '2025-03-01', status: 'pending', pct: 3, floor: 250 }]
   };
   const RULE_TABLES = [['insurance', 'جدول التأمينات الاجتماعية'], ['tax', 'جدول ضريبة كسب العمل'], ['overtime', 'مضاعفات الأوفرتايم'], ['minWage', 'الحد الأدنى للأجر'], ['caps', 'سقوف الخصم'], ['raise', 'العلاوة السنوية']];
-  function legalStore() { const s = st.get('settings') || {}; return s.hrLegal || (s.hrCompliance && s.hrCompliance.legal) || null; }
   const pickVer = (list, asOf) => (list || []).filter((x) => x && x.from <= asOf).sort((a, b) => (a.from < b.from ? 1 : -1))[0] || null;
+  /** overlay the compliance registry (collection `hrLegal`, owner: hr-compliance) on the fallback tables; Open/incomplete values keep the fallback */
+  function overlayLegal(out) {
+    const K = SA.hrCore; if (!K || !K.legal || !K.setting || !col('hrLegal').length) return false; const L = (k) => K.legal(k); const has = (l) => l && l.n != null; let used = false;
+    const stat = (ls) => (ls.every((l) => l && l.status === 'approved') ? 'approved' : 'pending');
+    const mark = (t, ls) => { t.status = stat(ls); t.src = 'hrLegal'; used = true; };
+    if (out.insurance) { const ie = L('ins.employee_rates'), ir = L('ins.employer_rates'), wb = L('ins.wage_band'); if (has(ie)) out.insurance.emp_rate = ie.n; if (has(ir)) out.insurance.er_rate = ir.n;
+      const nums = String(wb.text || '').replace(/,/g, '').match(/\d{3,6}/g); if (nums && nums.length >= 2 && +nums[0] < +nums[1]) { out.insurance.min = +nums[0]; out.insurance.max = +nums[1]; }
+      if (has(ie) || has(ir)) mark(out.insurance, [ie, ir, wb]); }
+    if (out.tax) { const ex = L('tax.personal_exemption'); if (has(ex)) out.tax.exemption = ex.n; const bs = K.setting('tax.brackets'); const v = bs && K.refVersion(bs); const rows = v && v.rows;
+      if (rows && rows.length && rows.slice(0, -1).every((r) => r.to != null) && rows[rows.length - 1].to == null) out.tax.brackets = rows.map((r) => ({ upTo: r.to, rate: r.rate })); if (has(ex)) mark(out.tax, [ex, { status: bs ? K.legalStatus(bs) : 'open' }]); }
+    if (out.overtime) { const d = L('ot_day_multiplier'), n = L('ot_night_multiplier'); if (has(d)) out.overtime.day = d.n; if (has(n)) out.overtime.night = n.n; if (has(d) || has(n)) mark(out.overtime, [d, n]); }
+    if (out.minWage) { const m = L('min_wage_monthly'); if (has(m)) { out.minWage.monthly = m.n; mark(out.minWage, [m, L('min_wage_basis')]); } }
+    if (out.raise) { const r = L('annual_raise_pct'); if (has(r)) { out.raise.pct = r.n; const f = /أدنى\s*([\d,]+)/.exec(r.text || ''); if (f) out.raise.floor = +f[1].replace(/,/g, ''); mark(out.raise, [r]); } }
+    if (out.caps) { const lc = L('deduction_cap_loan'), pc = L('discipline_deduction_cap'); if (has(lc)) out.caps.loan_pct = lc.n; if (has(pc)) out.caps.penalty_days = pc.n; if (has(lc) || has(pc)) mark(out.caps, [lc, pc]); }
+    return used;
+  }
   /** Resolved rule set as of a date (default today): {insurance,tax,overtime,minWage,caps,raise,period,pending,missing,source}. */
   API.rules = function (asOf) {
-    asOf = asOf || todayISO(); const L = legalStore() || {};
-    const out = { asOf, missing: [], pending: false, source: legalStore() ? 'settings' : 'fallback', tables: {} };
-    RULE_TABLES.forEach((t) => {
-      const k = t[0]; const fromStore = Array.isArray(L[k]) && L[k].length ? L[k] : null; const v = pickVer(fromStore || DEF[k], asOf);
-      if (!v) { out[k] = null; out.missing.push(k); return; }
-      out[k] = Object.assign(SA.clone(v), { src: fromStore ? 'settings' : 'fallback' }); if (v.status !== 'approved') out.pending = true;
-    });
-    out.period = Object.assign({}, DEF.period, L.period || {});
+    asOf = asOf || todayISO(); const out = { asOf, missing: [], pending: false, source: 'fallback', tables: {} };
+    RULE_TABLES.forEach((t) => { const k = t[0]; const v = pickVer(DEF[k], asOf); if (!v) { out[k] = null; out.missing.push(k); return; } out[k] = Object.assign(SA.clone(v), { src: 'fallback' }); });
+    out.period = Object.assign({}, DEF.period); if (overlayLegal(out)) out.source = 'hrLegal';
+    RULE_TABLES.forEach((t) => { if (out[t[0]] && out[t[0]].status !== 'approved') out.pending = true; });
     return out;
   };
   const rulesLabel = (R) => RULE_TABLES.filter((t) => R[t[0]]).map((t) => R[t[0]].id + (R[t[0]].status === 'approved' ? '' : ' [Pending]')).join(' · ');
@@ -201,8 +209,7 @@
     st.set('compAssignments', CA);
     /* payment profiles */
     const cashIds = ['E-1029', 'E-1030'];
-    st.set('payProfiles', E.map((e, i) => { const cash = e.employmentType === 'daily' || cashIds.indexOf(e.id) >= 0; const miss = e.id === 'E-1026'; const last4 = miss || cash ? null : e.bankLast4; return { id: 'PP-' + e.id, employeeId: e.id, method: cash ? 'cash' : 'bank', bank: cash ? '' : 'بنك تجريبي — فرع ' + (e.city || 'المنصورة'), last4, account: last4 ? 'EG00 0001 0002 0000 0000 ' + last4 : '', verifiedAt: last4 ? ago(200) : null, updatedAt: ago(200) }; }));
-    st.set('bankChanges', []);
+    st.set('payProfiles', E.map((e) => { const cash = e.employmentType === 'daily' || cashIds.indexOf(e.id) >= 0; return { id: 'PP-' + e.id, employeeId: e.id, method: cash ? 'cash' : 'bank', last4: e.bankLast4 || null, demoMissing: e.id === 'E-1026' ? (e.bankLast4 || '0000') : null, updatedAt: ago(200) }; }));
     /* demo inputs: overtime + attendance absences (dates fixed to the seeded periods) */
     const ot = (id, emp, date, kind, hours, status) => ({ id: 'OT-P-' + id, employeeId: emp, date, kind, hours, status, source: 'payroll-demo' });
     st.set('payOtInputs', [ot('01', 'E-1021', '2026-09-08', 'day', 6, 'approved'), ot('02', 'E-1025', '2026-09-15', 'night', 4, 'approved'), ot('03', 'E-1014', '2026-09-22', 'day', 8, 'approved'),
@@ -267,17 +274,28 @@
   const basicOf = (lines) => ((lines || []).find((l) => l.code === 'BASIC') || { amount: 0 }).amount;
   const compMeta = () => { const o = {}; col('payComponents').forEach((c) => { o[c.code] = { name: c.name, kind: c.kind, taxable: !!c.taxable, insurable: !!c.insurable, prorate: c.prorate, rule: c.rule || '' }; }); return o; };
 
+  /** effective payment profile = the employee file's bank data (owner: hr-people) + payroll-level method override */
+  function effProfile(empId) {
+    const pp = col('payProfiles').find((x) => x.employeeId === empId) || {}; const f = col('empFiles').find((x) => x.id === empId || x.employeeId === empId); const b = f && f.bank; const e = empById(empId) || {};
+    let last4 = b ? b.last4 : (pp.last4 != null ? pp.last4 : e.bankLast4); if (pp.demoMissing && String(last4) === String(pp.demoMissing)) last4 = null;
+    const method = pp.method === 'cash' || (b && b.type === 'cash') ? 'cash' : 'bank';
+    return { employeeId: empId, method, last4: last4 || null, bank: (b && b.bankName) || pp.bank || 'بنك تجريبي', account: last4 ? 'EG00 0001 0002 0000 0000 ' + last4 : '', pending: b && b.pending && b.pending.status && b.pending.status !== 'effective' ? b.pending : null };
+  }
+  API.bankProfile = effProfile;
   /* ───────────────────────── inputs (attendance · leave · OT · loans · deductions) ───────────────────────── */
   const UNPAID_TYPES = ['unpaid', 'without_pay', 'unpaid_leave'];
   const overlapDays = (from, to, a, b) => { const s = from > a ? from : a, e = to < b ? to : b; return s > e ? 0 : daysBetween(s, e) + 1; };
   function otRecords(per) {
-    const cands = ['overtime', 'overtimeRequests', 'otRequests'];
-    for (let i = 0; i < cands.length; i++) {
-      const arr = st.get(cands[i]); if (!Array.isArray(arr)) continue;
-      const rows = arr.map((r) => ({ id: r.id, employeeId: r.employeeId, date: r.date || r.day || String(r.from || '').slice(0, 10), kind: /night|ليل/i.test(String(r.kind || r.type || r.shiftType || r.category || '')) ? 'night' : 'day', hours: Number(r.hours != null ? r.hours : r.approvedHours != null ? r.approvedHours : r.hrs) || 0, status: /approv|معتمد/i.test(String(r.status)) ? 'approved' : 'pending' })).filter((r) => r.date && r.date >= per.start && r.date <= per.end);
-      if (rows.length) return { rows, source: cands[i] };
-    }
-    return { rows: col('payOtInputs').filter((r) => r.date >= per.start && r.date <= per.end), source: 'payOtInputs' };
+    const ym = per.start.slice(0, 7); const rows = []; let source = 'payOtInputs';
+    try { if (SA.hrTime && SA.hrTime.overtimeForPeriod) { const o = SA.hrTime.overtimeForPeriod(ym) || {}; Object.keys(o).forEach((id) => { const x = o[id]; Object.keys(x.byDayType || {}).forEach((dt) => rows.push({ id: 'HT-' + id + '-' + dt, employeeId: id, date: per.start, kind: /night|ليل/i.test(dt) ? 'night' : 'day', hours: x.byDayType[dt] / 60, status: 'approved', dayType: dt })); }); if (rows.length) source = 'hrTime'; } } catch (e) { console.error('[hr-pay] hrTime OT', e); }
+    col('payOtInputs').filter((r) => r.date >= per.start && r.date <= per.end && (r.status !== 'approved' || source === 'payOtInputs')).forEach((r) => rows.push(r));
+    return { rows, source };
+  }
+  const eligNow = (e, per, force) => (!e.hireDate || e.hireDate <= per.end) && (!e.endDate || e.endDate >= per.start) && (force || (e.status !== 'terminated' && e.status !== 'suspended'));
+  function absentDates(empId, per, att) {
+    const out = {}; att.filter((a) => a.employeeId === empId && a.status === 'absent' && a.date >= per.start && a.date <= per.end).forEach((a) => { out[a.date] = a; });
+    if (SA.hrTime && SA.hrTime.dayInfo) for (let d = 1; d <= per.days; d++) { const date = per.start.slice(0, 8) + pad(d); if (out[date]) continue; try { const i = SA.hrTime.dayInfo(empId, date); if (i && i.status === 'absent') out[date] = null; } catch (e) { /* ignore */ } }
+    return out;
   }
   function sigOf(period) {
     const per = PER.parse(period);
@@ -287,7 +305,9 @@
     const dd = col('deductions').filter((d) => d.month === period && d.status === 'approved').map((d) => d.id + d.days + d.amount);
     const ca = col('compAssignments').filter((a) => a.status === 'approved' && a.from <= per.end).map((a) => a.id + a.from);
     const lv = col('leaveRequests').filter((l) => l.status === 'approved' && l.from <= per.end && l.to >= per.start).map((l) => l.id + l.from + l.to + l.type);
-    return hashStr(JSON.stringify([att, ot, lr, dd, ca, lv]));
+    const ids = emps().filter((e) => eligNow(e, per, false)).map((e) => e.id).sort(); const cb = col('chargebacks').filter((c) => c.status === 'approved').map((c) => c.id + (c.schedule || []).filter((r) => r.month === period).map((r) => r.amount + (r.runId || '')).join(','));
+    let ab = ''; try { if (SA.hrTime && SA.hrTime.attendanceSummary) { const m = SA.hrTime.attendanceSummary(period).employees || {}; ab = Object.keys(m).sort().map((k) => k + ':' + m[k].absent).join(','); } } catch (e) { ab = ''; }
+    return hashStr(JSON.stringify([att, ot, lr, dd, ca, lv, ids, cb, ab]));
   }
   function pullInputs(run, force) {
     const per = PER.parse(run.period); const att = col('attendance'), leaves = col('leaveRequests').filter((l) => l.status === 'approved'), ot = otRecords(per), loans = col('loans'), deds = col('deductions'), profiles = col('payProfiles');
@@ -296,18 +316,20 @@
       if (e.hireDate && e.hireDate > per.end) return; if (e.endDate && e.endDate < per.start) return;
       if (!force && (e.status === 'terminated' || e.status === 'suspended')) { excluded.push({ empId: e.id, reason: e.status === 'terminated' ? 'منتهي الخدمة — يُحال للمخالصة (HR-25)' : 'موقوف عن العمل' }); return; }
       const cl = compLines(e.id, per.end);
-      const absAll = att.filter((a) => a.employeeId === e.id && a.status === 'absent' && a.date >= per.start && a.date <= per.end);
-      const abs = absAll.filter((a) => !leaves.some((l) => l.employeeId === e.id && l.from <= a.date && l.to >= a.date)).map((a) => { const r = res['abs:' + a.id]; return { id: a.id, date: a.date, decision: r ? r.value : a.reviewed ? (a.excused ? 'paid' : 'unpaid') : null }; });
+      const ad = absentDates(e.id, per, att);
+      const abs = Object.keys(ad).sort().filter((date) => !leaves.some((l) => l.employeeId === e.id && l.from <= date && l.to >= date)).map((date) => { const a = ad[date]; const id = a ? a.id : 'ABS-' + e.id + '-' + date; const r = res['abs:' + id]; return { id, date, decision: r ? r.value : a && a.reviewed ? (a.excused ? 'paid' : 'unpaid') : null }; });
       const myLv = leaves.filter((l) => l.employeeId === e.id && l.from <= per.end && l.to >= per.start); const unpaidLeave = sum(myLv.filter((l) => UNPAID_TYPES.indexOf(l.type) >= 0), (l) => overlapDays(l.from, l.to, per.start, per.end));
       const myOt = ot.rows.filter((r) => r.employeeId === e.id); const oa = (k) => sum(myOt.filter((r) => r.status === 'approved' && r.kind === k), (r) => r.hours), op = (k) => sum(myOt.filter((r) => r.status !== 'approved' && r.kind === k), (r) => r.hours);
       const loanRows = []; loans.forEach((l) => { if (l.employeeId !== e.id || l.status !== 'active' || !l.schedule) return; l.schedule.forEach((r) => { if (r.month === run.period && (r.status === 'scheduled' || r.status === 'due' || (force && r.status === 'deducted'))) loanRows.push({ loanId: l.id, n: r.n, amount: r.amount }); }); });
       const pens = deds.filter((d) => d.employeeId === e.id && d.status === 'approved' && d.month === run.period).map((d) => ({ id: d.id, type: d.type, days: d.days, amount: d.amount }));
-      const prof = profiles.find((p) => p.employeeId === e.id) || { method: 'bank', last4: e.bankLast4 }; const method = (ov.method && ov.method[e.id]) || prof.method;
+      col('chargebacks').filter((c) => c.employeeId === e.id && c.status === 'approved').forEach((c) => { const row = (c.schedule || []).find((r) => r.month === run.period && !r.runId); if (row) pens.push({ id: c.id, type: 'damage', days: null, amount: row.amount, src: 'chargeback' }); });
+      const prof = effProfile(e.id); const method = (ov.method && ov.method[e.id]) || prof.method;
       byEmp[e.id] = { compId: cl.id, drift: cl.drift, comps: cl.lines, absent: abs, absentUnpaid: abs.filter((a) => a.decision !== 'paid').length, unpaidLeave, otDay: oa('day'), otNight: oa('night'), otPendDay: op('day'), otPendNight: op('night'), loans: loanRows, deds: pens, method, hasAccount: !!prof.last4 };
       C.employees++; C.absences += abs.length; C.openAbsences += abs.filter((a) => a.decision == null).length; C.leaves += myLv.length; C.otApproved += oa('day') + oa('night'); C.otPending += op('day') + op('night'); C.loanRows += loanRows.length; C.deductions += pens.length;
     });
     C.changes = col('compAssignments').filter((a) => a.status === 'approved' && a.source !== 'hire' && a.from >= per.start && a.from <= per.end).length;
-    return { pulledAt: new Date().toISOString(), pulledBy: meId(), sig: sigOf(run.period), byEmp, excluded, counts: C, otSource: ot.source };
+    let timeStatus = null; try { timeStatus = SA.hrTime && SA.hrTime.periodStatus ? SA.hrTime.periodStatus(run.period) : null; } catch (e) { timeStatus = null; }
+    return { pulledAt: new Date().toISOString(), pulledBy: meId(), sig: sigOf(run.period), byEmp, excluded, counts: C, otSource: ot.source, timeStatus, force: !!force };
   }
 
   /* ───────────────────────── calculation engine (integer piasters; half-up per line) ───────────────────────── */
@@ -400,9 +422,9 @@
   function buildChecks(run) {
     const R = run.rules, res = run.resolutions || {}, lines = run.lines || [], inp = run.inputs ? run.inputs.byEmp : {}, ck = []; const S = st.get('settings.hrPayroll') || {};
     const add = (type, sev, empId, title, text, extra, key) => { key = key || type + ':' + (empId || ''); const r = res[key]; ck.push(Object.assign({ id: key, type, sev, empId: empId || null, title, text, status: r ? r.status : 'open', resolution: r || null }, extra || {})); };
-    const profiles = col('payProfiles'); const basis = S.minWageBasis || 'basic'; const v = varianceOf(run);
+    const basis = S.minWageBasis || 'basic'; const v = varianceOf(run);
     lines.forEach((l) => {
-      const i = inp[l.empId] || {}; const prof = profiles.find((p) => p.employeeId === l.empId); const e = empById(l.empId);
+      const i = inp[l.empId] || {}; const prof = effProfile(l.empId); const e = empById(l.empId);
       if (prof && prof.method === 'bank' && !prof.last4) add('miss_bank', 'block', l.empId, 'حساب بنكي ناقص', 'طريقة الصرف «بنك» ولا يوجد رقم حساب — لا يُصدَّر سطر بنكي بدون حساب.', { fixes: ['cash', 'hold'] });
       if (R.minWage && e && e.employmentType !== 'daily') { const bv = minBasisValue(i.comps, basis); if (bv < R.minWage.monthly) add('below_min', 'block', l.empId, 'أقل من الحد الأدنى للأجر', 'أساس المقارنة (' + (MW_BASIS.find((b) => b[0] === basis) || [0, basis])[1] + '): ' + fe(bv) + ' أقل من الحد الساري ' + fe(R.minWage.monthly) + ' ج.م (' + R.minWage.id + ').', { fixes: [] }); }
       if (l.net < 0) add('neg_net', 'block', l.empId, 'صافٍ سالب', 'الصافي ' + fp(l.net) + ' بعد تأجيل كل الخصومات القابلة للتأجيل — الخصومات القانونية وحدها تتجاوز الاستحقاق.', { fixes: [] });
@@ -416,10 +438,16 @@
     (run.inputs && run.inputs.excluded || []).forEach((x) => add('excluded', 'info', x.empId, 'موظف مستبعد من الدورة', x.reason, { fixes: [] }));
     if (v.prev) add('var_net', S.varianceNetPct != null && Math.abs(v.pct) > S.varianceNetPct ? 'warn' : 'info', null, 'تباين صافي الدورة عن ' + v.prev.id, (v.pct >= 0 ? '+' : '') + v.pct.toFixed(2) + '% (' + fp(v.prevNet) + ' ← ' + fp(v.curNet) + ') · العتبة: ' + (S.varianceNetPct == null ? 'غير مُعدّة (Open) — لا حكم تلقائي' : S.varianceNetPct + '%'), { fixes: [] });
     else add('var_net', 'info', null, 'لا دورة سابقة للمقارنة', 'مقارنة التباين تحتاج دورة سابقة مقفولة.', { fixes: [] });
+    if (run.inputs && (!run.type || run.type === 'regular') && run.inputs.timeStatus && run.inputs.timeStatus !== 'locked' && !run.inputs.force) add('time_open', 'warn', null, 'شهر الحضور غير مقفول', 'حالة شهر الحضور (' + run.inputs.timeStatus + ') — الاستثناءات والأوفرتايم قد تتغير؛ اقفل الشهر من «الحضور والاستثناءات» قبل القفل المالي.', { fixes: ['ack'] });
     add('no_registry', 'info', null, 'بيانات التسجيل التأميني غير مُدخلة {Open}', 'مقارنة الأجر التأميني المحسوب بالمسجّل (G4) غير ممكنة — لا يوجد سجل تسجيل في هذا الإصدار.', { fixes: [] });
     if (R.pending) add('rules_pending', 'warn', null, 'قواعد قانونية Pending', 'الدورة تعمل بقيم Pending [Law] (' + rulesLabel(R) + ')' + (run.pendingAccepted ? ' — قبلها ' + SA.userName(run.pendingAccepted.by) + ': «' + run.pendingAccepted.reason + '»' : '') + '. لا تُفعَّل رسميًا قبل اعتماد المحاسب القانوني (بند 44).', { fixes: [] });
     if (run.inputs && run.status !== 'locked' && run.status !== 'released' && run.inputs.sig !== sigOf(run.period)) add('stale', 'warn', null, 'تغيّر مصدر بعد تجميد المدخلات', 'حضور/أوفرتايم/سلف/تعويضات تغيّرت بعد السحب — أعد السحب والحساب (HR.PAYROLL.INPUTS_STALE).', { fixes: [] });
     return ck;
+  }
+  function headcountRecon(run) {
+    const per = PER.parse(run.period), force = !!(run.inputs && run.inputs.force), all = emps(); const cat = { after: [], ended: [], term: [], ok: [] };
+    all.forEach((e) => { if (e.hireDate && e.hireDate > per.end) cat.after.push(e); else if (e.endDate && e.endDate < per.start) cat.ended.push(e); else if (!force && (e.status === 'terminated' || e.status === 'suspended')) cat.term.push(e); else cat.ok.push(e); });
+    return Object.assign({ total: all.length, lines: (run.lines || []).length, expected: cat.ok.length }, cat);
   }
   const blockers = (run) => (run.checks || []).filter((c) => c.sev === 'block' && c.status === 'open');
 
@@ -541,10 +569,10 @@
 
   /* ───────────────────────── payments: batches + payslips ───────────────────────── */
   function createBatches(run, o) {
-    o = o || {}; const profiles = col('payProfiles'); const mkId = () => 'PAYBATCH-' + run.id.replace(/^PR-/, '') + '-' + pad(col('payBatches').filter((b) => b.runId === run.id).length + 1);
+    o = o || {}; const mkId = () => 'PAYBATCH-' + run.id.replace(/^PR-/, '') + '-' + pad(col('payBatches').filter((b) => b.runId === run.id).length + 1);
     const out = []; const now = new Date().toISOString();
     [['bank', 'generic_csv'], ['cash', 'cash_sheet']].forEach((k) => {
-      const ls = run.lines.filter((l) => l.method === k[0]).map((l) => { const pr = profiles.find((p) => p.employeeId === l.empId) || {}; return { empId: l.empId, empNo: l.empNo, name: l.name, amountP: l.net, status: o.settled ? (k[0] === 'bank' ? 'paid' : 'received') : 'pending', last4: pr.last4 || null, note: '' }; }).filter((x) => x.amountP > 0);
+      const ls = run.lines.filter((l) => l.method === k[0]).map((l) => { const pr = effProfile(l.empId); return { empId: l.empId, empNo: l.empNo, name: l.name, amountP: l.net, status: o.settled ? (k[0] === 'bank' ? 'paid' : 'received') : 'pending', last4: pr.last4 || null, note: '' }; }).filter((x) => x.amountP > 0);
       if (!ls.length) return;
       const b = { id: mkId(), runId: run.id, period: run.period, kind: k[0], profile: k[1], count: ls.length, totalP: sum(ls, (x) => x.amountP), status: o.settled ? 'settled' : 'generated', createdAt: now, createdBy: o.by || meId(), retryOf: null, exportedAt: o.settled ? now : null, exportedBy: o.settled ? o.by || meId() : null, hash: null, lines: ls };
       st.insert('payBatches', b, true); out.push(b);
@@ -608,6 +636,7 @@
     st.update('deductions', (list) => {
       run.lines.forEach((l) => { const i = run.inputs && run.inputs.byEmp[l.empId]; if (!i) return; (i.deds || []).forEach((d) => { const doc = list.find((x) => x.id === d.id); if (!doc) return; if ((l.deferred.penalty || l.deferred.creditor) && (d.type === 'penalty' || d.type === 'creditor' || d.type === 'alimony')) { doc.month = PER.add(run.period, 1); doc.note = 'أُجّل من ' + run.id; } else { doc.status = 'applied'; doc.appliedRun = run.id; } }); });
     });
+    if (col('chargebacks').length) st.update('chargebacks', (list) => { run.lines.forEach((l) => { const i = run.inputs && run.inputs.byEmp[l.empId]; if (!i) return; (i.deds || []).forEach((d) => { if (d.src !== 'chargeback') return; const c = list.find((x) => x.id === d.id); const row = c && (c.schedule || []).find((r) => r.month === run.period && !r.runId); if (row && !(l.deferred.penalty)) row.runId = run.id; }); }); });
     closed.forEach((ln) => aud('HR.LOAN.CLOSED', { type: 'loan', id: ln.id, label: 'سلفة ' + empName(ln.employeeId) }, { after: { status: 'closed', via: run.id } }));
   }
   function doRelease(id) {
@@ -662,7 +691,7 @@
     /* October (the run in the shared inbox: AP-2009) */
     const oct = baseRun('2026-10', { id: 'PR-2026-10', preparedBy: 'U-26' }); oct.overrides.method['E-1026'] = 'cash'; oct.pendingAccepted = { by: 'U-26', at: ago(0.2), reason: 'تشغيل تجريبي بقيم Pending لحين اعتماد المحاسب القانوني (بند 44)' };
     oct.resolutions['miss_bank:E-1026'] = { status: 'fixed', value: 'cash', by: 'U-26', at: ago(0.2), reason: 'صرف نقدي هذا الشهر لحين تحديث بيانات الحساب' };
-    ['AT-PAY-04', 'AT-PAY-05'].forEach((a) => { oct.resolutions['abs:' + a] = { status: 'fixed', value: 'unpaid', by: 'U-26', at: ago(0.2), reason: 'غياب بلا عذر' }; });
+    oct.inputs = pullInputs(oct, false); Object.keys(oct.inputs.byEmp).forEach((id) => oct.inputs.byEmp[id].absent.forEach((a) => { if (a.decision == null) oct.resolutions['abs:' + a.id] = { status: 'fixed', value: 'unpaid', by: 'U-26', at: ago(0.2), reason: 'غياب بلا عذر' }; }));
     oct.inputs = pullInputs(oct, false); calcRun(oct); oct.status = 'prepared'; oct.approvalId = old ? old.approvalId : 'AP-2009'; oct.preparedAt = ago(0.1); oct.approvedSteps = 0; oct.gmGate = gmGate(oct);
     oct.timeline = [{ ts: ago(0.1), by: 'U-26', what: 'أُرسل للمراجعة (' + oct.approvalId + ')' }, { ts: ago(0.15), by: 'U-26', what: 'حساب الدورة وإغلاق الفحوصات المانعة' }, { ts: ago(0.2), by: 'U-26', what: 'سحب وتجميد المدخلات' }, { ts: ago(0.25), by: 'U-26', what: 'فتح الدورة (قبول قواعد Pending بسبب مسجّل)' }];
     saveRun(sep); saveRun(oct);
@@ -673,6 +702,7 @@
   /* wire real state into the public API (other modules / ESS) */
   API.runs = () => col('payrollRuns').map((r) => ({ id: r.id, period: r.period, status: r.status, net: r.net, published: !!r.published }));
   API.legal = () => API.rules(todayISO());
+  API._test = { calcLine, baseRun, compMeta, totalsOf };
 
   /* ═══════════════════════════════════════════ UI — shared building blocks ═══════════════════════════════════════════ */
   const secret = () => h('span.sap-pay-secret', { title: 'سري — يحتاج hr.salary.view' }, SA.icon('lock', 'icon-sm'), 'سري');
@@ -890,7 +920,7 @@
         rowActions: (r) => [{ label: 'تغيير التعويضات', icon: 'edit', onClick: () => openChange(r.id), disabled: SA.can('hr.salary.change.request') ? false : NOPERM('hr.salary.change.request') }] });
       return h('div', {}, needWages(), SA.alert('warning', h('b', {}, 'الحد الأدنى للأجر (قطاع خاص): '), mw ? fe(mw.monthly) + ' ج.م/شهر من ' + mw.from + ' · ' + fe(mw.hourly) + ' ج.م/ساعة للجزئي ' : 'غير مُعدّ ', lawTag(), ' ', h('span', {}, 'القيمة من جدول القواعد (' + (mw ? mw.id : '—') + ') ويُعدَّل من '), openLink('الامتثال', SA.href('hr/compliance')), '. أساس المقارنة ', SA.openValue('Open'), ' — هل يشمل البدلات وحصة صاحب العمل؟ (مصدر ثانوي).'),
         h('div.sap-pay-basis', {}, h('b', {}, 'أساس المقارنة المُجرَّب'), seg, h('span.t-caption', {}, SA.can('hr.settings.edit') ? 'الاختيار الحالي تجريبي (Pending) — يُغيّره HR بخطوة تحقق.' : 'التغيير من صلاحية hr.settings.edit.')), h('div.sap-tablecard-wrap', {}, t.el), h('p.sap-hint', {}, specLink('scr-sal-06')));
-    }, ['compAssignments', 'employees', 'settings.hrPayroll', 'settings.hrLegal']);
+    }, ['compAssignments', 'employees', 'settings.hrPayroll', 'hrLegal']);
   }
   async function changeBasis(v) {
     if (!SA.can('hr.settings.edit')) { SA.toast(NOPERM('hr.settings.edit'), 'warn'); st.set('settings.hrPayroll.minWageBasis', st.get('settings.hrPayroll.minWageBasis')); return; }
@@ -986,7 +1016,7 @@
     if (!SA.can('hr.payroll.prepare')) { SA.toast(NOPERM('hr.payroll.prepare'), 'warn'); return; } if (isSubmitted(run)) { SA.toast('الكشف أُرسل — المعالجة بعد الإرجاع فقط.', 'warn'); return; }
     let reason = '';
     if (ck.type === 'miss_bank') { const r = await SA.confirm({ title: value === 'cash' ? 'تحويل ' + empName(ck.empId) + ' لصرف نقدي' : 'حجز مرتب ' + empName(ck.empId), reasonRequired: true, confirmLabel: 'تطبيق', impact: [value === 'cash' ? 'يظهر في كشف الصرف النقدي بدل ملف البنك (لهذه الدورة فقط).' : 'يُستثنى من البنك والنقدي ويبقى «محجوزًا» حتى تحديث الحساب.', 'لا يغيّر ملف الموظف — تغيير الحساب يمرّ بضبط HR-16.'] }); if (!r.ok) return; reason = r.reason; }
-    try { await SA.api(() => { const x = getRun(run.id); x.resolutions = x.resolutions || {}; x.overrides = x.overrides || { method: {} }; x.resolutions[ck.id] = { status: ck.type === 'unapproved_ot' || ck.type === 'var_emp' ? 'ack' : 'fixed', value, by: meId(), at: new Date().toISOString(), reason };
+    try { await SA.api(() => { const x = getRun(run.id); x.resolutions = x.resolutions || {}; x.overrides = x.overrides || { method: {} }; x.resolutions[ck.id] = { status: ['unapproved_ot', 'var_emp', 'time_open'].indexOf(ck.type) >= 0 ? 'ack' : 'fixed', value, by: meId(), at: new Date().toISOString(), reason };
       if (ck.type === 'miss_bank') x.overrides.method[ck.empId] = value; refreshRun(x); tl(x, 'معالجة فحص: ' + ck.title + ' (' + empName(ck.empId) + ')'); saveRun(x); aud('HR.PAYROLL.CALCULATED', { type: 'payroll_run', id: run.id, label: run.id }, { after: { fix: ck.type, employee: empName(ck.empId), value }, reason }); }); SA.toast('طُبّقت المعالجة وأُعيد الحساب', 'success'); } catch (e) { SA.fail(e); }
   }
   async function actWaive(run, ck) {
@@ -1006,7 +1036,8 @@
   }
   async function actLock(run) {
     if (!SA.can('hr.payroll.release')) { SA.toast(NOPERM('hr.payroll.release'), 'warn'); return; } const b = sodBlock(run, 'قفل الفترة'); if (b) { SA.toast(b, 'warn'); return; } if (run.status !== 'gm_approved') { SA.toast('القفل بعد الاعتماد الكامل فقط.', 'warn'); return; }
-    const r = await SA.confirm({ title: 'قفل فترة ' + PER.label(run.period), danger: true, confirmLabel: 'قفل الفترة', impact: ['لا تعديل مباشر بعد القفل — أي تصحيح بدورة فروق أو مستند عكس.', 'يُثبَّت لقطة القواعد والمدخلات وبصمة الكشف.'], warnings: run.rules.pending ? ['القواعد المُطبّقة Pending [Law] — القفل يعني قبولها لهذه الدورة (بند 44).'] : [] }); if (!r.ok) return; if (!(await SA.stepUp('voucher.execute'))) return;
+    const gate = SA.hrCore && SA.hrCore.gate ? SA.hrCore.gate('HR-14') : null; if (run.rules.pending && !run.pendingAccepted) { SA.toast('بوابة الجاهزية HR-14: القواعد Pending ولم تُقبل كتشغيل تجريبي عند فتح الدورة — لا قفل.', 'error', { ms: 7000 }); return; }
+    const r = await SA.confirm({ title: 'قفل فترة ' + PER.label(run.period), danger: true, confirmLabel: 'قفل الفترة', impact: ['لا تعديل مباشر بعد القفل — أي تصحيح بدورة فروق أو مستند عكس.', 'يُثبَّت لقطة القواعد والمدخلات وبصمة الكشف.'], warnings: run.rules.pending ? ['تشغيل تجريبي موسوم DEMO: القواعد Pending [Law]' + (gate && !gate.ready ? ' (بوابة الجاهزية HR-14: ' + gate.missing.length + ' من ' + gate.total + ' إعداد غير معتمد)' : '') + ' — لا يُعتمد رسميًا قبل المحاسب القانوني (بند 44).'] : [] }); if (!r.ok) return; if (!(await SA.stepUp('voucher.execute'))) return;
     try { await SA.api(() => doLock(run.id)); SA.toast('قُفلت الفترة', 'success'); } catch (e) { SA.fail(e); }
   }
   async function actRelease(run) {
@@ -1038,7 +1069,7 @@
     const box = h('div'); const acc = field({ name: 'accept', label: 'سبب قبول القواعد Pending', type: 'textarea', rows: 2, hint: 'مطلوب لأن إصدارات القواعد غير معتمدة قانونيًا (BR-PRL-17).' }); let rules = null;
     const upd = () => { SA.clear(box); const p = per.get(); if (!p) return; rules = API.rules(PER.parse(p).end); const miss = RULE_TABLES.filter((t) => !rules[t[0]]); const exists = col('payrollRuns').some((r) => r.period === p && (!r.type || r.type === 'regular') && r.status !== 'cancelled');
       if (exists) box.append(SA.alert('danger', 'توجد دورة عادية لهذه الفترة بالفعل — لا تكرار (BR-PRL-15).')); if (miss.length) box.append(SA.alert('danger', 'جدول قواعد غير مُعدّ لتاريخ ' + PER.parse(p).end + ': ' + miss.map((m) => m[1]).join('، ') + ' — لا قيمة صفرية بديلة (BR-PRL-01).'));
-      box.append(h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الجدول', 'الإصدار الساري', 'من', 'الحالة'].map((x) => h('th', {}, x)))), h('tbody', {}, RULE_TABLES.map((t) => { const v = rules[t[0]]; return h('tr', {}, h('td', {}, t[1]), h('td', {}, v ? code(v.id) : SA.openValue()), h('td', {}, v ? h('span.num', {}, v.from) : '—'), h('td', {}, v ? (v.status === 'approved' ? SA.chip('معتمد', 'success') : SA.chip('Pending [Law]', 'warning')) : SA.chip('غير مُعدّ', 'danger'))); })))), rules.source === 'fallback' ? h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'مصدر القواعد: قيم الريسيرش الافتراضية (DEMO) — تُعدَّل من ', openLink('الامتثال', SA.href('hr/compliance')))) : null);
+      box.append(h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الجدول', 'الإصدار الساري', 'من', 'الحالة'].map((x) => h('th', {}, x)))), h('tbody', {}, RULE_TABLES.map((t) => { const v = rules[t[0]]; return h('tr', {}, h('td', {}, t[1]), h('td', {}, v ? code(v.id) : SA.openValue()), h('td', {}, v ? h('span.num', {}, v.from) : '—'), h('td', {}, v ? (v.status === 'approved' ? SA.chip('معتمد', 'success') : SA.chip('Pending [Law]', 'warning')) : SA.chip('غير مُعدّ', 'danger'))); })))), rules.source !== 'hrLegal' || rules.pending ? h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'مصدر القواعد: قيم الريسيرش الافتراضية (DEMO) — تُعدَّل من ', openLink('الامتثال', SA.href('hr/compliance')))) : null);
       if (rules.pending) box.append(acc.el); box._state = { exists, miss }; };
     per.input.addEventListener('change', upd); upd();
     formModal({ title: 'دورة مرتبات جديدة', subtitle: 'الخطوة 1 من 5 — الفترة والقواعد', icon: 'receipt', size: 'lg', fields: [per], after: box, confirmLabel: 'فتح الدورة',
@@ -1099,12 +1130,12 @@
   /* step panels */
   function panelInputs(run, view, refresh) {
     const inp = run.inputs; const per = PER.parse(run.period); const stale = inp && isFrozenStale(run);
-    const rulesTbl = h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الجدول', 'الإصدار المُثبَّت', 'ساري من', 'الحالة', 'المصدر'].map((x) => h('th', {}, x)))), h('tbody', {}, RULE_TABLES.map((t) => { const v = run.rules[t[0]]; return h('tr', {}, h('td', {}, t[1]), h('td', {}, v ? code(v.id) : SA.openValue()), h('td', {}, v ? h('span.num', {}, v.from) : '—'), h('td', {}, v ? (v.status === 'approved' ? SA.chip('معتمد', 'success') : SA.chip('Pending [Law]', 'warning')) : SA.chip('غير مُعدّ', 'danger')), h('td', {}, h('span.t-caption', {}, v ? (v.src === 'settings' ? 'جدول الامتثال (settings.hrLegal)' : 'قيم الريسيرش الافتراضية (DEMO)') : '—'))); }))));
+    const rulesTbl = h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الجدول', 'الإصدار المُثبَّت', 'ساري من', 'الحالة', 'المصدر'].map((x) => h('th', {}, x)))), h('tbody', {}, RULE_TABLES.map((t) => { const v = run.rules[t[0]]; return h('tr', {}, h('td', {}, t[1]), h('td', {}, v ? code(v.id) : SA.openValue()), h('td', {}, v ? h('span.num', {}, v.from) : '—'), h('td', {}, v ? (v.status === 'approved' ? SA.chip('معتمد', 'success') : SA.chip('Pending [Law]', 'warning')) : SA.chip('غير مُعدّ', 'danger')), h('td', {}, h('span.t-caption', {}, v ? (v.src === 'hrLegal' ? 'سجل الامتثال HR-30 (hrLegal)' : 'قيم الريسيرش الافتراضية (DEMO)') : '—'))); }))));
     const C = inp ? inp.counts : null; const row = (src, n, note, link) => h('tr', {}, h('td', {}, h('b', {}, src)), h('td', {}, h('span.num', {}, n)), h('td', {}, note), h('td', {}, link ? openLink('افتح', SA.href(link)) : '—'));
     const srcTbl = C ? h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['المصدر', 'العدد', 'ملاحظة', ''].map((x) => h('th', {}, x)))), h('tbody', {},
       row('الموظفون المشمولون', C.employees, (inp.excluded || []).length ? (inp.excluded.length + ' مستبعد (منتهي/موقوف)') : 'نشط/تجربة/إجازة', 'hr/employees'), row('الحضور — غياب بالفترة', C.absences, C.openAbsences ? C.openAbsences + ' غياب لم يُراجَع (بدون أجر افتراضيًا)' : 'كلها مراجَعة', 'hr/attendance'), row('الإجازات المعتمدة المتقاطعة', C.leaves, 'أنواع بلا أجر تُخصم من أيام الدفع', 'hr/leave'),
       row('الأوفرتايم المعتمد (ساعة)', C.otApproved, C.otPending ? C.otPending + ' ساعة غير معتمدة — مستبعدة (المصدر: ' + inp.otSource + ')' : 'المصدر: ' + inp.otSource, 'hr/overtime'), row('أقساط السلف المستحقة', C.loanRows, 'تُخصم داخل الدورة فقط وبسقف قانوني', 'hr/loans'), row('خصومات DED معتمدة', C.deductions, 'جزاء/تلفيات/دائن بسقوفها', 'hr/loans?tab=deductions'), row('تغييرات تعويضات سارية في الفترة', C.changes, 'تغييرات مرتب معتمدة تبدأ داخل الفترة', 'hr/salary?tab=assign')))) : SA.empty({ icon: 'download2', title: 'لم تُسحب المدخلات بعد', text: 'اسحب الحضور والإجازات والأوفرتايم والسلف والتغييرات المعتمدة وجمّدها قبل الحساب.', action: run.status === 'draft' && SA.can('hr.payroll.prepare') ? { label: 'سحب وتجميد المدخلات', icon: 'download2', onClick: () => actPull(run) } : null });
-    return h('div.sap-pay-stack', {}, SA.card({ title: 'الفترة والقواعد المُثبَّتة (Snapshot)', tags: lawTag(), actions: [openLink('جداول الامتثال', SA.href('hr/compliance'))] }, SA.kv([['الفترة', PER.label(run.period) + ' (' + per.start + ' → ' + per.end + ')'], ['قاعدة الشهر', run.rules.period.month_days + ' يوم · ' + run.rules.period.day_hours + ' ساعات/يوم'], ['النوع', TYPE_AR[run.type || 'regular']], ['قبول Pending', run.pendingAccepted ? h('span', {}, SA.userName(run.pendingAccepted.by) + ' — «' + run.pendingAccepted.reason + '»') : (run.rules.pending ? h('span', {}, 'لم يُقبل') : 'لا حاجة — كل الإصدارات معتمدة')]]), rulesTbl),
+    return h('div.sap-pay-stack', {}, SA.card({ title: 'الفترة والقواعد المُثبَّتة (Snapshot)', tags: lawTag(), actions: [openLink('جداول الامتثال', SA.href('hr/compliance'))] }, SA.kv([['الفترة', PER.label(run.period) + ' (' + per.start + ' → ' + per.end + ')'], ['قاعدة الشهر', run.rules.period.month_days + ' يوم · ' + run.rules.period.day_hours + ' ساعات/يوم'], ['النوع', TYPE_AR[run.type || 'regular']], ['بوابة الجاهزية HR-14', (() => { const g = SA.hrCore && SA.hrCore.gate ? SA.hrCore.gate('HR-14') : null; return g ? h('span', {}, SA.chip(g.ready ? 'جاهزة' : 'غير جاهزة — ' + g.missing.length + ' من ' + g.total + ' غير معتمد', g.ready ? 'success' : 'warning'), ' ', openLink('الامتثال', SA.href('hr/compliance'))) : '—'; })()], ['حضور الشهر', run.inputs ? (run.inputs.timeStatus || '—') : '—'], ['قبول Pending', run.pendingAccepted ? h('span', {}, SA.userName(run.pendingAccepted.by) + ' — «' + run.pendingAccepted.reason + '»') : (run.rules.pending ? h('span', {}, 'لم يُقبل') : 'لا حاجة — كل الإصدارات معتمدة')]]), rulesTbl),
       SA.card({ title: 'مصادر المدخلات', actions: inp ? [h('span.t-caption', {}, 'سُحبت ' + SA.fmt.dt(inp.pulledAt) + ' · ' + SA.userName(inp.pulledBy))] : null }, stale ? SA.alert('warning', h('b', {}, 'تغيّر مصدر بعد التجميد. '), 'أعد السحب والحساب (HR.PAYROLL.INPUTS_STALE).') : null, srcTbl, inp && !isSubmitted(run) && (run.type || 'regular') === 'regular' ? h('div.sap-pay-actions', {}, SA.btn({ label: 'إعادة السحب', icon: 'refresh', kind: 'ghost', perm: 'hr.payroll.prepare', onClick: () => actPull(run) })) : null), h('p.sap-hint', {}, specLink('scr-prl-02')));
   }
   const isFrozenStale = (run) => !!run.inputs && !!run.inputs.sig && ORD[run.status] < ORD.locked && run.inputs.sig !== sigOf(run.period);
@@ -1131,7 +1162,7 @@
     if (st1 === 'open' && can) {
       if (c.type === 'miss_bank') acts.push(SA.btn({ label: 'تحويل لنقدي', icon: 'coins', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'cash') }), SA.btn({ label: 'حجز المرتب', icon: 'lock', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'hold') }));
       if (c.type === 'open_absence') acts.push(SA.btn({ label: 'بأجر (مبرَّر)', icon: 'checkcircle', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'paid') }), SA.btn({ label: 'بدون أجر', icon: 'xcircle', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'unpaid') }));
-      if (c.type === 'unapproved_ot' || c.type === 'var_emp') acts.push(SA.btn({ label: 'اطلعت', icon: 'check', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'ack') }));
+      if (['unapproved_ot', 'var_emp', 'time_open'].indexOf(c.type) >= 0) acts.push(SA.btn({ label: 'اطلعت', icon: 'check', kind: 'ghost', size: 'sm', onClick: () => actFix(run, c, 'ack') }));
     }
     if (st1 === 'open' && c.sev === 'block' && !isSubmitted(run)) acts.push(SA.btn({ label: 'تجاوز بسبب', icon: 'shield', kind: 'ghost', size: 'sm', perm: 'hr.payroll.approve', reason: sodBlock(run, 'تجاوز فحص مانع'), onClick: () => actWaive(run, c) }));
     if (c.empId && ['below_min'].indexOf(c.type) >= 0) acts.push(h('a.btn.btn-ghost.btn-sm', { href: SA.href('hr/salary/' + c.empId) }, 'افتح التعويضات'));
@@ -1195,6 +1226,7 @@
     body.push(h('tr.sap-pay-grand', {}, h('td', { colSpan: 4 }, 'الإجمالي العام · ' + run.lines.length + ' موظف'), REG_COLS.map((c) => h('td', {}, AT(tot[c[0]]))), h('td')));
     return h('div.sap-pay-stack', {}, canWages() ? null : SA.alert('warning', h('b', {}, 'الإجماليات فقط. '), 'بدون ', code('hr.salary.view'), ' تُجمَّع الدورة حسب القسم ولا تظهر سطور الأفراد (BR-PRL-18).'),
       SA.card({ title: 'كشف المرتبات ' + run.id + ' حسب القسم', tags: SA.chip('سري · الموارد البشرية والمالية فقط', 'danger'), actions: [SA.btn({ label: 'تصدير CSV', icon: 'download2', kind: 'ghost', size: 'sm', perm: 'hr.export.sensitive', reason: canWages() ? '' : 'يحتاج hr.salary.view', onClick: () => exportRegister(run) })], flush: true }, h('div.table-wrap.sap-pay-scroll', {}, h('table.table.sap-pay-reg', {}, h('thead', {}, head), h('tbody', {}, body)))),
+      (() => { const hc = headcountRecon(run); const nm = (a) => (a.length ? a.map((e) => e.name).join('، ') : '—'); const ok = hc.lines === hc.expected; return SA.card({ title: 'مطابقة عدد الموظفين مع دليل الموظفين', tags: chipOk(ok ? 'متطابق ✓' : 'فرق', ok) }, SA.kv([['دليل الموظفين (الآن)', h('b.num', {}, hc.total)], ['− التحقوا بعد نهاية الفترة', h('span', {}, h('b.num', {}, hc.after.length), ' · ' + nm(hc.after))], ['− انتهت خدمتهم قبل الفترة', h('span', {}, h('b.num', {}, hc.ended.length), ' · ' + nm(hc.ended))], ['− منتهون/موقوفون مستبعدون (BR-PRL-10)', h('span', {}, h('b.num', {}, hc.term.length), ' · ' + nm(hc.term))], ['= المتوقع في الكشف', h('b.num', {}, hc.expected)], ['الكشف الفعلي', h('b.num', {}, hc.lines)]]), h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'الأرقام المخزَّنة وقت التجميد؛ أي موظف يُضاف بعد السحب يظهر كتحذير «تغيّر مصدر» ويُضمَّن بإعادة السحب.'))); })(),
       SA.card({ title: 'ضوابط التطابق C1–C8' }, h('ul.sap-pay-ctl', {}, ct.map((c) => h('li.' + (c[2] === null ? 'is-na' : c[2] ? 'is-ok' : 'is-bad'), {}, SA.icon(c[2] === null ? 'minus' : c[2] ? 'checkcircle' : 'xcircle', 'icon-sm'), h('b', {}, c[0]), h('span', {}, c[1]), SA.chip(c[2] === null ? 'بعد القفل/الإطلاق' : c[2] ? 'متطابق' : 'فرق', c[2] === null ? 'neutral' : c[2] ? 'success' : 'danger'))), h('li.is-na', {}, SA.icon('minus', 'icon-sm'), h('b', {}, 'C8'), h('span', {}, 'الصافي العام بالحروف مطابق للأرقام'), SA.chip('غير منفَّذ في النموذج', 'neutral')))),
       h('p.sap-hint', {}, specLink('scr-prl-08')));
   }
@@ -1391,7 +1423,7 @@
       const S = st.get('settings.hrPayroll') || {}; const R = API.rules(todayISO()); const legal = R.caps ? R.caps.loan_pct : null; const o = (k, l) => [l, S[k] == null ? SA.openValue() : String(S[k])];
       return h('div.sap-pay-stack', {}, SA.card({ title: 'سقف قسط السلفة', tags: lawTag('م113 Pending'), actions: [SA.btn({ label: 'تعديل سقف الشركة', icon: 'edit', kind: 'primary', size: 'sm', perm: 'hr.settings.edit', onClick: () => editCompanyCap(legal) })] }, SA.kv([['السقف القانوني (من جدول القواعد)', legal == null ? SA.openValue() : legal + '% من الأجر'], ['سقف الشركة (أشدّ — اختياري)', S.loanCapCompanyPct == null ? SA.openValue('غير مُعدّ') : S.loanCapCompanyPct + '%'], ['السقف الفعلي في الدورة', legal == null ? '—' : Math.min(legal, S.loanCapCompanyPct == null ? legal : S.loanCapCompanyPct) + '%'], ['أساس «الأجر»', 'الأساسي (Pending — قد يكون الإجمالي)']]), SA.alert('info', 'سقف الشركة لا يتجاوز السقف القانوني أبدًا؛ الأقساط الأعلى منه تُؤجَّل لا تُقتصّ.')),
         SA.card({ title: 'حدود منتج السلف', tags: SA.tag('open', 'Open') }, SA.kv([o('loanMaxMultiple', 'الحد الأقصى كمضاعف للمرتب'), o('loanMaxInstallments', 'أقصى عدد أقساط'), o('loanMaxConcurrent', 'السلف المتزامنة'), o('loanFinanceLimit', 'حد اعتماد المالية'), o('loanGmLimit', 'حد المدير العام'), ['مدة الخدمة المطلوبة', SA.openValue()], ['SLA الاعتماد', SA.openValue()]]), h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'لا قيم افتراضية (BR-LON-02) — تُحدَّد بقرار الإدارة وبتاريخ سريان. ', specLink('scr-lon-07')))));
-    }, ['settings.hrPayroll', 'settings.hrLegal']);
+    }, ['settings.hrPayroll', 'hrLegal']);
   }
   function editCompanyCap(legal) {
     if (!SA.can('hr.settings.edit')) { SA.toast(NOPERM('hr.settings.edit'), 'warn'); return; } const S = st.get('settings.hrPayroll') || {};
@@ -1408,18 +1440,11 @@
   }, { badge: needLoan });
 
   /* ═══════════════════════════════════════════ HR-16 · الصرف ومفردات المرتب (hr-payments) ═══════════════════════════════════════════ */
-  const profileOf = (empId) => col('payProfiles').find((p) => p.employeeId === empId) || null;
+  const profileOf = (empId) => effProfile(empId);
   const maskAcc = (p) => (p && p.last4 ? '••••' + p.last4 : '—');
   const bankProfile = () => Object.assign({ encoding: 'utf8bom', delimiter: ',', decimal: '.', nameLang: 'ar', maxRecords: null, debitAccountMasked: '••••0000' }, (st.get('settings.hrPayroll') || {}).bankProfile || {});
   const LN_BATCH_KIND = { bank: 'تحويل بنكي', cash: 'صرف نقدي' };
   const LINE_ST = { pending: ['قيد التنفيذ', 'warning'], paid: ['مدفوع', 'success'], received: ['مستلم', 'success'], rejected: ['مرفوض', 'danger'], retried: ['أُعيدت المحاولة', 'neutral'] };
-  function applyDueBankChanges() {
-    const now = Date.now(); col('bankChanges').slice().forEach((c) => { if (c.status === 'holding' && c.effectiveAt && new Date(c.effectiveAt).getTime() <= now) activateBankChange(c, false); });
-  }
-  function activateBankChange(c, demo) {
-    st.patch('payProfiles', 'PP-' + c.employeeId, { method: 'bank', bank: c.newBank, last4: c.newLast4, account: c.newAccount, updatedAt: new Date().toISOString(), verifiedAt: new Date().toISOString() });
-    st.patch('bankChanges', c.id, { status: 'effective', activatedAt: new Date().toISOString(), activatedDemo: !!demo });
-  }
   const pickRun = (rid) => { const runs = col('payrollRuns').filter((r) => r.lines); return (rid && runs.find((r) => r.id === rid)) || runs.filter((r) => r.status === 'released' || r.status === 'locked').sort((a, b) => (a.period < b.period ? 1 : a.id < b.id ? 1 : -1))[0] || runs.sort((a, b) => (a.period < b.period ? 1 : -1))[0] || null; };
   const batchesOf = (run) => col('payBatches').filter((b) => b.runId === run.id).sort((a, b) => (a.id < b.id ? -1 : 1));
   function fileHeaderBody(run, lines, full) {
@@ -1469,20 +1494,6 @@
   function openLinkPV(run) {
     if (!(SA.can('hr.payroll.release') || SA.can('finance.voucher.create'))) { SA.toast(NOPERM('hr.payroll.release') + ' أو finance.voucher.create', 'warn'); return; } const f = field({ name: 'pv', label: 'رقم سند الصرف PV-', required: true, dir: 'ltr', hint: 'مثل: PV-2026-0124 — يُنشئه ويعتمده وينفّذه فريق المالية (بند 42).', rules: [(v) => (!/^PV-\d{4}-\d{3,5}$/.test(v) ? 'الصيغة PV-YYYY-NNNN' : null)] });
     formModal({ title: 'ربط سند الصرف PV-', subtitle: run.id, icon: 'link', fields: [f], after: SA.alert('info', 'HR يجهّز ويصدّر ويتابع فقط؛ المالية تنشئ السند وتعتمده وتنفّذه بصلاحيات منفصلة. لا تكامل مالي في هذا الإصدار.'), confirmLabel: 'ربط', async onSubmit(v) { await SA.api(() => { const x = getRun(run.id); x.pv = { id: v.pv, status: 'linked', note: 'رُبط يدويًا', by: meId(), at: new Date().toISOString() }; tl(x, 'رُبط سند الصرف ' + v.pv); saveRun(x); aud('HR.PAYMENTS.PV_LINKED', { type: 'payroll_run', id: run.id, label: v.pv }, { after: { pv: v.pv } }); }); SA.toast('رُبط ' + v.pv, 'success'); return true; } });
-  }
-  /* bank account change control (SCR-PAY-05/06) */
-  function openBankChange(emp) {
-    if (!(SA.can('hr.employees.edit') || SA.can('hr.payments.export') || SA.can('hr.payroll.prepare'))) { SA.toast(NOPERM('hr.employees.edit'), 'warn'); return; } const pr = profileOf(emp.id);
-    if (col('bankChanges').some((c) => c.employeeId === emp.id && (c.status === 'pending' || c.status === 'holding'))) { SA.toast('يوجد طلب تغيير معلّق لنفس الموظف.', 'warn'); return; }
-    const bank = field({ name: 'bank', label: 'اسم البنك والفرع', required: true, value: pr && pr.bank || '' }), acc = field({ name: 'acc', label: 'رقم الحساب / IBAN الجديد', required: true, dir: 'ltr', rules: [(v) => (v && v.replace(/\s/g, '').replace(/^EG/i, '').replace(/\D/g, '').length < 10 ? 'رقم غير صالح (10 أرقام على الأقل)' : null)] }), proof = field({ name: 'proof', label: 'إثبات الملكية (اسم الملف/المرجع)', required: true, hint: 'خطاب البنك أو صورة بطاقة الحساب — إلزامي.' }), nm = field({ name: 'nm', label: 'تحققت من مطابقة اسم صاحب الحساب لاسم الموظف', type: 'checkbox', required: true, rules: [(v) => (v ? null : 'التحقق من مطابقة الاسم إلزامي')] }), why = field({ name: 'reason', label: 'سبب التغيير', type: 'textarea', rows: 2, required: true });
-    formModal({ title: 'تغيير الحساب البنكي — ' + emp.name, subtitle: 'ثنائي التحقق: طالب ≠ معتمد · حجز ' + ((st.get('settings.hrPayroll') || {}).bankHoldHours || 24) + ' ساعة · إشعار عاجل للموظف', icon: 'lock', size: 'lg', fields: [bank, acc, proof, nm, why], before: SA.alert('warning', 'لا يسري على دفعة مُجهَّزة أو مُصدَّرة، ويتطلب شخصًا ثانيًا يعتمده (BR-PAY-06).'), confirmLabel: 'إرسال للاعتماد',
-      async onSubmit(v) { const digits = v.acc.replace(/\D/g, ''); let c; await SA.api(() => { c = { id: 'BC-' + String(col('bankChanges').length + 1).padStart(4, '0'), employeeId: emp.id, requestedBy: meId(), requestedAt: new Date().toISOString(), oldBank: pr ? pr.bank : '', oldLast4: pr ? pr.last4 : null, newBank: v.bank, newAccount: v.acc.toUpperCase(), newLast4: digits.slice(-4), proof: v.proof, reason: v.reason, status: 'pending', approvedBy: null, effectiveAt: null }; st.insert('bankChanges', c, true); aud('HR.BANK_ACCOUNT.CHANGE_REQUESTED', { type: 'employee', id: emp.id, label: emp.name }, { reason: v.reason, after: { newLast4: c.newLast4, proof: v.proof } });
-        SA.notify({ title: 'طلب تغيير حساب بنكي: ' + emp.name, body: 'يحتاج اعتماد شخص ثانٍ (hr.pii.reveal) — ' + c.id, level: 'action', to: ['R-11'], link: '#/hr/payments?tab=accounts' }); if (emp.userId) SA.notify({ title: 'طُلب تغيير حسابك البنكي', body: 'إن لم تطلب أنت ذلك فأبلغ الموارد البشرية فورًا. لن يسري التغيير قبل مرور مدة الحجز.', level: 'urgent', toUsers: [emp.userId], link: '#/hr/ess' }); }); SA.toast('أُرسل الطلب ' + c.id + ' لاعتماد شخص ثانٍ', 'success'); return true; } });
-  }
-  async function decideBankChange(c, ok) {
-    if (!SA.can('hr.pii.reveal')) { SA.toast(NOPERM('hr.pii.reveal') + ' — اعتماد تغيير الحساب', 'warn'); return; } if (c.requestedBy === meId()) { SA.toast('فصل المهام: طالب التغيير لا يعتمده.', 'warn'); return; }
-    const hold = (st.get('settings.hrPayroll') || {}).bankHoldHours || 24; const r = await SA.confirm({ title: (ok ? 'اعتماد' : 'رفض') + ' تغيير الحساب البنكي', danger: !ok, confirmLabel: ok ? 'اعتماد وبدء الحجز' : 'رفض', reasonRequired: !ok, reasonLabel: 'سبب الرفض', impact: ok ? ['يسري التغيير بعد ' + hold + ' ساعة من الآن ما لم يعترض الموظف.', 'إشعار عاجل للموظف.'] : ['يبقى الحساب القديم.'] }); if (!r.ok) return; if (ok && !(await SA.stepUp('user.reset_password'))) return;
-    try { await SA.api(() => { const eff = new Date(Date.now() + hold * 3600000).toISOString(); st.patch('bankChanges', c.id, ok ? { status: 'holding', approvedBy: meId(), approvedAt: new Date().toISOString(), effectiveAt: eff } : { status: 'rejected', approvedBy: meId(), rejectReason: r.reason }); aud(ok ? 'HR.BANK_ACCOUNT.CHANGE_APPROVED' : 'HR.BANK_ACCOUNT.CHANGE_REJECTED', { type: 'employee', id: c.employeeId, label: empName(c.employeeId) }, { reason: r.reason, after: { status: ok ? 'holding' : 'rejected', effectiveAt: ok ? eff : null } }); const eu = (empById(c.employeeId) || {}).userId; if (eu) SA.notify({ title: ok ? 'اعتُمد تغيير حسابك البنكي — يسري بعد ' + hold + ' ساعة' : 'رُفض طلب تغيير حسابك البنكي', body: ok ? 'إن لم تطلبه فاعترض فورًا عبر الموارد البشرية.' : r.reason, level: 'urgent', toUsers: [eu], link: '#/hr/ess' }); }); SA.toast(ok ? 'اعتُمد — بدأ الحجز' : 'رُفض الطلب', 'success'); } catch (e) { SA.fail(e); }
   }
   /* tabs */
   function tabPayDash(panel, setActions, S) {
@@ -1544,17 +1555,15 @@
   function tabAccounts(panel, setActions, S) {
     setActions([]); const view = {};
     return SA.live(panel, () => {
-      applyDueBankChanges(); const pend = col('bankChanges').filter((c) => c.status === 'pending' || c.status === 'holding'); const hist = col('bankChanges').filter((c) => c.status === 'effective' || c.status === 'rejected');
-      const t = SA.table({ caption: 'الحسابات البنكية', rows: () => emps().filter((e) => e.status !== 'terminated').map((e) => Object.assign({ id: e.id, e, pr: profileOf(e.id), name: e.name })), pageSize: 10, initial: view.s, onChange: (s) => { view.s = s; }, search: { placeholder: 'ابحث بالاسم', keys: ['name'] }, filters: [{ key: 'm', label: 'الطريقة', options: [['bank', 'بنك'], ['cash', 'نقدي']], test: (r, v) => r.pr && r.pr.method === v }, { key: 's', label: 'الحالة', options: [['miss', 'ناقص'], ['pend', 'تغيير معلّق']], test: (r, v) => (v === 'miss' ? r.pr && r.pr.method === 'bank' && !r.pr.last4 : pend.some((c) => c.employeeId === r.id)) }],
-        columns: [{ key: 'name', label: 'الموظف', sort: true, render: (r) => h('div.sap-usercell', {}, SA.avatar(r.name), h('div', {}, h('b', {}, r.name), h('small', {}, r.e.empNo)))}, { key: 'm', label: 'الطريقة', render: (r) => SA.chip(r.pr && r.pr.method === 'cash' ? 'نقدي' : 'بنك', 'neutral') }, { key: 'bank', label: 'البنك', render: (r) => (r.pr && r.pr.bank) || '—' }, { key: 'acc', label: 'الحساب (مقنّع)', render: (r) => h('span.num', {}, maskAcc(r.pr)) },
-          { key: 'st', label: 'الحالة', render: (r) => (r.pr && r.pr.method === 'bank' && !r.pr.last4 ? SA.chip('ناقص — يمنع الدفعة', 'danger') : pend.some((c) => c.employeeId === r.id) ? SA.chip('تغيير معلّق', 'warning') : r.pr && r.pr.method === 'cash' ? SA.chip('نقدي', 'neutral') : SA.chip('موثّق', 'success')) }],
-        rowActions: (r) => [{ label: 'تغيير الحساب البنكي', icon: 'edit', onClick: () => openBankChange(r.e) }, { label: 'كشف الحساب كاملًا (يُسجَّل)', icon: 'eye', hidden: !(r.pr && r.pr.last4), onClick: () => { if (!SA.can('hr.pii.reveal')) { SA.toast(NOPERM('hr.pii.reveal'), 'warn'); return; } aud('HR.EMPLOYEE.PII_REVEALED', { type: 'employee', id: r.id, label: r.name }, { reason: 'عرض الحساب البنكي' }); SA.modal({ title: 'الحساب البنكي — ' + r.name, icon: 'lock', size: 'sm', body: h('div.sap-confirm', {}, h('code.sap-pay-code', { dir: 'ltr' }, r.pr.account), h('p.sap-audit-note', {}, SA.icon('history', 'icon-sm'), 'سُجّل هذا الكشف باسمك (HR.EMPLOYEE.PII_REVEALED).')) }); } }] });
-      const chg = (c) => h('tr', {}, h('td', {}, h('b', {}, empName(c.employeeId)), h('div.t-caption', {}, c.id)), h('td', {}, h('span.num', {}, c.oldLast4 ? '••••' + c.oldLast4 + ' ← ' : ''), h('span.num', {}, '••••' + c.newLast4)), h('td', {}, SA.userName(c.requestedBy), h('div.t-caption', {}, SA.fmt.dt(c.requestedAt))), h('td', {}, c.status === 'pending' ? SA.chip('بانتظار شخص ثانٍ', 'warning') : h('span', {}, SA.chip('حجز حتى ' + SA.fmt.dt(c.effectiveAt), 'info'))), h('td', {}, c.proof),
-        h('td', {}, c.status === 'pending' ? h('div.sap-pay-actions', {}, SA.btn({ label: 'اعتماد', size: 'sm', kind: 'primary', perm: 'hr.pii.reveal', reason: c.requestedBy === meId() ? 'فصل المهام: طالب التغيير لا يعتمده' : '', onClick: () => decideBankChange(c, true) }), SA.btn({ label: 'رفض', size: 'sm', kind: 'ghost', perm: 'hr.pii.reveal', reason: c.requestedBy === meId() ? 'فصل المهام' : '', onClick: () => decideBankChange(c, false) })) : SA.btn({ label: 'تفعيل الآن (تجريبي)', size: 'sm', kind: 'ghost', perm: 'hr.settings.edit', onClick: () => { activateBankChange(c, true); SA.toast('فُعّل التغيير الآن (تسريع تجريبي لمدة الحجز)', 'info'); } })));
-      return h('div.sap-pay-stack', {}, SA.alert('warning', h('b', {}, 'ضبط تغيير الحساب: '), 'طالب ≠ معتمد · إثبات إلزامي · مطابقة الاسم · حجز ' + ((st.get('settings.hrPayroll') || {}).bankHoldHours || 24) + ' ساعة · إشعار عاجل للموظف. لا يسري على دفعة مُجهَّزة.'),
-        pend.length ? SA.card({ title: 'طلبات تغيير معلّقة (' + pend.length + ')', flush: true }, h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الموظف', 'الحساب', 'الطالب', 'الحالة', 'الإثبات', ''].map((x) => h('th', {}, x)))), h('tbody', {}, pend.map(chg))))) : null,
-        h('div.sap-tablecard-wrap', {}, t.el), hist.length ? h('p.t-caption', {}, 'آخر التغييرات: ' + hist.slice(0, 3).map((c) => empName(c.employeeId) + ' (' + (c.status === 'effective' ? 'سرى' : 'رُفض') + ')').join('، ')) : null, h('p.sap-hint', {}, specLink('scr-pay-05')));
-    }, ['payProfiles', 'bankChanges', 'employees']);
+      const pend = emps().map((e) => ({ e, pr: profileOf(e.id) })).filter((x) => x.pr.pending);
+      const t = SA.table({ caption: 'الحسابات البنكية', rows: () => emps().filter((e) => e.status !== 'terminated').map((e) => ({ id: e.id, e, pr: profileOf(e.id), name: e.name })), pageSize: 10, initial: view.s, onChange: (s) => { view.s = s; }, search: { placeholder: 'ابحث بالاسم', keys: ['name'] }, filters: [{ key: 'm', label: 'الطريقة', options: [['bank', 'بنك'], ['cash', 'نقدي']], test: (r, v) => r.pr.method === v }, { key: 's', label: 'الحالة', options: [['miss', 'ناقص'], ['pend', 'تغيير معلّق']], test: (r, v) => (v === 'miss' ? r.pr.method === 'bank' && !r.pr.last4 : !!r.pr.pending) }],
+        columns: [{ key: 'name', label: 'الموظف', sort: true, render: (r) => h('div.sap-usercell', {}, SA.avatar(r.name), h('div', {}, h('b', {}, r.name), h('small', {}, r.e.empNo))) }, { key: 'm', label: 'الطريقة', render: (r) => SA.chip(r.pr.method === 'cash' ? 'نقدي' : 'بنك', 'neutral') }, { key: 'bank', label: 'البنك', render: (r) => (r.pr.method === 'cash' ? '—' : r.pr.bank || '—') }, { key: 'acc', label: 'الحساب (مقنّع)', render: (r) => h('span.num', {}, maskAcc(r.pr)) },
+          { key: 'st', label: 'الحالة', render: (r) => (r.pr.method === 'bank' && !r.pr.last4 ? SA.chip('ناقص — يمنع الدفعة', 'danger') : r.pr.pending ? SA.chip('تغيير معلّق', 'warning') : r.pr.method === 'cash' ? SA.chip('نقدي', 'neutral') : SA.chip('موثّق', 'success')) }],
+        rowActions: (r) => [{ label: 'تغيير الحساب (من ملف الموظف)', icon: 'edit', onClick: () => SA.nav('hr/employees/' + r.id, { query: { tab: 'bank' } }) }, { label: 'كشف الحساب كاملًا (يُسجَّل)', icon: 'eye', hidden: !r.pr.last4, onClick: () => { if (!SA.can('hr.pii.reveal')) { SA.toast(NOPERM('hr.pii.reveal'), 'warn'); return; } aud('HR.EMPLOYEE.PII_REVEALED', { type: 'employee', id: r.id, label: r.name }, { reason: 'عرض الحساب البنكي من الصرف' }); SA.modal({ title: 'الحساب البنكي — ' + r.name, icon: 'lock', size: 'sm', body: h('div.sap-confirm', {}, h('code.sap-pay-code', { dir: 'ltr' }, r.pr.account), h('p.sap-audit-note', {}, SA.icon('history', 'icon-sm'), 'سُجّل هذا الكشف باسمك (HR.EMPLOYEE.PII_REVEALED).')) }); } }], onRowClick: (r) => SA.nav('hr/employees/' + r.id, { query: { tab: 'bank' } }) });
+      return h('div.sap-pay-stack', {}, SA.alert('warning', h('b', {}, 'ضبط تغيير الحساب: '), 'يتم من ملف الموظف (تبويب «البنك والصرف») بنفس القواعد: طالب ≠ معتمد · إثبات · مطابقة الاسم · حجز ' + ((st.get('settings.hrPayroll') || {}).bankHoldHours || 24) + ' ساعة · إشعار عاجل. هذه الشاشة تقرأ حالة الحساب للصرف ولا تنسخه؛ ولا يسري التغيير على دفعة مُجهَّزة.'),
+        pend.length ? SA.card({ title: 'طلبات تغيير معلّقة (' + pend.length + ')' }, h('ul.sap-plain', {}, pend.map((x) => h('li', {}, h('b', {}, x.e.name), ' — ' + (x.pr.pending.status === 'awaiting_approval' ? 'بانتظار معتمد ثانٍ' : 'قيد الحجز') + ' · ', openLink('افتح الطلب', SA.href('hr/employees/' + x.e.id + '?tab=bank')))))) : null,
+        h('div.sap-tablecard-wrap', {}, t.el), h('p.sap-hint', {}, specLink('scr-pay-05')));
+    }, ['empFiles', 'payProfiles', 'employees']);
   }
   /* payslips */
   function slipHtml(run, l) { const rows = (arr) => arr.map((x) => '<tr><td>' + SA.esc(x[0]) + '</td><td>' + SA.esc(x[1]) + '</td><td dir="ltr" style="text-align:left">' + fp(x[2]) + '</td></tr>').join(''); const d = slipLines(run, l); const wm = 'سري · ' + SA.userName(meId()) + ' · ' + new Date().toISOString().slice(0, 16).replace('T', ' ');
@@ -1593,7 +1602,7 @@
   }
   reg('hr-payments', function (root, ctx) {
     return loadScreen(root, ctx, 'الصرف ومفردات المرتب', () => {
-      applyDueBankChanges(); const actions = h('div.sap-actions'); const setActions = (n) => { SA.clear(actions); n.forEach((x) => actions.append(x)); }; const host = h('div'); const S = { run: ctx.params.run || null, tick: () => st.set('ui.payTick', Date.now()), go: null };
+      const actions = h('div.sap-actions'); const setActions = (n) => { SA.clear(actions); n.forEach((x) => actions.append(x)); }; const host = h('div'); const S = { run: ctx.params.run || null, tick: () => st.set('ui.payTick', Date.now()), go: null };
       const picker = h('div.sap-pay-picker'); let tabsApi = null; S.go = (id) => tabsApi && tabsApi.show(id);
       root.append(SA.pageHead({ title: 'الصرف ومفردات المرتب', desc: 'من الدورة المعتمدة: ملف تحويل بنكي (بروفايل عام) · كشف صرف نقدي بالفئات · تتبع الحالة وإعادة المحاولة · ضبط تغيير الحساب · نشر المفردات بشارة «سري» · ربط سند PV- للمالية. لا تكامل بنكي.', tags: [SA.tag('pending', 'بند 42 · D5'), SA.tag('open', 'ملفات البنك Open')], actions }), picker, host);
       const stopPick = SA.live(picker, () => { const runs = col('payrollRuns').filter((r) => r.lines).sort((a, b) => (a.period < b.period ? 1 : a.id < b.id ? 1 : -1)); const cur = pickRun(S.run); if (cur) S.run = cur.id; const sel = h('select.select', { 'aria-label': 'الدورة', onchange: (e) => { S.run = e.target.value; S.tick(); } }, runs.map((r) => h('option', { value: r.id, selected: cur && r.id === cur.id }, r.id + ' — ' + (RUN_ST[r.status] || [r.status])[0]))); return h('div.sap-pay-basis', {}, h('label', {}, h('b', {}, 'الدورة'), ' ', sel), cur ? runChip(cur) : null, cur ? openLink('فتح الدورة', SA.href('hr/payroll/' + cur.id)) : null); }, ['payrollRuns', 'ui.payTick']);
@@ -1724,8 +1733,8 @@
       steps: [{ text: 'اطلب سلفة بأقساط مناسبة للسقف', audit: 'HR.ADVANCE.REQUESTED' }, { text: 'اعتمد كمدير HR ثم كمالية', audit: 'HR.ADVANCE.APPROVED' }, { text: 'كصاحب الشركة: أكّد الصرف', audit: 'HR.ADVANCE.DISBURSED' }], detect: [{ audit: 'HR.ADVANCE.REQUESTED' }, { audit: 'HR.ADVANCE.APPROVED' }, { audit: 'HR.ADVANCE.DISBURSED' }] },
     { id: 'M-P5', area: 'hr', title: 'تغيير تعويض بتاريخ سريان وأثره على الدورة', persona: 'payroll', route: 'hr/salary', est: '7 د', goal: 'غيّر تعويضات موظف (يُمنع تحت الحد الأدنى للأجر)، ثم كمدير HR اعتمد الطلب من صندوق الاعتمادات: يظهر التعويض الجديد بتاريخ سريانه في ملف الموظف وفي مدخلات الدورة القادمة. لو جعلته بأثر رجعي على دورة مقفولة ولّد دورة فروق.',
       steps: [{ text: 'من «تعويضات الموظفين» اختر موظفًا واضغط «تغيير التعويضات»', audit: 'HR.SALARY.CHANGE_REQUESTED' }, { text: 'كمدير HR اعتمد الطلب (ثم المدير العام)', audit: 'HR.SALARY.CHANGE_APPROVED' }], detect: [{ audit: 'HR.SALARY.CHANGE_REQUESTED' }, { audit: 'HR.SALARY.CHANGE_APPROVED' }] },
-    { id: 'M-P6', area: 'hr', title: 'ضبط تغيير الحساب البنكي (ثنائي التحقق + حجز)', persona: 'payroll', route: 'hr/payments', est: '5 د', goal: 'اطلب تغيير حساب موظف (إثبات + مطابقة اسم). لا تستطيع اعتماده بنفسك؛ بدّل لمدير HR فيعتمده ويبدأ الحجز وتصل إشعارات عاجلة للموظف.',
-      steps: [{ text: 'من تبويب «الحسابات البنكية» اطلب تغيير حساب', audit: 'HR.BANK_ACCOUNT.CHANGE_REQUESTED' }, { text: 'كمدير HR اعتمد الطلب', audit: 'HR.BANK_ACCOUNT.CHANGE_APPROVED' }], detect: [{ audit: 'HR.BANK_ACCOUNT.CHANGE_REQUESTED' }, { audit: 'HR.BANK_ACCOUNT.CHANGE_APPROVED' }] },
+    { id: 'M-P6', area: 'hr', title: 'الصرف: حساب بنكي ناقص يوقف الدفعة ويُعالَج من ملف الموظف', persona: 'payroll', route: 'hr/payments?tab=accounts', est: '4 د', goal: 'في «الحسابات البنكية» ابحث عن الحالة «ناقص» (مصطفى/ماهر سلامة): الصف يمنع الدفعة بالبنك. افتح ملفه من الإجراءات — تغيير الحساب بمعتمد ثانٍ وحجز 24 ساعة (نفس مسار ملف الموظف). في الدورة الجديدة عالج الفحص بتحويله لنقدي.',
+      steps: [{ text: 'افتح تبويب الحسابات البنكية وفلتر «ناقص»', route: 'hr-payments' }, { text: 'من ملف الموظف اطلب تغيير الحساب', audit: 'HR.EMP.BANK_CHANGE_REQUESTED' }], detect: [{ route: 'hr-payments' }, { audit: 'HR.EMP.BANK_CHANGE_REQUESTED' }] },
     { id: 'M-P7', area: 'hr', title: 'التقارير الحكومية: صدّر تسوية التأمينات وسجّل التسليم اليدوي', persona: 'hr', route: 'hr/gov', est: '5 د', goal: 'من دورة مقفولة صدّر تقرير التسوية (Step-up + سبب) وسجّل التسليم اليدوي بإثباته. لا ادعاء تكامل مع NOSI/ETA، والاستمارات ومهلها Open.',
       steps: [{ text: 'افتح تبويب «تسوية التأمينات» وصدّر CSV', audit: 'HR.GOV.REPORT_EXPORTED' }, { text: 'سجّل التسليم اليدوي', audit: 'HR.GOV.SUBMISSION_LOGGED' }], detect: [{ audit: 'HR.GOV.REPORT_EXPORTED' }, { audit: 'HR.GOV.SUBMISSION_LOGGED' }] },
     { id: 'M-P8', area: 'hr', title: 'المدير العام: إجماليات المرتبات فقط (بدون hr.salary.view)', persona: 'gm', route: 'hr/payroll/PR-2026-10', est: '2 د', goal: 'ادخل كمدير عام وافتح كشف PR-2026-10: ترى الإجماليات والتباين وبوابتك، أما الأجور الفردية فتظهر «سري» وتتبّع الحساب ممنوع.',
@@ -1801,5 +1810,6 @@
 @media print{.sap-pay-wm{opacity:.12}}`;
   (function () { const el = document.createElement('style'); el.setAttribute('data-mod', 'hr-pay'); el.textContent = CSS; document.head.appendChild(el); })();
   /* boot: the store is created by app.js after every module has loaded → seed lazily on the next tick */
-  setTimeout(() => { try { ensure(); reconcile(); } catch (e) { console.error('[hr-pay] boot', e); } }, 0);
+  const boot = () => { if (!st.get('meta')) { setTimeout(boot, 40); return; } try { ensure(); reconcile(); } catch (e) { console.error('[hr-pay] boot', e); } };
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
 })();

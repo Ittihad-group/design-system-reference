@@ -39,7 +39,7 @@
   /* ───────────────────────── tafqit (المبلغ كتابةً — BR-DOC-10) ───────────────────────── */
   const ONES = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
   const TENS = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-  const HUND = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+  const HUND = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
   function w999(n) {
     const out = []; const hh = Math.floor(n / 100), r = n % 100;
     if (hh) out.push(HUND[hh]);
@@ -59,10 +59,10 @@
     if (pounds > 0) {
       const mil = Math.floor(pounds / 1e6), th = Math.floor((pounds % 1e6) / 1000), rest = pounds % 1000; const seg = [];
       if (mil) seg.push(unit(mil, 'مليون', 'مليونان', 'ملايين', 'مليوناً'));
-      if (th) seg.push(th === 100 ? 'مائة ألف' : th === 200 ? 'مئتا ألف' : unit(th, 'ألف', 'ألفان', 'آلاف', 'ألفاً'));
+      if (th) seg.push(th === 100 ? 'مائة ألف' : th === 200 ? 'مائتا ألف' : unit(th, 'ألف', 'ألفان', 'آلاف', 'ألفاً'));
       if (rest) seg.push(w999(rest));
       const text = seg.join(' و'); const lastTwo = pounds % 100;
-      parts.push(pounds === 1 ? 'جنيه واحد' : pounds === 2 ? 'جنيهان' : text + (lastTwo >= 3 && lastTwo <= 10 ? ' جنيهات' : ' جنيهاً'));
+      parts.push(pounds === 1 ? 'جنيه واحد' : pounds === 2 ? 'جنيهان' : text + (lastTwo === 0 ? ' جنيه' : lastTwo >= 3 && lastTwo <= 10 ? ' جنيهات' : ' جنيهاً'));
     }
     if (piasters > 0) parts.push(piasters === 1 ? 'قرش واحد' : piasters === 2 ? 'قرشان' : w999(piasters) + (piasters >= 3 && piasters <= 10 ? ' قروش' : ' قرشاً'));
     return parts.join(' و');
@@ -156,6 +156,8 @@
     if (document.querySelector('style[data-mod="hr-exit"]')) return;
     const s = document.createElement('style'); s.setAttribute('data-mod', 'hr-exit');
     s.textContent = `
+.sap-drawer.sap-size-xl{width:min(100%,880px)}
+.sap-x-calc td:nth-child(3){min-width:150px}
 .sap-x-tier{display:inline-flex;align-items:center;gap:6px;font:700 11px var(--font-body);padding:2px 9px;border-radius:999px;background:var(--color-neutral-tint);color:var(--color-neutral)}
 .sap-x-tier.is-t3{background:var(--color-warning-tint);color:var(--color-warning)}.sap-x-tier.is-t4{background:var(--color-danger-tint);color:var(--color-danger)}
 .sap-x-lock{display:inline-flex;align-items:center;gap:6px;color:var(--eg-muted);font-size:var(--text-caption)}
@@ -752,13 +754,19 @@
   const clStatusOf = (cl) => { const sd = signedDepts(cl); if (DEPTS.every((d) => sd.indexOf(d.id) >= 0)) return 'cleared'; if (waivedClear(cl)) return 'cleared_waived'; return sd.length ? 'partial' : 'open'; };
   /** merge live sources (custody from HR-08, loans from HR-15) into the stored clearance items — never deletes (BR-CLR-01) */
   function syncSources(cl) {
-    if (!cl || cl.voided) return; const cus = custodyOf(cl.employeeId); const ln = loansOf(cl.employeeId); let dirty = false;
+    if (!cl || cl.voided) return false; const cus = custodyOf(cl.employeeId); const ln = loansOf(cl.employeeId);
+    const addItems = cus.filter((cu) => !cl.items.some((i) => i.sourceRef === cu.id));
+    const closeIds = cl.items.filter((i) => { if (i.source !== 'custody' || !i.sourceRef || i.status !== 'open') return false; const cu = cus.find((c2) => c2.id === i.sourceRef); return cu && !cu.open; }).map((i) => i.id);
+    const li = cl.items.find((i) => i.source === 'loan'); let want = null;
+    if (li) { want = ln.length ? (li.status === 'charge' || li.status === 'na' ? li.status : 'blocked') : (li.status === 'blocked' ? 'cleared' : li.status); }
+    const refStr = ln.map((q) => q.id).join(',');
+    const dirty = addItems.length || closeIds.length || (li && (want !== li.status || (li.sourceRef || '') !== refStr));
+    if (!dirty) return false; // never write (and notify) when nothing changed — avoids repaint loops
     st.update('clearances', (l) => { const x = l.find((y) => y.id === cl.id); if (!x) return;
-      cus.forEach((cu) => { if (!x.items.some((i) => i.sourceRef === cu.id)) { x.items.push({ id: 'cus-' + cu.id, dept: 'store', label: 'عهدة: ' + cu.label + (cu.qty ? ' × ' + cu.qty : ''), ownerRole: 'R-06', status: cu.open ? 'open' : 'cleared', source: 'custody', sourceRef: cu.id, note: '', due: null, chargeAmount: 0, locked: true, evidence: '' }); dirty = true; } });
-      x.items.forEach((i) => { if (i.source === 'custody' && i.sourceRef) { const cu = cus.find((c2) => c2.id === i.sourceRef); if (cu && !cu.open && i.status === 'open') { i.status = 'cleared'; i.note = 'أُعيدت في HR-08'; dirty = true; } } });
-      const li = x.items.find((i) => i.source === 'loan'); if (li) { const want = ln.length ? (li.status === 'charge' || li.status === 'na' ? li.status : 'blocked') : (li.status === 'blocked' ? 'cleared' : li.status); if (want !== li.status) { li.status = want; dirty = true; } li.sourceRef = ln.map((q) => q.id).join(','); }
-    });
-    return dirty;
+      addItems.forEach((cu) => x.items.push({ id: 'cus-' + cu.id, dept: 'store', label: 'عهدة: ' + cu.label + (cu.qty ? ' × ' + cu.qty : ''), ownerRole: 'R-06', status: cu.open ? 'open' : 'cleared', source: 'custody', sourceRef: cu.id, note: '', due: null, chargeAmount: 0, locked: true, evidence: '' }));
+      x.items.forEach((i) => { if (closeIds.indexOf(i.id) >= 0) { i.status = 'cleared'; i.note = 'أُعيدت في HR-08'; } });
+      const l2 = x.items.find((i) => i.source === 'loan'); if (l2) { l2.status = want; l2.sourceRef = refStr; } });
+    return true;
   }
   function syncStatus(clId) { const cl = clById(clId); if (!cl) return; const ns = clStatusOf(cl); if (ns !== cl.status) { st.patch('clearances', clId, { status: ns }); if (ns === 'cleared' || ns === 'cleared_waived') { SA.audit('HR.CLEARANCE.CLOSED', { target: { type: 'clearance', id: clId, label: 'إخلاء طرف — ' + empName(cl.employeeId) }, after: { status: ns } }); SA.notify({ title: 'اكتمل إخلاء الطرف: ' + empName(cl.employeeId), body: 'المخالصة جاهزة للحساب والاعتماد.', level: 'action', to: ['R-11', 'R-13'], link: '#/hr/settlement' }); } } }
   const deptItems = (cl, d) => cl.items.filter((i) => i.dept === d);

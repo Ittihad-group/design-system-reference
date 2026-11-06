@@ -5,6 +5,8 @@
    empSkills, assignOverrides, clawbacks, trainingNeeds, jobRequired, penaltyCatalog, violations, grievances, harassment, dismissals, legalCases, incidents, fitness,
    ppeLog, toolboxTalks, regTasks, ohsMeetings, recognitionTypes, awards, incentiveSchemes, incentiveSheets, suggestions, surveys, surveyParts, surveyAnswers,
    retentionFlags, payrollInputs (مدخلات للمرتبات) + settings.hrProtect.
+   مواءمة: `violations` (VIO-) و`incidents` (INC-) مشتركتان مع وحدة «خدماتي/فريقي» (mod-hr-ess.js) — تُكمَل سجلاتها تلقائيًا بـnormalizeAll() (kind/catalogId/discoveredAt/classified/capas…) فتظهر هنا للفرز والتحقيق.
+   كذلك: salaryChanges بحالة draft (مصدر performance) · leaveRequests (إجازة مرضية مثبتة certified) · trainingNeeds · payrollInputs {kind: deduction_days|incentive|award}.
    API للوحدات الأخرى: SA.hrProtect.{skillCheck, assignMachine, fitnessStatus, sickLeaveBlock, safetyKpis}. */
 (function () {
   'use strict';
@@ -215,7 +217,7 @@
     SA.register({
       app: 'hr', id: def.id, group: 'hr-dev', title: def.title, icon: def.icon, route: def.route, perm: def.perm, order: def.order, desc: def.desc, badge: def.badge,
       render(root, ctx) {
-        ensureSeed(); reconcile();
+        ensureSeed(); normalizeAll(); reconcile();
         ctx.setCrumbs([{ label: 'التطوير والحماية' }, { label: def.title }]);
         const head = h('div'); const tabsHost = h('div'); const view = h('div.sap-hp-view'); root.append(head, tabsHost, view);
         const tabs = def.tabs.filter((t) => !t.when || t.when());
@@ -336,6 +338,41 @@
     return { months, lti, recordable, nearMiss, lostDays, hours, base1, base2, ltifr: ok ? lti * base1 / hours : null, trir: ok ? recordable * base2 / hours : null, severityRate: ok ? lostDays * base1 / hours : null, nearMissRatio: recordable ? nearMiss / recordable : null, daysSinceLti: lastLti ? dd(String(lastLti.occurredAt).slice(0, 10), T()) : null, total: inc.length };
   }
 
+
+  /* ───────────── مواءمة مع سجلات وحدة «خدماتي/فريقي» (violations / incidents) ─────────────
+     وحدة ESS تكتب في نفس المجموعتين بشكل أخف: violations {employeeId, reporterId(empId), type, date, description, status, channel}
+     و incidents {type, location, description, employeeId, reporterId, severity:'high|medium', status, channel, createdAt}.
+     هذه الدالة (متكررة وآمنة) تُكمل الحقول الناقصة فتصبح السجلات قابلة للفرز والتحقيق هنا. */
+  const userOfEmp = (id) => { const e = emp(id); return e && e.userId ? e.userId : id; };
+  function normalizeAll() {
+    if (!st.get('meta.hrProtectSeeded')) return;
+    const needV = L('violations').some((v) => v.kind === undefined || v.discoveredAt === undefined);
+    if (needV) st.update('violations', (l) => l.forEach((v) => {
+      if (v.kind !== undefined && v.discoveredAt !== undefined) return;
+      const cat = L('penaltyCatalog').find((c) => v.type && c.name.indexOf(String(v.type)) >= 0) || L('penaltyCatalog').find((c) => c.id === 'V-99');
+      v.kind = v.kind || 'violation'; v.catalogId = v.catalogId || (cat ? cat.id : 'V-99'); v.title = v.title || v.type || 'مخالفة';
+      v.reportedBy = v.reportedBy || userOfEmp(v.reporterId); v.discoveredAt = v.discoveredAt || v.date || String(v.createdAt || new Date().toISOString()).slice(0, 10);
+      v.reportedAt = v.reportedAt || v.createdAt || new Date().toISOString(); v.status = v.status || 'reported'; v.investigatorId = v.investigatorId || null; v.minutes = v.minutes || null; v.decision = v.decision || null;
+      v.log = v.log || [{ at: v.reportedAt, by: v.reportedBy, text: 'بلاغ من المشرف عبر «فريقي»' }];
+    }));
+    const needI = L('incidents').some((i) => i.classified === undefined);
+    if (needI) st.update('incidents', (l) => l.forEach((i) => {
+      if (i.classified !== undefined) return;
+      const t = ({ injury: 'injury', near_miss: 'near_miss', hazard: 'unsafe', other: 'damage', unsafe: 'unsafe', damage: 'damage' })[i.type] || 'near_miss';
+      i.type = t; i.severity = SEV_INC[i.severity] ? i.severity : (t === 'injury' ? 'first_aid' : 'near_miss'); i.classified = false;
+      i.occurredAt = i.occurredAt || i.createdAt || new Date().toISOString(); i.reportedAt = i.reportedAt || i.createdAt || i.occurredAt;
+      i.personId = i.personId !== undefined ? i.personId : (i.employeeId || null); i.reporterId = userOfEmp(i.reporterId); i.bodyPart = i.bodyPart || ''; i.photos = i.photos != null ? i.photos : (i.photo ? 1 : 0);
+      i.recordable = !!i.recordable; i.lostDays = i.lostDays || 0; i.serious = !!i.serious; i.investigation = i.investigation || null; i.capas = i.capas || []; i.injury = i.injury || null; i.status = i.status || 'reported';
+    }));
+  }
+  /** يدمج بذور الوحدة مع ما كتبته وحدات أخرى قبل البذر؛ لو تعارض رقم يُعاد ترقيم السجل الوارد */
+  function mergeColl(coll, rows, prefix) {
+    const keep = L(coll).filter((x) => x && x.id).map((x) => Object.assign({}, x));
+    let max = 0; rows.concat(keep).forEach((r) => { const m = new RegExp('^' + prefix + '-(\\d+)$').exec(r.id); if (m) max = Math.max(max, +m[1]); });
+    keep.forEach((x) => { if (rows.some((r) => r.id === x.id)) { max++; x.id = prefix + '-' + String(max).padStart(4, '0'); } });
+    st.set(coll, rows.concat(keep));
+  }
+
   /* ───────────────────────── البذر (مرة واحدة) ───────────────────────── */
   function ensureSeed() {
     if (st.get('meta.hrProtectSeeded') || !st.get('employees')) return;
@@ -438,14 +475,14 @@
     const V = (id, name, sev, clause, pens, days, mgr) => ({ id, name, severity: sev, clause, allowed: pens, deductionDays: days, managerCanDecide: mgr, active: true });
     P('penaltyCatalog', [V('V-01', 'التأخر عن بدء الوردية دون إذن', 'minor', 'مادة 12 (تجريبي)', ['warning', 'deduction'], 1, true), V('V-02', 'ترك موقع العمل أثناء الوردية دون إذن', 'minor', 'مادة 13 (تجريبي)', ['warning', 'deduction'], 2, true), V('V-03', 'عدم ارتداء معدات الوقاية الشخصية', 'moderate', 'مادة 18 (تجريبي)', ['warning', 'deduction', 'defer_raise'], 2, true), V('V-04', 'الإهمال في تشغيل الماكينة', 'moderate', 'مادة 19 (تجريبي)', ['warning', 'deduction', 'defer_raise'], 3, true), V('V-05', 'مخالفة تعليمات السلامة المعلنة', 'serious', 'مادة 21 (تجريبي)', ['warning', 'deduction', 'withhold_half_raise', 'defer_promotion'], 4, false), V('V-06', 'الإخلال بسلامة الخامات أو المنتج', 'serious', 'مادة 22 (تجريبي)', ['warning', 'deduction', 'defer_promotion'], 5, false), V('V-07', 'السلوك المسيء أو التشاجر داخل المصنع', 'serious', 'مادة 24 (تجريبي)', ['warning', 'deduction', 'defer_promotion', 'demote'], 5, false), V('V-99', 'أخرى (تُراجَع بواسطة HR)', 'moderate', '—', ['warning', 'deduction'], 1, false)]);
     const mins = (txt) => ({ heldAt: D(-3), attendees: 'المحقق · الموظف · شاهد (تجريبي)', statements: txt, defence: 'أقوال الموظف ودفاعه مدوّنة (بيانات تجريبية).', oralException: false, recommendation: 'إنذار كتابي', savedAt: AGO(3), savedBy: 'U-08' });
-    P('violations', [
+    mergeColl('violations', [
       { id: 'VIO-2026-0001', kind: 'violation', employeeId: 'E-1021', catalogId: 'V-03', description: 'لم يرتدِ نظارة الوقاية أثناء تشغيل ماكينة القص (بلاغ تجريبي).', reportedBy: 'U-27', discoveredAt: D(-2), reportedAt: AGO(1.8), status: 'reported', investigatorId: null, notifiedAt: null, hearingAt: null, minutes: null, decision: null, log: [{ at: AGO(1.8), by: 'U-27', text: 'بلاغ من المشرف المباشر' }] },
       { id: 'VIO-2026-0002', kind: 'violation', employeeId: 'E-1023', catalogId: 'V-02', description: 'غادر موقع العمل ساعة ونصف دون استئذان (بلاغ تجريبي).', reportedBy: 'U-27', discoveredAt: D(-9), reportedAt: AGO(8.5), status: 'hearing', investigatorId: 'U-08', notifiedAt: D(-6), notifyMethod: 'hand', hearingAt: D(1), minutes: null, decision: null, log: [{ at: AGO(8.5), by: 'U-27', text: 'بلاغ من المشرف المباشر' }, { at: AGO(7), by: 'U-08', text: 'فتح الملف وتعيين المحقق' }, { at: AGO(6), by: 'U-25', text: 'تسليم الإخطار باليد وتوقيع الاستلام' }] },
       { id: 'VIO-2026-0003', kind: 'violation', employeeId: 'E-1022', catalogId: 'V-01', description: 'تأخر متكرر عن بدء الوردية (بيانات تجريبية).', reportedBy: 'U-27', discoveredAt: D(-20), reportedAt: AGO(19), status: 'delivered', investigatorId: 'U-08', notifiedAt: D(-14), notifyMethod: 'hand', hearingAt: D(-10), minutes: mins('أقوال المخالف وشهادة المشرف.'), decision: { penalty: 'deduction', days: 2, reasons: 'تأخر متكرر ثابت بسجل الحضور وبعد التنبيه الشفهي ولم يقدم عذرًا مقبولًا (تسبيب تجريبي).', decidedBy: 'U-08', decidedAt: monthStart, delivered: true, deliveredAt: monthStart, method: 'hand' }, log: [{ at: AGO(19), by: 'U-27', text: 'بلاغ من المشرف المباشر' }, { at: AGO(5), by: 'U-08', text: 'قرار جزاء: خصم 2 يوم' }] },
       { id: 'VIO-2026-0004', kind: 'violation', employeeId: 'E-1025', catalogId: 'V-05', description: 'تجاوز حدود المنطقة الآمنة أثناء تشغيل ماكينة الدهان للمرة الثانية بعد إنذار كتابي (بيانات تجريبية).', reportedBy: 'U-27', discoveredAt: D(-25), reportedAt: AGO(24), status: 'hearing', investigatorId: 'U-08', notifiedAt: D(-20), notifyMethod: 'hand', hearingAt: D(-15), minutes: mins('وقائع التجاوز المتكرر وإنذار سابق موثّق.'), decision: null, log: [{ at: AGO(24), by: 'U-27', text: 'بلاغ من المشرف المباشر' }, { at: AGO(15), by: 'U-08', text: 'حفظ محضر التحقيق' }] },
       { id: 'VIO-2026-0005', kind: 'note', employeeId: 'E-1020', catalogId: null, description: 'توجيه شفهي بخصوص ترتيب الأدوات في نهاية الوردية (ملاحظة — لا جزاء).', reportedBy: 'U-27', discoveredAt: D(-4), reportedAt: AGO(4), status: 'noted', investigatorId: null, minutes: null, decision: null, log: [{ at: AGO(4), by: 'U-27', text: 'ملاحظة مسجّلة' }] },
       { id: 'VIO-2026-0006', kind: 'violation', employeeId: 'E-1027', catalogId: 'V-07', description: 'مشادة حادة مع زميل أثناء الوردية (بيانات تجريبية).', reportedBy: 'U-27', discoveredAt: D(-18), reportedAt: AGO(17), status: 'hearing', investigatorId: 'U-08', notifiedAt: D(-12), notifyMethod: 'hand', hearingAt: D(-8), minutes: mins('أقوال الطرفين والشهود.'), decision: null, log: [{ at: AGO(17), by: 'U-27', text: 'بلاغ من المشرف المباشر' }, { at: AGO(8), by: 'U-08', text: 'حفظ محضر التحقيق' }] }
-    ]);
+    ], 'VIO-2026');
     P('grievances', [{ id: 'GRV-2026-0001', employeeId: 'E-1022', violationId: 'VIO-2026-0003', reason: 'أعترض على الخصم لأن التأخر كان بسبب انقطاع المواصلات (نص تجريبي).', filedAt: AGO(3), dueAt: null, stage: 'under_review', outcome: null, decidedBy: null }]);
     P('harassment', [{ id: 'HAR-2026-0001', followCode: 'HAR-7K3Q-92', complainantId: null, againstId: 'E-1029', description: 'شكوى سرية: تعليقات مسيئة متكررة داخل الوردية (نص تجريبي بلا تفاصيل حقيقية).', receivedAt: AGO(2), status: 'received', handlerNote: '', conflict: false, log: [{ at: AGO(2), text: 'استُلمت الشكوى عبر القناة السرية' }] }]);
     P('dismissals', []);
@@ -459,7 +496,7 @@
     incs.find((x) => x.id === 'INC-2026-0006').capas = [{ id: 'CAPA-01', type: 'corrective', description: 'تركيب حاجز حماية على خط التحميل', ownerId: 'U-13', dueOn: D(10), status: 'in_progress', evidence: null, verifiedAt: null }, { id: 'CAPA-02', type: 'preventive', description: 'تدريب فريق التحميل على المناولة الآمنة', ownerId: 'U-28', dueOn: D(3), status: 'open', evidence: null, verifiedAt: null }];
     incs.find((x) => x.id === 'INC-2026-0005').capas = [{ id: 'CAPA-01', type: 'corrective', description: 'استبدال نظارات الوقاية المخدوشة بالخط', ownerId: 'U-13', dueOn: D(-1), status: 'awaiting_verification', evidence: 'صور التركيب (تجريبي)', verifiedAt: null }];
     incs.find((x) => x.id === 'INC-2026-0006').injury.insuranceTaskId = 'RT-2026-001';
-    P('incidents', incs);
+    mergeColl('incidents', incs, 'INC-2026');
     P('regTasks', [{ id: 'RT-2026-001', incidentId: 'INC-2026-0006', title: 'إخطار التأمينات الاجتماعية بإصابة العمل', authority: 'هيئة التأمينات الاجتماعية', basis: 'مادة 63 قانون 148/2019 — Pending', due: null, assignee: 'U-28', status: 'open', proof: null, createdAt: AGO(6), createdBy: 'U-28', doneBy: null }, { id: 'RT-2026-002', incidentId: null, title: 'الإحصاء نصف السنوي للإصابات (يناير/يوليو) — منشأة 30+ عاملًا', authority: 'الجهة المختصة بالسلامة {Open}', basis: 'Pending — قرارات 2026 لم تُقرأ', due: null, assignee: 'U-28', status: 'open', proof: null, createdAt: AGO(30), createdBy: 'U-28', doneBy: null }]);
     const FIT = [['E-1017', 'fit', 200, 165, '', ''], ['E-1020', 'fit', 150, 215, '', ''], ['E-1021', 'fit', 330, 35, '', ''], ['E-1022', 'fit', 400, -35, '', ''], ['E-1023', 'fit', 100, 265, '', ''], ['E-1024', 'fit_restricted', 120, 245, 'لا رفع فوق 15 كجم', 'ملاحظة طبية تجريبية (T4)'], ['E-1025', 'fit', 180, 185, '', ''], ['E-1026', 'unfit', 20, 345, 'غير لائق للمهام الحرجة مؤقتًا', 'ملاحظة طبية تجريبية (T4)'], ['E-1027', 'fit', 250, 115, '', ''], ['E-1028', 'fit', 355, 10, '', ''], ['E-1029', 'fit', 90, 275, '', ''], ['E-1030', 'fit', 140, 225, '', '']];
     P('fitness', FIT.map((r, i) => ({ id: 'FT-' + String(i + 1).padStart(3, '0'), employeeId: r[0], type: 'periodic', result: r[1], restrictions: r[4], medicalNote: r[5] || 'لا ملاحظات (T4 — بيانات تجريبية)', facility: 'جهة طبية معتمدة (تجريبي)', examDate: D(-r[2]), nextDue: D(r[3]), reportFile: 'medical-' + r[0] + '.pdf (T4)' })));
@@ -479,7 +516,7 @@
     const SQ = [['q1', 'أشعر بالأمان أثناء العمل'], ['q2', 'أحصل على التدريب الذي أحتاجه'], ['q3', 'مشرفي يعاملني باحترام'], ['q4', 'معايير الحوافز عادلة'], ['q5', 'أنصح صديقًا بالعمل هنا']];
     P('surveys', [{ id: 'SV-2026-Q4', title: 'نبض الربع الرابع 2026', questions: SQ.map((q) => ({ id: q[0], text: q[1] })), groups: ['D-09', 'D-10', 'D-11', 'D-12'], minGroupSize: null, opensAt: D(-6), closesAt: D(8), status: 'open', createdBy: 'U-08' }]);
     const counts = { 'D-09': 6, 'D-10': 5, 'D-11': 2, 'D-12': 4 }; const parts = []; const answers = [];
-    Object.keys(counts).forEach((g, gi) => { const members = emps().filter((e) => e.departmentId === g && e.status !== 'terminated'); for (let i = 0; i < counts[g]; i++) { if (members[i]) parts.push({ surveyId: 'SV-2026-Q4', employeeId: members[i].id, at: AGO(1 + i) }); SQ.forEach((q, qi) => answers.push({ surveyId: 'SV-2026-Q4', groupKey: g, questionId: q[0], value: 2 + ((i * 3 + qi * 2 + gi) % 4) })); } });
+    Object.keys(counts).forEach((g, gi) => { const members = emps().filter((e) => e.departmentId === g && e.status !== 'terminated'); for (let i = 0; i < Math.min(counts[g], members.length); i++) { if (members[i]) parts.push({ surveyId: 'SV-2026-Q4', employeeId: members[i].id, at: AGO(1 + i) }); SQ.forEach((q, qi) => answers.push({ surveyId: 'SV-2026-Q4', groupKey: g, questionId: q[0], value: 2 + ((i * 3 + qi * 2 + gi) % 4) })); } });
     P('surveyParts', parts); P('surveyAnswers', answers);
     P('retentionFlags', [{ id: 'RF-001', employeeId: 'E-1021', rule: 'تأخير متكرر', reason: 'تأخيرات متكررة خلال الفترة الأخيرة (إشارة محادثة فقط).', flaggedAt: AGO(6), status: 'flagged', note: '' }]);
     P('payrollInputs', L('payrollInputs'));
@@ -1295,7 +1332,7 @@
   function dismissalWizard(prefVio) {
     const cands = L('violations').filter((v) => v.kind === 'violation' && !!v.minutes && ['noted', 'referred'].indexOf(v.status) < 0);
     let step = 0; const body = h('div.sap-confirm'); let vio = prefVio || ''; let ground = ''; let evid = ''; let checks = null;
-    const m = SA.modal({ title: 'طلب فصل = ملف قضية', subtitle: 'لا يوجد زر «فصل». هذا الملف يمرّ HR ← قانوني ← GM ثم يُحضَّر للمحكمة العمالية؛ الإنهاء لا يُنفَّذ إلا بحكم نهائي.', icon: 'alert', size: 'lg', danger: true, body, foot: [] });
+    const m = SA.modal({ title: 'طلب فصل = ملف قضية', subtitle: 'لا يوجد زر «فصل». هذا الملف يمرّ HR ← قانوني ← GM ثم يُحضَّر للمحكمة العمالية؛ الإنهاء لا يُنفَّذ إلا بحكم نهائي.', icon: 'alert', size: 'lg', danger: true, body, foot: [h('span')] });
     function runChecks() { const v = find('violations', vio); const e = v ? emp(v.employeeId) : null; const sick = e ? sickLeaveBlock(e.id) : null; checks = [{ ok: !!(v && v.minutes), l: 'تحقيق مكتوب مكتمل (محضر محفوظ)' }, { ok: !!ground, l: 'سبب من الأسباب السبعة المحصورة (مادة 148)' }, { ok: !sick, l: sick ? 'الموظف في إجازة مرضية مثبتة حتى ' + fd(sick.to) + ' — حظر آلي ولا تجاوز' : 'الموظف ليس في إجازة مرضية مثبتة', hard: !!sick }, { ok: !L('dismissals').some((d) => d.violationId === vio && ['rejected', 'returned'].indexOf(d.status) < 0), l: 'لا طلب فصل مفتوح لنفس الملف' }]; return checks; }
     function render() {
       SA.clear(body); SA.clear(m.foot);
@@ -1842,8 +1879,10 @@
     } catch (e) { console.error('[hr-protect] reconcile', e); } finally { recBusy = false; }
   }
   st.subscribe('approvals', () => { setTimeout(reconcile, 0); });
+  st.subscribe('violations', () => { setTimeout(normalizeAll, 0); });
+  st.subscribe('incidents', () => { setTimeout(normalizeAll, 0); });
   st.subscribe('leaveRequests', () => { /* الحظر يُفحص لحظة الاستعمال (حيّ) */ });
-  SA.on('login', () => { setTimeout(() => { ensureSeed(); reconcile(); }, 50); });
+  SA.on('login', () => { setTimeout(() => { ensureSeed(); normalizeAll(); reconcile(); }, 50); });
 
   /** ملخص تأديبي لتبويب ملف الموظف (HR-06) — T4: يرجع null لمن لا يملك hr.discipline.view */
   SA.hrProtect.disciplineSummary = function (empId) { if (!SA.can('hr.discipline.view')) return null; const v = L('violations').filter((x) => x.employeeId === empId); return { cases: v.length, open: v.filter((x) => ['reported', 'open', 'hearing', 'decided'].indexOf(x.status) >= 0).length, lastDecision: (v.filter((x) => x.decision).sort((a, b) => (a.decision.decidedAt < b.decision.decidedAt ? 1 : -1))[0] || {}).decision || null }; };
