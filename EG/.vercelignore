@@ -1,0 +1,12 @@
+# Vercel deploys the interactive demo (prototype/) + its shared css/js/assets + the HTML spec pages the demo links to.
+# Internal material must NOT be public: plan, open questions, design notes, sample PDFs, handoff, scripts.
+/docs
+/handoff
+/scripts
+/screens
+/assets/samples
+/assets/previews
+/assets/ASSETS.md
+/*.md
+/.env*
+/.vercel

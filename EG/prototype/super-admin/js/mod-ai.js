@@ -557,12 +557,33 @@ body:has(.sap-drawer, .sap-modal) .xai-fab, body.sap-tl-open .xai-fab { opacity:
       chart: stRows.length ? { type: 'bars', title: 'الهالك حسب المرحلة (كجم) — ' + per, fmt: 'num', data: stRows.slice(0, 8).map((s) => ({ label: s.name, value: Math.round(s.kg), color: s.ratio != null && s.ratio > TOL ? '#b9141b' : '#345383', route: 'mfg/scrap?stage=' + s.stageId })) } : null,
       links: [{ label: 'الهوالك وإعادة التدوير', route: 'mfg/scrap' }, streak && sm ? { label: 'الماكينة ' + sm.id, route: 'care/assets/' + sm.id } : null].filter(Boolean) };
   }
+  /* مسار التصنيع والمخازن — WIP per stage (ERP.factory.wipAt) + issue vouchers waiting at the raw storekeeper + finished-goods receipts waiting at the FG storekeeper */
+  function ansFloor(n) {
+    const FXs = ERP.factory; if (!FXs || !FXs.wipAt) return null;
+    const held = {}; get('workOrders').filter((w) => w.status === 'on_hold').forEach((w) => FXs.stageView(w).forEach((x) => { if (x.avail > 0) held[x.stageId] = (held[x.stageId] || 0) + x.avail; }));
+    const rows = Object.keys(FXs.STAGES).map((id) => ({ id, name: FXs.stageName(id), wip: FXs.wipAt(id), held: held[id] || 0, mc: FXs.machinesOf(id).length })).filter((r) => r.wip > 0).sort((a, b) => (b.wip - b.held) - (a.wip - a.held) || b.wip - a.wip);
+    const mirs = get('issueRequests').filter((m) => m.status === 'pending' || m.status === 'partial');
+    const fgrs = get('fgReceipts').filter((r) => r.status === 'pending');
+    const waitIssue = get('workOrders').filter((w) => w.status === 'released' && !w.issued);
+    const top = rows[0];
+    const heldTot = rows.reduce((x, r) => x + r.held, 0); const lineDown = get('lines').filter((l) => l.status === 'down');
+    let text = rows.length ? 'الشغل اللي مستني على المراحل دلوقتي: ' + rows.slice(0, 5).map((r) => r.name + ' ' + num(r.wip) + (r.held ? ' (منها ' + num(r.held) + ' واقفة)' : '')).join('، ') + '. أكتر مرحلة متكوّم عندها شغل شغّال «' + top.name + '» (' + num(top.wip - top.held) + ' قطعة' + (top.mc === 1 ? ' على ماكينة واحدة' : '') + ').' + (heldTot ? ' فيه ' + num(heldTot) + ' قطعة على أوامر متوقفة' + (lineDown.length ? ' بسبب عطل ' + lineDown.map((l) => l.name).join('، ') : '') + '.' : '') : 'مفيش شغل متكوّم على المراحل دلوقتي.';
+    text += mirs.length ? ' عند أمين مخزن الخامات ' + pl(mirs.length, ['إذن صرف واحد', 'إذنين صرف', 'أذون صرف', 'إذن صرف']) + ' مستني (' + mirs.map((m) => m.id + ' لـ' + m.woId + (m.status === 'partial' ? ' — صرف جزئي' : '') + ' من ' + SA.fmt.rel(m.requestedAt)).join('، ') + ')' + (waitIssue.length ? '، وده موقّف ' + pl(waitIssue.length, ['أمر تشغيل', 'أمرين تشغيل', 'أوامر تشغيل', 'أمر تشغيل']) + ' عن البدء' : '') + '.' : ' مفيش أذون صرف مستنية عند أمين مخزن الخامات.';
+    if (fgrs.length) text += ' وعند أمين مخزن المنتج التام ' + pl(fgrs.length, ['إذن استلام واحد', 'إذنين استلام', 'أذون استلام', 'إذن استلام']) + ' (' + fgrs.map((r) => r.id + ': ' + num(r.qty) + ' ' + first2(ERP.itemName(r.itemId))).join('، ') + ') — البضاعة دي مش داخلة المخزن ولا محجوزة للعملاء لحد ما يستلمها.';
+    return { tone: mirs.length || fgrs.length ? 'warning' : null, text,
+      table: rows.length ? { cols: ['المرحلة', 'قطع مستنية', 'الماكينات'], num: [1, 2], rows: rows.slice(0, 10).map((r) => [L(r.name, 'mfg/flow'), num(r.wip) + (r.held ? ' (' + num(r.held) + ' واقفة)' : ''), String(r.mc)]) } : null,
+      chart: rows.length ? { type: 'bars', title: 'الشغل المستني حسب المرحلة (قطعة)', fmt: 'num', data: rows.slice(0, 8).map((r) => ({ label: r.name, value: r.wip, color: r === top ? '#b9141b' : '#345383', route: 'mfg/flow' })) } : null,
+      links: [{ label: 'مسار التصنيع', route: 'mfg/flow' }, mirs.length ? { label: 'أذون الصرف', route: 'scm/issues' } : null, fgrs.length ? { label: 'استلام الإنتاج التام', route: 'scm/fg-receipts' } : null].filter(Boolean) };
+  }
+  intent({ id: 'floor', label: 'مسار التصنيع والمخازن', need: ['exec.dashboard.view', 'mfg.flow.view', 'scm.issues.view', 'scm.fgreceipts.view'], w: 7,
+    req: ['مرحله', 'مراحل', 'متكوم', 'متكومه', 'عنق الزجاجه', 'زحمه', 'اذن صرف', 'اذون صرف', 'صرف خامات', 'صرف الخامات', 'امين المخزن', 'امين مخزن', 'استلام انتاج', 'استلام الانتاج', 'تحت التشغيل', 'wip', 'مسار التصنيع', 'الخلاطه', 'خلاطه'], answer: ansFloor });
   intent({ id: 'scrap', label: 'الهوالك والمطحون', need: ['exec.dashboard.view', 'mfg.scrap.view'], w: 8, req: ['هوالك', 'هالك', 'فاقد', 'هادر', 'مطحون', 'طحن', 'كساره', 'خرده', 'scrap', 'regrind'], answer: ansScrap });
 
   const sampleSO = () => { const all = M.orders(); const pref = all.find((o) => o.id === 'SO-2026-0480'); if (pref) return pref.id; const o = all.find((x) => M.OPEN_SO.indexOf(x.status) >= 0) || all[0]; return o ? o.id : null; };
   const SUGG = [['مبيعات الشهر', 'sales'], ['قارن بالشهر اللي فات', 'compare'], ['حالة خطوط الإنتاج والـOEE', 'lines'], ['مين متأخر في السداد؟', 'overdue'], ['الخامات اللي هتخلص', 'materials'], ['إيه اللي مستني موافقتي؟', 'approvals'], ['__SO__', 'orderStatus'], ['أكبر العملاء', 'topCustomers'],
     ['حالة طلبيات التصدير', 'export'], ['الكاش المتاح', 'cash'], ['الشيكات المستحقة', 'cheques'], ['أوامر التشغيل المتأخرة', 'lateWO'], ['أرباح الشهر', 'profit'], ['أداء المندوبين', 'reps'], ['المعارض والعائد', 'expo'], ['الشكاوى المفتوحة', 'complaints'], ['الأعطال والصيانة', 'maintenance'], ['توقع مبيعات الشهور الجاية', 'forecast'], ['مؤشرات الجودة', 'quality'], ['اعمل طلب شراء لفويل الديكور', 'prq']];
   SUGG.splice(3, 0, ['الهوالك والفاقد آخر 30 يوم', 'scrap']);
+  SUGG.splice(4, 0, ['الشغل متكوّم عند أنهي مرحلة؟', 'floor']);
   const okIntent = (id) => { const it = byId[id]; if (!allowed(it)) return false; if (id === 'profit') return ERP.ui.canProfit(); if (id === 'orderStatus') return !!sampleSO(); return true; };
   function suggestions(n, skip) { skip = skip || []; return SUGG.filter((s) => okIntent(s[1])).map((s) => (s[0] === '__SO__' ? 'حالة طلب ' + sampleSO() : s[0])).filter((t) => skip.indexOf(t) < 0).slice(0, n || 6); }
 

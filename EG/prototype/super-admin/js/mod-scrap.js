@@ -174,7 +174,7 @@ a.scr-step:hover, a.scr-step:focus-visible, .scr-split a:hover { border-color: v
   /** stages whose scrap TODAY (from the work-order stage reports) is above standard + tolerance — same basis as the foundation alert */
   function todayOver() {
     const t = ERP.day(0); const kg = {}, mc = {};
-    get('scrapLogs').forEach((l) => { if (l.date !== t) return; kg[l.stageId] = (kg[l.stageId] || 0) + l.kg; if (l.machineId) { const k = l.stageId; mc[k] = mc[k] || {}; mc[k][l.machineId] = (mc[k][l.machineId] || 0) + l.kg; } });
+    get('scrapLogs').forEach((l) => { if (l.reversed || l.date !== t) return; kg[l.stageId] = (kg[l.stageId] || 0) + l.kg; if (l.machineId) { const k = l.stageId; mc[k] = mc[k] || {}; mc[k][l.machineId] = (mc[k][l.machineId] || 0) + l.kg; } });
     const ids = Object.keys(kg); if (!ids.length) return [];
     const memo = {}; const uk = (itemId, track) => { const k = itemId + '|' + track; if (memo[k] == null) memo[k] = FX.unitKg(itemId, track); return memo[k]; };
     const wos = get('workOrders');
@@ -190,7 +190,7 @@ a.scr-step:hover, a.scr-step:focus-visible, .scr-split a:hover { border-color: v
     p = Math.max(1, Math.min(90, Number(p) || 30));
     const b = base(), UI = unitsIdx(); const T = ERP.day(0);
     const dates = daysBack(p); const from = dates[0], to = T; const d7 = daysBack(7);
-    const all = get('scrapLogs'); const logs = all.filter((l) => l.date >= from && l.date <= to);
+    const all = get('scrapLogs'); const logs = all.filter((l) => !l.reversed && l.date >= from && l.date <= to);
     const stats = FX.scrapStats({ from, to });
     const dk = {}; const lim = ERP.day(-32); all.forEach((l) => { if (l.date < lim) return; const k = l.date + '|' + l.stageId; dk[k] = (dk[k] || 0) + l.kg; });
     const dayRatio = (sid, d) => { const al = thrDay(b, UI, sid, d) * FX.stdPct(sid); return al > 0 ? (dk[d + '|' + sid] || 0) / al : null; };
@@ -275,7 +275,7 @@ a.scr-step:hover, a.scr-step:focus-visible, .scr-split a:hover { border-color: v
     const out = [];
     const over = a.stages.filter((s) => s.streak >= 3).sort((x, y) => y.streak - x.streak)[0];
     if (over) { const m = topMachineOf(a, over.stageId); const late = m ? pmLate(m.mc) : 0; const ck = FX.compoundCostKg();
-      const since = ERP.day(-over.streak); const rk = {}; get('scrapLogs').forEach((l) => { if (l.stageId === over.stageId && l.date >= since && !l.normal) rk[l.reasonId] = (rk[l.reasonId] || 0) + l.kg; });
+      const since = ERP.day(-over.streak); const rk = {}; get('scrapLogs').forEach((l) => { if (!l.reversed && l.stageId === over.stageId && l.date >= since && !l.normal) rk[l.reasonId] = (rk[l.reasonId] || 0) + l.kg; });
       const topR = Object.keys(rk).sort((x, y) => rk[y] - rk[x])[0]; const cut = ['ST-TRIM', 'ST-CUT', 'ST-CLCUT'].indexOf(over.stageId) >= 0;
       out.push({ tone: 'danger', title: 'السبب الأرجح: ' + (m ? m.id + ' ' + m.name : over.name), text: 'هالك ' + over.name + ' بيزيد من ' + over.streak + ' أيام (آخر 7 أيام ' + idxT(over.ratio7) + ' من المسموح)' + (m ? ' وأغلبه على ' + m.id : '') + (topR ? '، وأكتر سبب غير طبيعي «' + FX.reasonLabel(topR) + '»' : '') + (late ? '، والصيانة الوقائية للماكينة متأخرة ' + late + ' يوم' : '') + '. الزيادة التدريجية يوم بعد يوم بتشير ' + (cut ? 'لتآكل السكينة/المنشار' : 'لمشكلة في الماكينة أو الضبط') + '. التوصية: ' + (cut ? 'تغيير/سن السكينة' : 'فحص الماكينة') + (late ? ' وتنفيذ الوقائية المتأخرة' : '') + ' — الزيادة عن المسموح ≈ ' + kgTxt(over.excessStreak) + (canCost() ? ' (≈ ' + fm.short(over.excessStreak * ck) + ')' : '') + '.',
         actions: [m && openable('care/assets/' + m.id) ? { label: 'الماكينة ' + m.id, route: 'care/assets/' + m.id } : null, openable('care/pm') ? { label: 'الصيانة الوقائية', route: 'care/pm' } : null].filter(Boolean) }); }
@@ -409,9 +409,9 @@ a.scr-step:hover, a.scr-step:focus-visible, .scr-split a:hover { border-color: v
       { key: 'machine', label: 'الماكينة', sort: true, value: (r) => r.machineId || '', render: (r) => (r.machineId ? lnk(r.machineId) : '—') },
       { key: 'wo', label: 'أمر التشغيل', render: (r) => (r.woId ? lnk(r.woId) : SA.chip('خارج أمر', 'neutral')) },
       { key: 'item', label: 'المنتج', render: (r) => h('span', { style: { fontSize: '12.5px' } }, itemShort(r.itemId)) },
-      { key: 'reason', label: 'السبب', render: (r) => h('div.scr-stack', {}, h('span', { style: { fontSize: '12.5px' } }, FX.reasonLabel(r.reasonId)), normChip(r.normal)) },
+      { key: 'reason', label: 'السبب', render: (r) => h('div.scr-stack', {}, h('span', { style: { fontSize: '12.5px' } }, FX.reasonLabel(r.reasonId)), r.reversed ? SA.chip('ملغى — تصحيح', 'danger') : normChip(r.normal)) },
       { key: 'qty', label: 'قطع', sort: true, class: 'scr-r', render: (r) => (r.qty ? h('span.num', {}, num(r.qty)) : '—') },
-      { key: 'kg', label: 'الوزن', sort: true, class: 'scr-r', render: (r) => h('b.num', {}, kgTxt(r.kg)) },
+      { key: 'kg', label: 'الوزن', sort: true, class: 'scr-r', render: (r) => h('b.num', { style: r.reversed ? { textDecoration: 'line-through', color: 'var(--color-text-muted)' } : null }, kgTxt(r.kg)) },
       { key: 'cost', label: 'التكلفة', sort: canCost(), class: 'scr-r', render: (r) => U.cost(r.cost) },
       { key: 'by', label: 'بواسطة', render: (r) => h('span', { style: { fontSize: '12.5px' } }, userName(r.by)) }
     ];
@@ -509,8 +509,15 @@ a.scr-step:hover, a.scr-step:focus-visible, .scr-split a:hover { border-color: v
       SA.kv([['تكلفة الهالك', U.cost(r.cost)], ['القيمة المستردة (1145)', U.cost(r.recoverable)], ['صافي الخسارة (5204)', U.cost(r.cost - r.recoverable)], ['القيد', jeLink(r.id, /إجمالي هوالك التشغيل/)], ['حركة المخزون', mv ? h('span.num', {}, (mv.qty > 0 ? '+' : '') + kgTxt(mv.qty) + ' ← ' + mv.whId + ' · رصيد ' + kgTxt(mv.balance)) : h('span.scr-muted', {}, 'ضمن الرصيد الافتتاحي لمخزن الهوالك')]]),
       h('div.scr-flowmini', {}, h('span', {}, stName(r.stageId)), SA.icon('arrowleft', 'icon-sm'), h('span', {}, 'W-07 · ' + (si.name || '')), SA.icon('arrowleft', 'icon-sm'), h('span', {}, r.scrapItemId === 'IT-SCR-GR' ? 'الكسارة ← الخلاطة' : 'بيع (بموافقة المالية)')),
       same.length ? h('div', {}, h('h4.scr-sub', {}, 'هالك تاني على نفس أمر التشغيل'), h('ul.scr-attn', {}, same.map((x) => h('li', {}, h('div.scr-attn-b', {}, h('b', {}, stName(x.stageId) + ' · ' + kgTxt(x.kg)), h('small', {}, x.id + ' · ' + FX.reasonLabel(x.reasonId) + ' · ' + SA.fmt.rel(x.at))), h('button.btn.btn-ghost.btn-sm', { type: 'button', onclick: () => { dr.close(); logDrawer(x.id); } }, 'فتح'))))) : null);
-    const dr = SA.drawer({ title: r.id, subtitle: 'هالك ' + stName(r.stageId) + ' — ' + kgTxt(r.kg), size: 'md', body,
-      foot: [wo && openable('mfg/workorders/' + wo.id) ? h('a.btn.btn-ghost', { href: '#/mfg/workorders/' + wo.id, onclick: () => dr.close() }, 'أمر التشغيل') : null, mc && openable('care/assets/' + mc.id) ? h('a.btn.btn-ghost', { href: '#/care/assets/' + mc.id, onclick: () => dr.close() }, 'الماكينة') : null, h('button.btn.btn-primary', { type: 'button', onclick: () => dr.close() }, 'إغلاق')].filter(Boolean) });
+    if (r.reversed) body.insertBefore(SA.alert('warning', h('b', {}, 'السجل ده اتلغى (تصحيح): '), (r.reverseReason || '') + ' — ' + userName(r.reversedBy) + ' · ' + SA.fmt.rel(r.reversedAt) + '. المخزون والقيد اتعكسوا، والسجل فاضل للتدقيق.'), body.firstChild);
+    async function reverse() {
+      const c = await SA.confirm({ title: 'إلغاء تسجيل الهالك ' + r.id, icon: 'alert', danger: true, reasonRequired: true, reasonLabel: 'سبب الإلغاء', reasonPlaceholder: 'مثال: الوزن اتسجل مرتين / مرحلة غلط…', confirmLabel: 'إلغاء التسجيل',
+        impact: ['خروج ' + kgTxt(r.kg) + ' من ' + ERP.whName(FX.SCRAP_WH) + ' (' + (si.name || r.scrapItemId) + ')', 'قيد عكسي لقيد الهالك (1142 / 1145 / 5204)', r.woId ? 'يتعدّل هالك أمر التشغيل ' + r.woId : 'تسجيل يدوي — بدون أمر تشغيل', 'السجل يفضل ظاهر كـ«ملغى» ويتسجّل SCRAP.REVERSED في التدقيق'] });
+      if (!c.ok) return; let res; try { res = await SA.api(() => FX.reverseScrap(r.id, c.reason)); } catch (e) { return SA.fail(e); }
+      if (!res.ok) { SA.toast(res.reason, 'warn'); return; } dr.close(); SA.toast('اتلغى تسجيل الهالك ' + r.id + ' واتعكس القيد', 'success');
+    }
+    const dr = SA.drawer({ title: r.id, subtitle: 'هالك ' + stName(r.stageId) + ' — ' + kgTxt(r.kg) + (r.reversed ? ' — ملغى' : ''), size: 'md', body,
+      foot: [!r.reversed ? SA.btn({ label: 'إلغاء التسجيل', icon: 'x', kind: 'ghost', perm: 'mfg.scrap.create', onClick: reverse }) : null, wo && openable('mfg/workorders/' + wo.id) ? h('a.btn.btn-ghost', { href: '#/mfg/workorders/' + wo.id, onclick: () => dr.close() }, 'أمر التشغيل') : null, mc && openable('care/assets/' + mc.id) ? h('a.btn.btn-ghost', { href: '#/care/assets/' + mc.id, onclick: () => dr.close() }, 'الماكينة') : null, h('button.btn.btn-primary', { type: 'button', onclick: () => dr.close() }, 'إغلاق')].filter(Boolean) });
   }
   function grindDrawer(id) {
     const o = ERP.find('scrapOps', id); if (!o) { SA.toast('الدفعة ' + id + ' غير موجودة', 'warn'); return; }

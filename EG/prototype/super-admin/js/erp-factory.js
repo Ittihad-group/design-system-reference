@@ -25,7 +25,7 @@
    STAGES/stage(id) · TRACKS · FINISH · finishType(itemId) · routeOf(itemId) · initStages(wo) · stageView(woOrId) → stages + {name, input, avail, processed, status}
    isComplete(wo) · reportStage(woId, key, {good, scrap, scrapKg, reasonId, machineId, shift, note}) → {ok, reason?, wo, log, completed}
    REASONS · reasonsFor(stageId) · reason(id) · stdPct(stageId) · unitKg(itemId, track) · compoundKg(itemId) · compoundCostKg(itemId)
-   logScrap(o) · grind(kgIn, {note}) · requestScrapSale({lines:[{itemId, kg, price}], buyer, note}) · deliverScrapSale(id) · scrapAvail(itemId) · scrapStats({days, from, to})
+   logScrap(o) · reverseScrap(id, reason) · grind(kgIn, {note}) · requestScrapSale({lines:[{itemId, kg, price}], buyer, note}) · deliverScrapSale(id) · scrapAvail(itemId) · scrapStats({days, from, to})
    formulasFor(itemId) → [{track, formulaId}] · createMIR(woId, {force}) · issueMIR(mirId, {lines:[{itemId, qty}]}) · createFGR(o) · receiveFG(fgrId, {qty, note})
    wipAt(stageId) → pieces waiting at a stage (all open WOs) · machinesOf(stageId) · SCRAP_WH='W-07' · REG='IT-RM-REG' · SCRAP_ITEMS
    ROUTES for the new screens (owned by the module agents): mfg-flow mfg/flow · mfg-formulas mfg/formulas[/MX-id] · mfg-scrap mfg/scrap
@@ -58,7 +58,7 @@
   C.rebuildPermKeys();
   C.approvalTypes.scrap_sale = { label: 'بيع هوالك', area: 'mfg', icon: 'coins' };
   [['STAGE.REPORTED', 'تسجيل إنتاج مرحلة', 'info', 'mfg'], ['SCRAP.LOGGED', 'تسجيل هالك', 'info', 'mfg'], ['SCRAP.GROUND', 'طحن هوالك (إعادة تدوير)', 'medium', 'mfg'],
-    ['SCRAP.SALE_REQUESTED', 'طلب بيع هوالك', 'medium', 'mfg'], ['SCRAP.SOLD', 'تسليم هوالك مباعة', 'high', 'mfg'], ['FORMULA.UPDATED', 'تعديل خلطة كيميائية', 'high', 'mfg'],
+    ['SCRAP.SALE_REQUESTED', 'طلب بيع هوالك', 'medium', 'mfg'], ['SCRAP.SOLD', 'تسليم هوالك مباعة', 'high', 'mfg'], ['SCRAP.REVERSED', 'إلغاء تسجيل هالك (تصحيح)', 'high', 'mfg'], ['FORMULA.UPDATED', 'تعديل خلطة كيميائية', 'high', 'mfg'],
     ['MIR.CREATED', 'طلب صرف خامات للإنتاج', 'info', 'scm'], ['MIR.ISSUED', 'صرف خامات من المخزن للإنتاج', 'medium', 'scm'], ['FG.RECEIVED', 'استلام إنتاج تام في المخزن', 'medium', 'scm']
   ].forEach((a) => C.addAudit(a[0], a[1], a[2], a[3]));
   const S = (o) => o;
@@ -237,12 +237,24 @@
   };
   /** today's scrap rate at a stage vs its standard → one alert per stage per day to the production manager */
   function checkAlert(stageId) {
-    const t = ERP.day(0); const logs = get('scrapLogs').filter((l) => l.stageId === stageId && l.date === t); const kg = logs.reduce((s, l) => s + l.kg, 0);
+    const t = ERP.day(0); const logs = get('scrapLogs').filter((l) => !l.reversed && l.stageId === stageId && l.date === t); const kg = logs.reduce((s, l) => s + l.kg, 0);
     const procKg = get('workOrders').reduce((s, w) => s + (w.stages || []).filter((x) => x.stageId === stageId && x.lastAt && x.lastAt.slice(0, 10) === t).reduce((a, x) => a + ((x.good || 0) + (x.scrap || 0)) * FX.unitKg(w.itemId, x.track), 0), 0);
     if (procKg < 200) return; const rate = kg / (procKg + kg); const std = FX.stdPct(stageId); if (rate <= std * 1.5) return;
     const flag = 'meta.scrapAlert.' + stageId; if (st.get(flag) === t) return; st.set(flag, t);
     notify({ title: 'هالك ' + FX.stageName(stageId) + ' أعلى من المسموح', body: 'اليوم ' + ERP.fmt.pct(rate, 1) + ' مقابل مسموح ' + ERP.fmt.pct(std, 1) + ' — راجع الماكينة والمشغّل.', level: 'urgent', to: ['R-05', 'R-01'], link: '#/mfg/scrap' });
   }
+  /** undo a scrap record entered by mistake (reason required): stock out of W-07 + reversing GL + WO counters; the record stays (marked reversed) for the audit trail */
+  FX.reverseScrap = function (id, reason) {
+    const l = ERP.find('scrapLogs', id); if (!l) return { ok: false, reason: 'السجل غير موجود' }; if (l.reversed) return { ok: false, reason: 'السجل ملغى بالفعل' };
+    if (!reason || String(reason).trim().length < 3) return { ok: false, reason: 'اكتب سبب الإلغاء' };
+    if (l.kg > 0 && K.qty(l.scrapItemId, FX.SCRAP_WH) < l.kg - 1e-9) return { ok: false, reason: 'رصيد ' + ERP.itemName(l.scrapItemId) + ' في مخزن الهوالك أقل من وزن السجل (اتطحن أو اتباع)' };
+    if (l.kg > 0) K.move({ itemId: l.scrapItemId, whId: FX.SCRAP_WH, qty: -l.kg, type: 'adjust', ref: { type: 'scrap', id }, note: 'إلغاء تسجيل هالك ' + id + ' — ' + reason });
+    if (l.cost > 0) GL.post({ memo: 'إلغاء تسجيل هالك ' + id + ' — ' + reason, ref: { type: 'scrap', id }, lines: [{ acc: '1142', dr: l.cost }, { acc: '1145', cr: l.recoverable }, { acc: '5204', cr: l.cost - l.recoverable }] });
+    if (l.woId) st.patch('workOrders', l.woId, (w) => { w.scrapKg = r2(Math.max(0, (w.scrapKg || 0) - l.kg)); if (l.qty && ['qc_pending', 'completed', 'closed'].indexOf(w.status) < 0) { w.qtyScrap = Math.max(0, (w.qtyScrap || 0) - l.qty); const x = (w.stages || []).find((y) => y.stageId === l.stageId && y.track === l.track); if (x) { x.scrap = Math.max(0, (x.scrap || 0) - l.qty); x.scrapKg = r2(Math.max(0, (x.scrapKg || 0) - l.kg)); } } });
+    st.patch('scrapLogs', id, { reversed: true, reversedAt: ERP.now(), reversedBy: me(), reverseReason: reason });
+    audit('SCRAP.REVERSED', { target: { type: 'scrap', id, label: FX.stageName(l.stageId) + ' — ' + ERP.itemName(l.itemId) }, before: { kg: l.kg, qty: l.qty }, reason });
+    return { ok: true };
+  };
   /** grinder M-502: grindable scrap → regrind (3% loss) back to the mixer. GL Dr 1141 + Dr 5204 (loss) / Cr 1145 */
   FX.grind = function (kgIn, o) {
     o = o || {}; kgIn = r2(Number(kgIn) || 0); const avail = FX.scrapAvail('IT-SCR-GR');
@@ -281,17 +293,20 @@
     const short = s.lines.find((l) => l.kg > K.qty(l.itemId, FX.SCRAP_WH) + 1e-9); if (short) return { ok: false, reason: 'رصيد ' + ERP.itemName(short.itemId) + ' لا يكفي' };
     s.lines.forEach((l) => K.move({ itemId: l.itemId, whId: FX.SCRAP_WH, qty: -l.kg, type: 'delivery', ref: { type: 'scrap_sale', id }, note: 'بيع هوالك — ' + s.buyer }));
     const gain = s.total - s.bookValue;
-    GL.post({ memo: 'بيع هوالك ' + id + ' — ' + s.buyer, ref: { type: 'scrap_sale', id }, lines: [{ acc: '1101', dr: s.total }, { acc: '4201', dr: Math.max(0, -gain) }, { acc: '1145', cr: s.bookValue }, { acc: '4201', cr: Math.max(0, gain) }] });
-    st.patch('scrapSales', id, { status: 'sold', soldAt: ERP.now(), soldBy: me() });
+    const rv = { id: ERP.no('RV'), customerId: null, payer: s.buyer, invoiceId: null, amount: s.total, method: 'cash', account: '1101', chequeId: null, date: ERP.day(0), by: me(), note: 'بيع هوالك ' + id, source: { type: 'scrap_sale', id } };
+    st.insert('receipts', rv, true);
+    GL.post({ memo: 'سند قبض ' + rv.id + ' — بيع هوالك ' + id + ' — ' + s.buyer, ref: { type: 'receipt', id: rv.id }, lines: [{ acc: '1101', dr: s.total }, { acc: '4201', dr: Math.max(0, -gain) }, { acc: '1145', cr: s.bookValue }, { acc: '4201', cr: Math.max(0, gain) }] });
+    audit('RV.POSTED', { target: { type: 'receipt', id: rv.id, label: s.buyer }, after: { amount: s.total, method: 'cash', scrapSale: id } });
+    st.patch('scrapSales', id, { status: 'sold', soldAt: ERP.now(), soldBy: me(), receiptId: rv.id });
     audit('SCRAP.SOLD', { target: { type: 'scrap_sale', id, label: s.buyer }, after: { total: s.total } });
-    return { ok: true };
+    return { ok: true, receiptId: rv.id };
   };
   /** aggregates for dashboards: {from, to} 'YYYY-MM-DD' or {days} → {kg, qty, cost, recoverable, byStage:{id:{kg, qty, cost, n}}, byReason, byLine, byDay:{date:kg}, byMachine, abnormalKg} */
   FX.scrapStats = function (o) {
     o = o || {}; const to = o.to || ERP.day(0); const from = o.from || ERP.day(-((o.days || 30) - 1));
     const out = { kg: 0, qty: 0, cost: 0, recoverable: 0, abnormalKg: 0, byStage: {}, byReason: {}, byLine: {}, byDay: {}, byMachine: {}, n: 0 };
     const add = (m, k, l) => { if (!k) return; const x = (m[k] = m[k] || { kg: 0, qty: 0, cost: 0, n: 0 }); x.kg += l.kg; x.qty += l.qty; x.cost += l.cost; x.n++; };
-    get('scrapLogs').forEach((l) => { if (l.date < from || l.date > to) return; out.n++; out.kg += l.kg; out.qty += l.qty; out.cost += l.cost; out.recoverable += l.recoverable; if (!l.normal) out.abnormalKg += l.kg;
+    get('scrapLogs').forEach((l) => { if (l.reversed || l.date < from || l.date > to) return; out.n++; out.kg += l.kg; out.qty += l.qty; out.cost += l.cost; out.recoverable += l.recoverable; if (!l.normal) out.abnormalKg += l.kg;
       add(out.byStage, l.stageId, l); add(out.byReason, l.reasonId, l); add(out.byLine, l.lineId, l); add(out.byMachine, l.machineId, l); out.byDay[l.date] = (out.byDay[l.date] || 0) + l.kg; });
     out.kg = r2(out.kg); return out;
   };
@@ -362,7 +377,9 @@
     K.move({ itemId: r.itemId, whId: K.FG, qty: q, type: 'production', ref: { type: 'fgr', id }, note: 'استلام إنتاج تام ' + id + ' من ' + r.woId, lot: r.lot });
     GL.post({ memo: 'استلام إنتاج تام ' + id + ' — ' + r.woId, ref: { type: 'fgr', id }, lines: [{ acc: '1143', dr: q * cost }, { acc: '1142', cr: q * cost }] });
     st.patch('fgReceipts', id, { status: 'received', receivedAt: ERP.now(), receivedBy: me(), receivedQty: q, note: o.note || '' });
-    if (q < r.qty) st.patch('workOrders', r.woId, (w) => { w.receiptShort = (w.receiptShort || 0) + (r.qty - q); });
+    if (q < r.qty) { const diff = r.qty - q; st.patch('workOrders', r.woId, (w) => { w.receiptShort = (w.receiptShort || 0) + diff; });
+      GL.post({ memo: 'عجز استلام إنتاج تام ' + id + ' — ' + diff + ' وحدة (' + (o.note || '') + ')', ref: { type: 'fgr', id }, lines: [{ acc: '5204', dr: diff * cost }, { acc: '1142', cr: diff * cost }] });
+      notify({ title: 'عجز استلام ' + diff + ' وحدة — ' + id, body: ERP.itemName(r.itemId) + ' من ' + r.woId + ': ' + (o.note || '') + ' · اتقيّد فاقد في الحسابات.', level: 'action', to: ['R-05', 'R-06', 'R-09'], link: '#/scm/fg-receipts?q=' + id }); }
     audit('FG.RECEIVED', { target: { type: 'fgr', id, label: ERP.itemName(r.itemId) }, after: { qty: q, wo: r.woId } });
     if (r.soId) F.refreshOrder(r.soId);
     return { ok: true, qty: q, so: r.soId ? ERP.find('salesOrders', r.soId) : null };
@@ -566,7 +583,11 @@
       const w7val = ['IT-SCR-GR', 'IT-SCR-DUST', 'IT-SCR-FILM'].reduce((s, id) => s + ((stk.find((r) => r.itemId === id && r.whId === 'W-07') || {}).qty || 0) * ((item(id) || {}).stdCost || 0), 0);
       const gCr = Math.max(0, rec - soldBook - w7val);
       JE(day(-2), 'طحن هوالك وإعادتها للخلاطة كمطحون — ' + ERP.fmt.num(gIn) + ' كجم (ملخص)', [{ acc: '1141', dr: gCr * 0.97 }, { acc: '5204', dr: gCr * 0.03 }, { acc: '1145', cr: gCr }]);
-      S.scrapSales.filter((s) => s.status === 'sold').forEach((s) => JE(s.soldAt.slice(0, 10), 'بيع هوالك ' + s.id + ' — ' + s.buyer, [{ acc: '1101', dr: s.total }, { acc: '1145', cr: s.bookValue }, { acc: '4201', cr: s.total - s.bookValue }]));
+      S.receipts = S.receipts || [];
+      S.scrapSales.filter((s) => s.status === 'sold').forEach((s) => { const d = FX.localDate(s.soldAt); const rid = nx('RV'); s.receiptId = rid;
+        S.receipts.push({ id: rid, customerId: null, payer: s.buyer, invoiceId: null, amount: s.total, method: 'cash', account: '1101', chequeId: null, date: d, by: 'U-36', note: 'بيع هوالك ' + s.id, source: { type: 'scrap_sale', id: s.id } });
+        JE(d, 'سند قبض ' + rid + ' — بيع هوالك ' + s.id + ' — ' + s.buyer, [{ acc: '1101', dr: s.total }, { acc: '1145', cr: s.bookValue }, { acc: '4201', cr: s.total - s.bookValue }]); });
+      S.receipts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
       S.journal.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
       /* notifications for the new personas */

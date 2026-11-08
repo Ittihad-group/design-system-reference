@@ -770,11 +770,11 @@
     let d = null;
     const go = (r) => () => { if (d) d.close(); SA.nav(r); };
     const body = h('div.fin-form', {},
-      SA.kv([['رقم السند', h('b.num', {}, rv.id)], ['التاريخ', fm.date(rv.date)], ['العميل', ERP.customerName(rv.customerId)], ['المبلغ', M(rv.amount)], ['بالحروف', amountWords(rv.amount)], ['التخصيص', inv ? U.docLink(inv.id) : 'دفعة تحت الحساب'], ['طريقة الدفع', METHOD[rv.method] || rv.method],
+      SA.kv([['رقم السند', h('b.num', {}, rv.id)], ['التاريخ', fm.date(rv.date)], ['العميل', (rv.payer || ERP.customerName(rv.customerId))], ['المبلغ', M(rv.amount)], ['بالحروف', amountWords(rv.amount)], ['التخصيص', inv ? U.docLink(inv.id) : rv.source && rv.source.type === 'scrap_sale' ? h('span', {}, 'بيع هوالك ', U.docLink(rv.source.id)) : 'دفعة تحت الحساب'], ['طريقة الدفع', METHOD[rv.method] || rv.method],
         ['الحساب المدين', accLabel(rv.account)], ['القيد', je ? U.docLink(je.id) : h('span.fin-muted', {}, 'ضمن قيد التحصيلات المجمّع الشهري (بيانات تاريخية)')], ['سجّله', who(rv.by)], rv.note ? ['ملاحظة', rv.note] : null]),
       ch ? h('div', {}, sectionTitle('الشيك ' + ch.id, U.status('cheque', ch.status)), SA.kv([['رقم الشيك', h('span.num', {}, ch.no)], ['البنك المسحوب عليه', ch.bank], ['الاستحقاق', fm.date(ch.dueDate)], ch.bankAcc ? ['حُصّل في', accLabel(ch.bankAcc)] : null]),
         h('ul.fin-timeline', { style: { marginTop: '10px' } }, (ch.history || []).map((x) => h('li', {}, h('i'), h('span', {}, U.status('cheque', x.status), ' ', SA.fmt.dt(x.at), ' — ', who(x.by)))))) : null);
-    d = SA.drawer({ title: 'سند قبض ' + rv.id, subtitle: ERP.customerName(rv.customerId) + ' · ' + fm.money(rv.amount), body,
+    d = SA.drawer({ title: 'سند قبض ' + rv.id, subtitle: (rv.payer || ERP.customerName(rv.customerId)) + ' · ' + fm.money(rv.amount), body,
       foot: [inv ? SA.btn({ label: 'فتح الفاتورة', kind: 'ghost', icon: 'receipt', onClick: go('fin/invoices/' + inv.id) }) : null, ch ? SA.btn({ label: 'سجل الشيكات', kind: 'ghost', icon: 'doc', onClick: go('fin/cheques?q=' + ch.id) }) : null, SA.can('fin.aging.view') ? SA.btn({ label: 'كشف حساب العميل', kind: 'ghost', icon: 'users', onClick: go('fin/aging?c=' + rv.customerId) }) : null] });
   }
   function receiptsScreen(root, ctx) {
@@ -798,7 +798,7 @@
         columns: [
           { key: 'id', label: 'السند', sort: true, render: (r) => h('b.num', {}, r.id) },
           { key: 'date', label: 'التاريخ', sort: true, render: (r) => fm.date(r.date) },
-          { key: 'customer', label: 'العميل', sort: true, value: (r) => ERP.customerName(r.customerId), render: (r) => custCell(r.customerId) },
+          { key: 'customer', label: 'العميل', sort: true, value: (r) => r.payer || ERP.customerName(r.customerId), render: (r) => (r.payer ? h('div.fin-stack', {}, h('b', {}, r.payer), h('small', {}, r.source && r.source.type === 'scrap_sale' ? 'بيع هوالك ' + r.source.id : 'إيراد متنوع')) : custCell(r.customerId)) },
           { key: 'invoiceId', label: 'الفاتورة', render: (r) => (r.invoiceId ? U.docLink(r.invoiceId) : SA.chip('تحت الحساب', 'neutral')) },
           { key: 'method', label: 'الطريقة', sort: true, render: (r) => { const ch = r.chequeId ? ERP.find('cheques', r.chequeId) : null; return h('div.fin-stack', {}, h('span', {}, METHOD[r.method] || r.method), ch ? h('span', {}, U.status('cheque', ch.status)) : null); } },
           { key: 'account', label: 'الحساب', render: (r) => h('small', {}, accLabel(r.account)) },
@@ -806,7 +806,7 @@
           { key: 'by', label: 'سجّله', render: (r) => h('small', {}, who(r.by)) }
         ],
         rows: () => get('receipts'),
-        search: { placeholder: 'بحث برقم السند أو العميل أو الفاتورة أو رقم الشيك…', keys: ['id', 'invoiceId', 'chequeId', (r) => ERP.customerName(r.customerId), (r) => { const c = r.chequeId && ERP.find('cheques', r.chequeId); return c ? c.no : ''; }] },
+        search: { placeholder: 'بحث برقم السند أو العميل أو الفاتورة أو رقم الشيك…', keys: ['id', 'invoiceId', 'chequeId', (r) => r.payer || ERP.customerName(r.customerId), (r) => { const c = r.chequeId && ERP.find('cheques', r.chequeId); return c ? c.no : ''; }] },
         filters: [{ key: 'method', label: 'الطريقة', options: Object.keys(METHOD).map((k) => [k, METHOD[k]]) }, { key: 'period', label: 'الفترة', options: PERIOD_FILTER, test: (r, v) => periodMatch(r.date, v) }, { key: 'account', label: 'الحساب', options: accOpts }, { key: 'applied', label: 'التخصيص', options: [['inv', 'على فاتورة'], ['onacc', 'تحت الحساب']], test: (r, v) => (v === 'inv' ? !!r.invoiceId : !r.invoiceId) }],
         rowActions: (r) => [{ label: 'التفاصيل', icon: 'eye', onClick: () => receiptDrawer(r.id) }, r.invoiceId ? { label: 'فتح الفاتورة', icon: 'receipt', onClick: () => SA.nav('fin/invoices/' + r.invoiceId) } : null, r.chequeId ? { label: 'الشيك في السجل', icon: 'doc', onClick: () => SA.nav('fin/cheques?q=' + r.chequeId) } : null].filter(Boolean),
         onRowClick: (r) => receiptDrawer(r.id),
