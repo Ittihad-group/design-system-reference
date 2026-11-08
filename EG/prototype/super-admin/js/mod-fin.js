@@ -70,9 +70,20 @@
 .fin-a4-foot { margin-top: 22px; padding-top: 12px; border-top: 1px dashed #c8cfdc; font-size: 11.5px; color: #555; display: flex; flex-direction: column; gap: 4px; }
 .fin-a4-warn { display: flex; align-items: center; gap: 6px; font-weight: 700; color: var(--color-danger); font-size: 12.5px; }
 .fin-a4-sign { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; } .fin-a4-sign div { border-top: 1px solid #9aa3b5; padding-top: 6px; text-align: center; color: #555; font-size: 12px; }
-.fin-doc-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; margin-top: 4px; }
+.fin-doc-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; margin-top: 4px; } .fin-doc-wrap > * { min-width: 0; }
 .fin-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-@media (max-width: 1150px) { .fin-doc-wrap { grid-template-columns: 1fr; } }
+@media (max-width: 1150px) { .fin-doc-wrap { grid-template-columns: minmax(0, 1fr); } }
+.fin-page .erp-kpi-v { white-space: nowrap; } .fin-page .erp-kpi.is-primary .erp-spark path { stroke: rgba(255, 255, 255, .85); }
+.fin-chain-card { margin-top: 16px; }
+@media (min-width: 1280px) { .fin-kpis-7 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .fin-kpis-7 > :first-child { grid-row: span 2; justify-content: space-between; } .fin-kpis-7 > :first-child .erp-kpi-mid { flex-direction: column; align-items: stretch; gap: 10px; } .fin-kpis-7 > :first-child .erp-spark { width: 100%; height: 56px; } .fin-kpis-7 > :first-child .erp-kpi-v { font-size: 1.9rem; } }
+@media (max-width: 760px) {
+  .fin-page .sap-pagehead-row .sap-actions .btn { flex: 1 1 auto; white-space: nowrap; }
+  .fin-a4 { padding: 18px 14px; font-size: 12px; }
+  .fin-a4-head { flex-direction: column; gap: 12px; } .fin-a4-brand { flex-direction: column; gap: 8px; } .fin-a4-brand img { height: 38px; }
+  .fin-a4-title { text-align: start; align-items: flex-start; } .fin-a4-title h2 { font-size: 19px; }
+  .fin-a4-meta { grid-template-columns: 1fr; } .fin-a4-tot { flex-direction: column; } .fin-a4-tot table { min-width: 0; width: 100%; }
+  .fin-a4-lines th, .fin-a4-lines td { padding: 6px 4px; font-size: 11.5px; } .fin-a4-sign { gap: 8px; }
+}
 .fin-sod { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .fin-sod li { border: 1px solid var(--color-border); border-radius: 12px; padding: 12px 14px; background: #fff; display: flex; flex-direction: column; gap: 6px; }
 .fin-sod li.is-done { border-color: #bfe3cc; background: linear-gradient(135deg, #f3fbf6, #fff); } .fin-sod li.is-now { border-color: #f2d6ad; background: linear-gradient(135deg, #fffaf2, #fff); } .fin-sod li.is-bad { border-color: #f5c2c4; background: linear-gradient(135deg, #fff5f5, #fff); }
@@ -607,6 +618,7 @@
         { label: 'سندات الصرف المفتوحة', value: String(pvPend.length + pvAppr.length), sub: pvPend.length + ' بانتظار الاعتماد · ' + pvAppr.length + ' بانتظار التنفيذ', href: '#/fin/vouchers', icon: 'send', tone: pvAppr.length ? 'warning' : null },
         { label: 'ضريبة القيمة المضافة المستحقة (2111)', value: SH(vat), sub: ERP.taxIsDemo() ? U.demo('نسبة 14% تجريبية — Open') : 'النسبة ' + pct(ERP.taxRate()), href: SA.can('fin.journal.view') ? '#/fin/journal?acc=2111' : null, icon: 'receipt' }
       ]);
+      kpis.classList.add('fin-kpis-7');
       const k12 = ERP.monthKeys(12); const m12 = k12.map((k) => { const r = keyRange(k); const mp = glMap(r.from, r.to); return { k, rev: typeSum(mp, 'revenue', T), exp: typeSum(mp, 'expense', T), io: cashIO(r.from, r.to) }; });
       const revExp = CH.columns({ labels: m12.map((x) => shortMonth(x.k)), series: [{ name: 'الإيرادات', values: m12.map((x) => x.rev), color: ERP.palette[0] }, { name: 'التكاليف والمصروفات', values: m12.map((x) => x.exp), color: ERP.palette[3] }], height: 230, title: 'الإيرادات مقابل المصروفات' });
       const io6 = m12.slice(6);
@@ -722,7 +734,7 @@
           h('tr', {}, h('td', {}, h('b', {}, 'المتبقي')), h('td', {}, h('b', {}, M(invOpen(inv)))))))),
       h('footer.fin-a4-foot', {}, h('span.fin-a4-warn', {}, SA.icon('alert', 'icon-sm'), 'هذه ليست فاتورة إلكترونية معتمدة'),
         h('span', {}, 'نسخة مطبوعة من النظام للاستخدام الداخلي ومرافقة البضاعة. إصدار الفاتورة الإلكترونية والربط مع منظومة مصلحة الضرائب: Open — التنفيذ مؤجل.'),
-        demo ? h('span', {}, 'نسبة ضريبة القيمة المضافة وطريقة عرضها إعداد في سياسة المالية ({Open}) — المعروض 14% قيمة تجريبية.') : null,
+        demo ? h('span', {}, 'نسبة ضريبة القيمة المضافة وطريقة عرضها إعداد في سياسة المالية (Open) — المعروض 14% قيمة تجريبية.') : null,
         h('span', {}, 'أصدرها: ' + who(inv.createdBy) + ' · طُبعت من نظام المصرية الألمانية (نموذج تجريبي)'),
         h('div.fin-a4-sign', {}, h('div', {}, 'المحاسب'), h('div', {}, 'المراجعة'), h('div', {}, 'توقيع واستلام العميل'))));
   }
@@ -746,7 +758,8 @@
       const custCard = SA.card({ title: 'العميل' }, SA.kv([['العميل', c.name || inv.customerId], ['الرصيد الحالي', M(c.balance || 0)], ['حد الائتمان', c.creditLimit ? M(c.creditLimit) : h('span.fin-muted', {}, 'نقدي / بدون حد')], ['شروط الدفع', c.termsDays != null ? c.termsDays + ' يوم' : '—'],
         (c.reviewNotes || []).length ? ['المراجعة', h('span', {}, SA.chip('تحت المراجعة', 'warning'), h('small.fin-muted', {}, ' بلا إيقاف تلقائي (بند 41)'))] : null]));
       return h('div.fin-page', {}, head,
-        h('div.fin-doc-wrap', {}, h('div', {}, sheet), h('div.fin-side', {}, payCard, inv.soId ? SA.card({ title: 'دورة المستند' }, U.chain(inv.soId)) : null, custCard, glCard)));
+        h('div.fin-doc-wrap', {}, h('div', {}, sheet), h('div.fin-side', {}, payCard, custCard, glCard)),
+        inv.soId ? SA.card({ title: 'دورة المستند — ' + inv.soId, class: 'fin-chain-card' }, U.chain(inv.soId)) : null);
     }, ['invoices', 'receipts', 'cheques', 'customers', 'journal']);
   }
 

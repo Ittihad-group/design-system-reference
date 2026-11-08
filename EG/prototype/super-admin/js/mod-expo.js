@@ -117,7 +117,7 @@
 .xpo-nolink { font-weight: 600; }
 .xpo-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; } .xpo-sp { justify-content: space-between; }
 .xpo-cell { display: flex; flex-direction: column; line-height: 1.35; min-width: 0; } .xpo-cell small { color: var(--color-text-muted); font-size: 11.5px; }
-.xpo-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; }
+.xpo-bar { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; }
 .xpo-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); gap: 14px; }
 .xpo-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--color-border); border-radius: 14px; background: #fff; color: inherit; text-decoration: none; transition: box-shadow .15s, border-color .15s; }
 .xpo-card:hover { box-shadow: var(--shadow-float); border-color: var(--eg-navy-tint); }
@@ -130,7 +130,9 @@
 .xpo-card-title { min-width: 0; display: flex; flex-direction: column; gap: 3px; } .xpo-card-title b { font-size: 15px; line-height: 1.4; } .xpo-card-title small { color: var(--color-text-muted); font-size: 12px; }
 .xpo-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .xpo-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px dashed var(--color-border); padding-top: 10px; font-size: 12.5px; color: var(--color-text-muted); flex-wrap: wrap; }
-.xpo-card-foot b { color: var(--color-text); margin-inline-start: 4px; }
+.xpo-card-foot b { color: var(--color-text); }
+.xpo-fstat { display: flex; flex-direction: column; gap: 1px; line-height: 1.3; } .xpo-fstat small { font-size: 11.5px; color: var(--color-text-muted); } .xpo-fstat b { font-size: 14px; }
+.xpo-avatars { padding-inline-start: 8px; }
 .xpo-avatars { display: inline-flex; } .xpo-avatars .avatar { width: 28px; height: 28px; font-size: 11px; border: 2px solid #fff; margin-inline-start: -8px; }
 .xpo-attn { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .xpo-attn li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--color-border); font-size: var(--text-dense); }
@@ -155,7 +157,7 @@
 .xpo-year-h span { border-inline-start: 1px dashed var(--color-border); } .xpo-year-h span:first-child { border-inline-start: 0; }
 .xpo-yrow { position: relative; height: 34px; margin-bottom: 6px; }
 .xpo-ybar { position: absolute; top: 3px; height: 28px; border-radius: 7px; background: var(--eg-navy); color: #fff; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; padding-inline: 8px; white-space: nowrap; overflow: visible; text-decoration: none; min-width: 10px; }
-.xpo-ybar span { position: absolute; inset-inline-start: calc(100% + 6px); color: var(--color-text); }
+.xpo-ybar span { position: absolute; inset-inline-start: calc(100% + 6px); color: var(--color-text); background: rgba(255, 255, 255, .92); padding: 1px 4px; border-radius: 4px; z-index: 2; }
 .xpo-ybar.is-done { background: #9aa3ad; } .xpo-ybar.is-visit { background: #147a3d; } .xpo-ybar.is-pending { background: #a85a00; } .xpo-ybar.is-live { background: #b9141b; }
 .xpo-ybar.is-flip span { inset-inline-start: auto; inset-inline-end: calc(100% + 6px); }
 .xpo-now { position: absolute; top: 30px; bottom: 6px; width: 2px; background: var(--color-accent); z-index: 1; }
@@ -173,6 +175,7 @@
 .xpo-evsel { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: var(--eg-navy); color: #fff; }
 .xpo-evsel .select { background: rgba(255, 255, 255, .12); color: #fff; border-color: rgba(255, 255, 255, .35); font-size: 16px; min-height: 48px; flex: 1; }
 .xpo-evsel .select option { color: #000; }
+.xpo-evnote { display: flex; gap: 6px; align-items: flex-start; margin: 8px 2px 0; font-size: 13px; color: var(--color-text-muted); line-height: 1.6; } .xpo-evnote svg { flex: none; margin-top: 3px; }
 .xpo-chipset { display: flex; flex-wrap: wrap; gap: 10px; }
 .xpo-chip { min-height: 52px; padding-inline: 20px; border-radius: 999px; border: 2px solid var(--color-border-strong); background: #fff; font: 600 16px var(--font-ar); color: var(--color-text); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
 .xpo-chip[aria-pressed="true"] { background: var(--eg-navy); border-color: var(--eg-navy); color: #fff; }
@@ -235,7 +238,7 @@
   const lastActivity = (lead) => { const acts = get('activities').filter((a) => a.leadId === lead.id).map((a) => a.at).sort(); return acts.length ? acts[acts.length - 1] : null; };
   const staleOf = (evId) => leadsOf(evId).filter((l) => OPEN_ST.indexOf(l.stage) >= 0).map((l) => { const la = lastActivity(l); const ref = la || l.createdAt; return { lead: l, last: la, days: Math.floor((Date.now() - new Date(ref).getTime()) / 86400000) }; }).filter((x) => x.days >= 7).sort((a, b) => b.days - a.days);
   const dateRange = (ev) => (ev.from === ev.to ? fmt.date(ev.from) : fmt.date(ev.from) + ' ← ' + fmt.date(ev.to));
-  const countdown = (ev) => { const n = ERP.daysBetween(today(), ev.from); return n > 1 ? 'بعد ' + n + ' يوم' : n === 1 ? 'غدًا' : n === 0 ? 'يبدأ اليوم' : null; };
+  const countdown = (ev) => { const n = ERP.daysBetween(today(), ev.from); return n > 10 ? 'بعد ' + n + ' يومًا' : n > 2 ? 'بعد ' + n + ' أيام' : n === 2 ? 'بعد يومين' : n === 1 ? 'غدًا' : n === 0 ? 'يبدأ اليوم' : null; };
   const pctTxt = (v) => (v == null ? '—' : Math.round(v * 100) + '%');
   const scoreChip = (n) => h('span.xpo-score' + (n >= 75 ? '.is-hot' : n >= 55 ? '.is-warm' : ''), { title: 'تقييم العميل المحتمل' }, String(n || 0));
   const lockedR = (perm) => (SA.can(perm) ? '' : 'ليست من صلاحياتك (' + perm + ')');
@@ -378,7 +381,7 @@
       h('div.xpo-chips', {}, U.status('event', es), SA.chip(KIND[ev.kind] || ev.kind, 'neutral'), ev.approvalStatus && ev.approvalStatus !== 'approved' ? U.status('evbudget', ev.approvalStatus) : null, cd && !past ? SA.chip(cd, 'info') : null),
       ERP.chart.meter(Math.min(1, s.budgetUse), { label: 'المصروف من الميزانية', tone: s.budgetUse > 1 ? 'danger' : s.budgetUse > 0.92 ? 'warning' : 'primary', text: fmt.short(s.cost) + ' / ' + fmt.short(ev.budget) }),
       ERP.chart.meter(s.target ? Math.min(1, s.leads / s.target) : 0, { label: 'العملاء المحتملون', tone: s.target && s.leads / s.target >= 0.8 ? 'success' : past ? 'warning' : 'primary', text: s.leads + ' / ' + s.target }),
-      h('div.xpo-card-foot', {}, h('span', {}, 'مكسوب', h('b.num', {}, fmt.short(s.wonV))), h('span', {}, 'فرص مفتوحة', h('b.num', {}, fmt.short(s.pipe))), h('span.xpo-avatars', { title: (ev.teamIds || []).map(SA.userName).join('، ') }, (ev.teamIds || []).slice(0, 4).map((id) => SA.avatar(SA.userName(id))))));
+      h('div.xpo-card-foot', {}, h('span.xpo-fstat', {}, h('small', {}, 'مكسوب'), h('b.num', {}, fmt.short(s.wonV))), h('span.xpo-fstat', {}, h('small', {}, 'فرص مفتوحة'), h('b.num', {}, fmt.short(s.pipe))), h('span.xpo-avatars', { title: (ev.teamIds || []).map(SA.userName).join('، ') }, (ev.teamIds || []).slice(0, 4).map((id) => SA.avatar(SA.userName(id))))));
   }
   function renderEvents(root, ctx) {
     if (ctx.path[0]) return renderEvent(root, ctx, ctx.path[0]);
@@ -610,7 +613,9 @@
   let cardIdx = 0;
   function defaultEvent() {
     const td = today(); const all = events().filter((e) => e.status !== 'cancelled');
-    return all.find((e) => evStatus(e) === 'live') || all.filter((e) => e.from <= td).sort((a, b) => b.to.localeCompare(a.to))[0] || all.slice().sort((a, b) => a.from.localeCompare(b.from))[0] || null;
+    // live now → the nearest approved event starting within 7 days (booth team preparing) → the most recent one that ended → anything
+    return all.find((e) => evStatus(e) === 'live') || all.filter((e) => e.from >= td && ERP.daysBetween(td, e.from) <= 7 && (e.approvalStatus || 'approved') === 'approved').sort((a, b) => a.from.localeCompare(b.from))[0]
+      || all.filter((e) => e.from <= td).sort((a, b) => b.to.localeCompare(a.to))[0] || all.slice().sort((a, b) => a.from.localeCompare(b.from))[0] || null;
   }
   function nextOwner() { const n = Number(st.get('meta.expoRR') || 0); st.set('meta.expoRR', n + 1); return REPS[n % REPS.length]; }
   function renderCapture(root, ctx) {
@@ -618,7 +623,11 @@
     const ev0 = (ctx.params.ev && ERP.find('events', ctx.params.ev)) || defaultEvent();
     let evId = ev0 ? ev0.id : ''; let interests = []; let budget = ''; let lastSaved = null; let scanning = false;
     const evOpts = events().slice().sort((a, b) => { const r = (e) => ({ live: 0, preparing: 1, planned: 1, done: 2, cancelled: 3 })[evStatus(e)]; return r(a) - r(b) || b.from.localeCompare(a.from); }).map((e) => [e.id, e.name + ' — ' + (CS.event[evStatus(e)] || [''])[0]]);
-    const evSel = h('select.select', { 'aria-label': 'الفعالية الحالية', onchange: (e) => { evId = e.target.value; drawSide(); } }, evOpts.map((o) => h('option', { value: o[0] }, o[1]))); evSel.value = evId;
+    const evNote = h('div');
+    const drawNote = () => { SA.clear(evNote); const ev = ERP.find('events', evId); if (!ev) return; const es = evStatus(ev);
+      if (es === 'done') evNote.append(h('p.xpo-evnote', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'الفعالية انتهت ' + fmt.date(ev.to) + ' — التسجيل هنا لإدخال كروت الزوار التي جُمعت في الجناح ولم تُسجَّل بعد.')));
+      else if (es !== 'live') evNote.append(h('p.xpo-evnote', {}, SA.icon('clock', 'icon-sm'), h('span', {}, 'الفعالية تبدأ ' + fmt.date(ev.from) + (countdown(ev) ? ' (' + countdown(ev) + ')' : '') + ' — يمكن تسجيل الزوار المدعوين مسبقًا.'))); };
+    const evSel = h('select.select', { 'aria-label': 'الفعالية الحالية', onchange: (e) => { evId = e.target.value; drawNote(); drawSide(); } }, evOpts.map((o) => h('option', { value: o[0] }, o[1]))); evSel.value = evId; drawNote();
     const fName = SA.form.field({ name: 'name', label: 'اسم الزائر', required: true, placeholder: 'الاسم بالكامل' });
     const fCompany = SA.form.field({ name: 'company', label: 'الشركة/الجهة', placeholder: 'اسم الشركة أو المكتب' });
     const fPhone = SA.form.field({ name: 'phone', label: 'الموبايل', type: 'tel', required: true, placeholder: '+20 1xx xxx xxxx', rules: [SA.form.rules.phone] });
@@ -677,7 +686,7 @@
         if (e.key === 'Escape' && !SA.layers.count) { e.preventDefault(); reset(); return; }
         if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); const ins = fields.map((f) => f.input); const i = ins.indexOf(e.target); if (i >= 0 && i < ins.length - 1) ins[i + 1].focus(); else chipBtns.door.focus(); }
       } },
-      h('div.xpo-evsel', {}, SA.icon('calendar'), evSel),
+      h('div', {}, h('div.xpo-evsel', {}, SA.icon('calendar'), evSel), evNote),
       h('div.xpo-row.xpo-sp', {}, h('b', {}, 'بيانات الزائر'), SA.btn({ label: 'امسح كارت الزيارة', icon: 'scan', kind: 'ghost', onClick: scan })),
       scanBox,
       h('div.xpo-g2', {}, fName.el, fCompany.el, fPhone.el, fCity.el), cities,
@@ -739,7 +748,7 @@
         ]),
         ai.length ? h('div.xpo-ai', {}, ai) : null,
         U.grid(2,
-          SA.card({ title: 'العائد % لكل فعالية' }, done.length ? ERP.chart.bars(done.slice().sort((a, b) => b.roi - a.roi).map((r) => ({ label: r.ev.name, sub: 'تكلفة ' + fmt.short(r.cost) + ' · مكسوب ' + fmt.short(r.wonV), value: Math.max(0, Math.round(r.roi * 100)), color: best && r.id === best.id ? 'var(--color-success)' : r.roi < 0 ? 'var(--color-danger)' : ERP.palette[0], href: '#/expo/events/' + r.id + '?tab=roi' })), { fmt: (v) => v + '%' }) : SA.empty({ icon: 'chart', title: 'لا توجد بيانات' })),
+          SA.card({ title: 'العائد % لكل فعالية' }, done.length ? ERP.chart.bars(done.slice().sort((a, b) => b.roi - a.roi).map((r) => ({ label: r.ev.name, sub: 'تكلفة ' + fmt.short(r.cost).replace(' ج.م', '') + ' · مكسوب ' + fmt.short(r.wonV).replace(' ج.م', ''), value: Math.max(0, Math.round(r.roi * 100)), color: best && r.id === best.id ? 'var(--color-success)' : r.roi < 0 ? 'var(--color-danger)' : ERP.palette[0], href: '#/expo/events/' + r.id + '?tab=roi' })), { fmt: (v) => v + '%' }) : SA.empty({ icon: 'chart', title: 'لا توجد بيانات' })),
           SA.card({ title: 'التكلفة مقابل الصفقات والفرص' }, rows.length ? ERP.chart.columns({ labels: rows.map((r) => r.ev.name.split('—')[0].split(' ').slice(0, 3).join(' ')), series: [{ name: 'التكلفة', values: rows.map((r) => r.cost), color: ERP.palette[5] }, { name: 'صفقات مكسوبة', values: rows.map((r) => r.wonV), color: ERP.palette[4] }, { name: 'فرص مفتوحة (مرجّحة)', values: rows.map((r) => Math.round(r.wpipe)), color: ERP.palette[2] }], height: 230 }) : SA.empty({ icon: 'chart', title: 'لا توجد بيانات' }))),
         SA.card({ title: 'تكلفة العميل المحتمل' }, rows.filter((r) => r.cpl != null).length ? ERP.chart.bars(rows.filter((r) => r.cpl != null).sort((a, b) => a.cpl - b.cpl).map((r) => ({ label: r.ev.name, value: Math.round(r.cpl), color: ERP.palette[1] })), { fmt: fmt.short }) : SA.empty({ icon: 'chart', title: 'لا توجد بيانات' })),
         h('div', { style: { height: '16px' } }),

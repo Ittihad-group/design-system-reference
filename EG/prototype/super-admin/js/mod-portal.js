@@ -207,6 +207,23 @@
   .sap-portal-tabs { order: 3; flex: 1 1 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .sap-portal-tabs::-webkit-scrollbar { display: none; }
   .sap-portal-tab { flex: none; } .sap-portal-top .sap-top-actions { margin-inline-start: auto; }
 }
+@media (max-width: 600px) {
+  /* phone catalog: compact 2-column grid so the dealer sees more products per screen */
+  .ptl-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ptl-card .cat-img { aspect-ratio: 1 / 1; } .ptl-card .cat-img > img { inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); }
+  .ptl-card .cat-body { padding: 10px; gap: 5px; } .ptl-card h3 { font-size: 13.5px; line-height: 1.45; }
+  .ptl-card .ptl-desc, .ptl-card .ptl-specline, .ptl-card .ptl-opts, .ptl-card .ptl-colors small, .ptl-card .ptl-mine, .ptl-card .cat-meta .chip { display: none; }
+  .ptl-imgtag { inset-block-end: 6px; inset-inline-start: 6px; padding: 2px 7px; font-size: 11px; } .ptl-av-pos { inset-block-start: 6px; inset-inline-start: 6px; } .ptl-av-pos .chip { font-size: 11px; padding: 1px 7px; }
+  .ptl-price { gap: 4px; margin-top: 2px; } .ptl-price b { font-size: 1.1rem; } .ptl-cur { font-size: 11px; }
+  .ptl-card-foot .btn { min-height: 40px; padding-inline: 8px; font-size: 13px; }
+  .ptl-fams { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; } .ptl-fams::-webkit-scrollbar { display: none; } .ptl-fam { flex: none; }
+}
+@media (max-width: 760px) {
+  .ptl-mbar:not([hidden]) { position: sticky; bottom: 0; z-index: 5; margin-top: 12px; padding: 10px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: 14px; box-shadow: 0 -6px 18px rgba(1,40,100,.08); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .ptl-mbar > div { display: flex; flex-direction: column; } .ptl-mbar small { font-size: 11.5px; color: var(--color-text-muted); } .ptl-mbar b { font: 700 1.1rem var(--font-en); color: var(--eg-navy); }
+  .ptl-mbar .btn { min-height: 44px; }
+}
+@media (min-width: 761px) { .ptl-mbar { display: none; } }
 @media print {
   body * { visibility: hidden !important; }
   .ptl-printable, .ptl-printable * { visibility: visible !important; }
@@ -510,7 +527,7 @@
       ctx.setCrumbs([{ label: 'بوابة التاجر' }, { label: 'طلب جديد' }]);
       const c = cust(); const contact = (c.contacts && c.contacts[0]) || {};
       const fv = { phone: contact.phone || (SA.session.user || {}).phone || '', time: CALL_TIMES[1], delivery: 'pickup', date: '', notes: '' };
-      const linesHost = h('div', {}); const pfHost = h('div.ptl-col', {}); const stepsEl = h('ol.order-steps.ptl-steps', { 'aria-label': 'خطوات الطلب' });
+      const linesHost = h('div', {}); const pfHost = h('div.ptl-col', {}); const mbar = h('div.ptl-mbar', { role: 'region', 'aria-label': 'ملخص الطلب' }); const stepsEl = h('ol.order-steps.ptl-steps', { 'aria-label': 'خطوات الطلب' });
       const phoneF = SA.form.field({ name: 'phone', label: 'رقم الهاتف اللي هنتصل عليه لتأكيد الطلب', type: 'tel', value: fv.phone, required: true, rules: [SA.form.rules.phone], onInput: (v) => { fv.phone = v; } });
       const timeF = SA.form.field({ name: 'time', label: 'أنسب وقت للاتصال', type: 'select', value: fv.time, options: CALL_TIMES.map((t) => [t, t]), onChange: (v) => { fv.time = v; } });
       const delF = SA.form.field({ name: 'delivery', label: 'طريقة الاستلام', type: 'select', value: fv.delivery, options: [['pickup', DELIVERY.pickup], ['ship', DELIVERY.ship + (c.city ? ' (' + c.city + ')' : '')]], onChange: (v) => { fv.delivery = v; } });
@@ -545,6 +562,7 @@
         const sheet = pfSheet({ no: nextPf(), preview: true, date: ERP.now(), lines });
         if (lastTotal != null && lastTotal !== t.total) { const tt = sheet.querySelector('.totals'); if (tt) tt.classList.add('flash'); }
         lastTotal = t.total;
+        SA.clear(mbar); mbar.hidden = !lines.length; if (lines.length) mbar.append(h('div', {}, h('small', {}, nItems(lines.length) + ' · شامل الضريبة'), h('b.num', {}, money(t.total))), SA.btn({ label: 'أرسل الطلب', icon: 'send', kind: 'primary', perm: 'portal.orders.create', onClick: () => submit() }));
         pfHost.append(h('div.ptl-pflabel', {}, SA.icon('doc', 'icon-sm'), 'فاتورتك المبدئية بتتكوّن قدامك'), sheet, creditBox(t.total),
           SA.btn({ label: 'أرسل الطلب للمبيعات', icon: 'send', kind: 'accent', size: 'lg', perm: 'portal.orders.create', reason: lines.length ? '' : 'أضف منتجًا واحدًا على الأقل', class: 'ptl-send', attrs: { 'data-act': 'submit-order' }, onClick: () => submit() }),
           h('p.ptl-fine', {}, SA.icon('shield', 'icon-sm'), h('span', {}, 'بعد الإرسال يوصل طلبك للمبيعات بحالة «قيد مراجعة المبيعات». مفيش تأكيد تلقائي — ممثل المبيعات بيتصل بيك يأكد الأصناف والسعر وموعد التسليم.')));
@@ -580,7 +598,7 @@
           h('div.ptl-col', {}, SA.card({ title: 'بنود طلبك', flush: true }, linesHost), quick,
             SA.card({ title: 'بيانات التأكيد' }, phoneF.el, h('div.ptl-2', {}, timeF.el, delF.el), dateF.el, notesF.el,
               h('div.call-note', {}, SA.icon('phone'), h('div', {}, h('b', {}, 'سيتصل بك ممثل المبيعات لتأكيد الطلب.'), h('br'), 'بنراجع معاك الأصناف والكميات وموعد التسليم وطريقة الدفع — وطلبك ما بيتأكدش قبل المكالمة.')))),
-          h('aside.ptl-sticky', { 'aria-label': 'الفاتورة المبدئية' }, pfHost))));
+          h('aside.ptl-sticky', { 'aria-label': 'الفاتورة المبدئية' }, pfHost)), mbar));
       const off = SA.on('portal.cart', redraw);
       const offS = st.subscribe('stock', () => { drawLines(); });
       return () => { off(); offS(); };

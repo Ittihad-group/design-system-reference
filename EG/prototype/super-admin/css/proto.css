@@ -540,3 +540,7 @@ body.sap-picking, body.sap-picking * { cursor: crosshair !important; } .sap-pick
 /* Test Lab button must never cover drawer/modal footers: tuck it away while a layer is open */
 body:has(.sap-drawer, .sap-modal) .sap-tl-fab { opacity: 0; pointer-events: none; transform: translateY(8px); }
 .sap-tl-fab { transition: opacity .15s ease, transform .15s ease, background .15s ease; }
+
+/* ERP: .num is inline-block (breaks table cells) */
+table:not(.sap-table) td.num, table:not(.sap-table) th.num { display: table-cell; }
+@media (min-width: 701px) { .sap-table td.num, .sap-table th.num { display: table-cell; } }

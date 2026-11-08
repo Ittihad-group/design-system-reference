@@ -116,11 +116,11 @@
 
   /* ───────────────────────── views ───────────────────────── */
   function shellFrame(inner, wide) {
-    return h('div.sap-auth', {}, h('div.sap-auth-hero', {}, h('img', { src: '../../assets/images/logo/wordmark-white.png', alt: 'EG', class: 'sap-auth-logo' }), h('h1', {}, 'Super Admin'), h('p', {}, 'لوحة صاحب الشركة والمصنع لإدارة النظام بالكامل: المستخدمون والأدوار والسياسات والرقابة.'), h('ul.sap-auth-points', {}, ['نموذج تفاعلي — لا يتصل بخادم', 'كل الإجراءات تنعكس على السجل والإشعارات', 'الشاشات تتغير حسب صلاحيات الشخصية'].map((t) => h('li', {}, SA.icon('check', 'icon-sm'), t)))), h('div.sap-auth-main', {}, h('div.sap-auth-card' + (wide ? '.is-wide' : ''), {}, inner)));
+    return h('div.sap-auth', {}, h('div.sap-auth-hero', {}, h('img', { src: '../../assets/images/logo/wordmark-white.png', alt: 'EG', class: 'sap-auth-logo' }), h('h1', {}, 'نظام المصرية الألمانية'), h('p', {}, 'نظام واحد للمصنع كله: المبيعات والتصنيع والجودة والمخازن والشحن والمالية والموارد البشرية والصيانة — كل شخصية تشوف اللي يخصها بالصلاحيات.'), h('ul.sap-auth-points', {}, ['نموذج تفاعلي — لا يتصل بخادم', 'كل الإجراءات تنعكس على السجل والإشعارات', 'الشاشات تتغير حسب صلاحيات الشخصية'].map((t) => h('li', {}, SA.icon('check', 'icon-sm'), t)))), h('div.sap-auth-main', {}, h('div.sap-auth-card' + (wide ? '.is-wide' : ''), {}, inner)));
   }
   function startView() {
-    const points = ['ده نموذج تفاعلي (Prototype) واحد لـSuper Admin والموارد البشرية (HR) — تجربة واحدة متصلة، مش شاشات متفرقة.', 'الإجراءات حقيقية جوه المتصفح: تعطيل مستخدم بيظهر في سجل التدقيق ومركز الأمان وبيمنعه من الدخول.', 'الشاشات والأزرار بتتغير حسب صلاحيات الشخصية اللي دخلت بيها (وفي أزرار مقفولة بسبب مكتوب).', 'افتح «وضع الاختبار» (الزر العائم) للمهام الجاهزة وتبديل الشخصيات ومحاكاة الأخطاء وتسجيل ملاحظاتك.', 'مفيش اتصال بخادم — البيانات تجريبية ومحفوظة في متصفحك، وتقدر تعيد ضبطها في أي وقت.'];
-    return shellFrame(h('div.sap-start', {}, h('img.sap-auth-logo-dark', { src: '../../assets/images/logo/wordmark-color.png', alt: 'EG' }), h('span.sap-eyebrow', {}, 'نموذج تفاعلي · Super Admin'), h('h2', {}, 'جرّب الموديول كأنه شغّال'),
+    const points = ['ده نموذج تفاعلي (Prototype) لنظام المصنع كله — تجربة واحدة متصلة، مش شاشات متفرقة.', 'الإجراءات حقيقية جوه المتصفح: تعطيل مستخدم بيظهر في سجل التدقيق ومركز الأمان وبيمنعه من الدخول.', 'الشاشات والأزرار بتتغير حسب صلاحيات الشخصية اللي دخلت بيها (وفي أزرار مقفولة بسبب مكتوب).', 'افتح «وضع الاختبار» (الزر العائم) للمهام الجاهزة وتبديل الشخصيات ومحاكاة الأخطاء وتسجيل ملاحظاتك.', 'مفيش اتصال بخادم — البيانات تجريبية ومحفوظة في متصفحك، وتقدر تعيد ضبطها في أي وقت.'];
+    return shellFrame(h('div.sap-start', {}, h('img.sap-auth-logo-dark', { src: '../../assets/images/logo/wordmark-color.png', alt: 'EG' }), h('span.sap-eyebrow', {}, 'نموذج تفاعلي · نظام المصرية الألمانية'), h('h2', {}, 'جرّب النظام كأنه شغّال'),
       h('ol.sap-start-list', {}, points.map((p) => h('li', {}, p))),
       h('div.cluster.sap-start-actions', {}, h('a.btn.btn-accent.btn-lg', { href: '#/login?as=owner' }, SA.icon('shield'), 'ابدأ كصاحب الشركة'), h('a.btn.btn-ghost.btn-lg', { href: '#/login?pick=1' }, SA.icon('users'), 'اختر شخصية')),
       h('div.cluster.sap-start-more', {}, h('span.t-caption', {}, 'أو ادخل مباشرة:'), h('a.sap-linkbtn', { href: '#/login?as=hr' }, 'HR Manager'), h('a.sap-linkbtn', { href: '#/login?as=employee' }, 'موظف (خدماتي)'), h('a.sap-linkbtn', { href: '#/login?as=salesmgr' }, 'Sales Manager')),
@@ -220,7 +220,7 @@
     const s0 = route.segs[0] || 'start'; if (s0 === 'start' && route.query.persona) { SA.nav('login?as=' + encodeURIComponent(route.query.persona), { replace: true }); return; }
     SA.clear(host); let v;
     if (s0 === 'login') v = loginView(route.query); else if (s0 === 'forgot') v = forgotView(); else if (s0 === 'reset') v = setPasswordView('reset', route.segs[1]); else if (s0 === 'activate') v = setPasswordView('activate', route.segs[1]); else v = startView();
-    host.appendChild(v); document.title = 'Super Admin — نموذج تفاعلي · EG';
+    host.appendChild(v); document.title = 'نظام المصرية الألمانية — نموذج تفاعلي · EG';
     const first = SA.$('input:not([type=checkbox])', host); if (s0 === 'login' && first && !route.query.as) first.focus();
   };
 })();

@@ -30,7 +30,7 @@
   /* ═════════════════════════ catalog additions ═════════════════════════ */
   [['TKT.UPDATED', 'تحديث تذكرة عميل', 'info'], ['WARRANTY.OPENED', 'فتح مطالبة ضمان', 'medium'], ['MNT.STATUS_CHANGED', 'تغيير حالة أمر صيانة', 'info'], ['MNT.ASSET_STATUS', 'تغيير حالة ماكينة', 'medium'],
     ['MNT.PARTS_ORDERED', 'شراء قطع غيار معتمد لأمر صيانة', 'medium'], ['MNT.PARTS_RECEIVED', 'استلام قطع غيار لأمر صيانة', 'medium'], ['IT.ASSIGNED', 'إسناد تذكرة دعم فني', 'info'], ['IT.UPDATED', 'تحديث تذكرة دعم فني', 'info'],
-    ['VISIT.CANCELLED', 'إلغاء زيارة', 'info']].forEach((a) => C.addAudit(a[0], a[1], a[2], 'care'));
+    ['VISIT.CANCELLED', 'إلغاء زيارة', 'info'], ['PM.PLAN_UPDATED', 'تعديل خطة صيانة وقائية', 'medium']].forEach((a) => C.addAudit(a[0], a[1], a[2], 'care'));
   C.addAudit('WO.RESUMED', 'استئناف أمر تشغيل بعد عودة الخط', 'medium', 'mfg');
   Object.assign(C.status, {
     care_claim: { pending: ['بانتظار القرار', 'warning'], approved: ['معتمدة — استبدال', 'success'], rejected: ['مرفوضة', 'danger'] },
@@ -439,16 +439,18 @@
     return { ok: true };
   };
   /** urgent purchase requisitions for the short lines (source 'maintenance') */
-  CA.requestParts = function (id) {
+  /** suggested purchase quantity per short part line (>= shortage, >= MOQ) — the user can edit it before the request */
+  CA.suggestLines = (m) => CA.shortParts(m).map((s) => ({ itemId: s.itemId, qty: Math.max(s.short, (ERP.item(s.itemId) || {}).moq || 1), short: s.short }));
+  CA.requestParts = function (id, lines) {
     const m = ERP.find('maintenanceOrders', id); if (!m) return []; const out = [];
-    CA.shortParts(m).forEach((s) => { const it = ERP.item(s.itemId) || {}; const r = F.createPRQ({ itemId: s.itemId, qty: Math.max(s.short, it.moq || 1), reason: 'عاجل — ' + (m.kind === 'breakdown' ? 'عطل ' : 'صيانة ') + mName(m.machineId) + ' (' + id + ')', source: 'maintenance', neededBy: today() }); out.push(r.id); });
+    (lines || CA.suggestLines(m)).filter((s) => Number(s.qty) > 0).forEach((s) => { const r = F.createPRQ({ itemId: s.itemId, qty: Number(s.qty), reason: 'عاجل — ' + (m.kind === 'breakdown' ? 'عطل ' : 'صيانة ') + mName(m.machineId) + ' (' + id + ')', source: 'maintenance', neededBy: today() }); out.push(r.id); });
     if (out.length) st.patch('maintenanceOrders', id, (x) => { x.prqIds = (x.prqIds || []).concat(out); if (['requested', 'scheduled', 'in_progress'].indexOf(x.status) >= 0) x.status = 'waiting_parts'; x.log = (x.log || []).concat([logE('طلب شراء عاجل ' + out.join('، '), 'cart', 'warning')]); });
     return out;
   };
   const spendLines = (m) => (m.spendLines && m.spendLines.length ? m.spendLines : CA.shortParts(m).map((s) => ({ itemId: s.itemId, qty: Math.max(s.short, (ERP.item(s.itemId) || {}).moq || 1) })));
   /** maintenance_spend approval (production manager) for the short parts */
-  CA.requestSpend = function (id) {
-    const m = ERP.find('maintenanceOrders', id); if (!m) return null; const lines = spendLines(m); if (!lines.length) return null;
+  CA.requestSpend = function (id, edited) {
+    const m = ERP.find('maintenanceOrders', id); if (!m) return null; const lines = edited ? edited.filter((l) => Number(l.qty) > 0).map((l) => ({ itemId: l.itemId, qty: Number(l.qty) })) : spendLines(m); if (!lines.length) return null;
     const amount = Math.round(lines.reduce((s, l) => s + l.qty * ((ERP.item(l.itemId) || {}).stdCost || 0), 0));
     const ap = SA.requestApproval({ type: 'maintenance_spend', area: 'care', title: 'شراء عاجل: ' + lines.map((l) => ERP.itemName(l.itemId)).join('، ') + ' — ' + mName(m.machineId), amount, chain: [{ roleId: 'R-05', label: 'مدير الإنتاج' }],
       context: [['أمر الصيانة', id], ['الماكينة', mName(m.machineId)], ['القطع', lines.map((l) => ERP.itemName(l.itemId) + ' × ' + l.qty).join('، ')], ['القيمة التقديرية', ERP.fmt.money(amount)], ['المورد', ERP.supplierName((ERP.item(lines[0].itemId) || {}).supplierId)], ['حدود الاعتماد', 'تجريبية — الحدود الفعلية Open']], ref: { type: 'maintenance_spend', id } });
@@ -467,7 +469,7 @@
       return ERP.find('purchaseOrders', po.id);
     });
     st.patch('maintenanceOrders', id, (x) => { x.approvedSpend = true; x.spendApprovalId = apId || x.spendApprovalId || null; x.spendDecision = 'approved'; x.poId = pos[0].id; x.poIds = pos.map((p) => p.id); x.prqIds = Array.from(new Set((x.prqIds || []).concat(...pos.map((p) => p.prqIds || []))));
-      x.log = (x.log || []).concat([logE('اعتُمد الصرف — أمر شراء ' + pos.map((p) => p.id + ' (' + ((C.status.po[p.status] || [])[0] || p.status) + ')').join('، ') + ' للمورد ' + ERP.supplierName(pos[0].supplierId), 'truck', 'success')]); });
+      x.log = (x.log || []).concat([logE('اعتُمد الصرف — أمر شراء ' + pos.map((p) => p.id + ' (' + ((C.status.po[p.status] || [])[0] || p.status) + ')').join('، ') + ' — ' + ERP.supplierName(pos[0].supplierId), 'truck', 'success')]); });
     SA.audit('MNT.PARTS_ORDERED', { target: { type: 'mwo', id, label: mName(m.machineId) }, after: { po: pos.map((p) => p.id).join('، '), approval: apId || null, parts: lines.map((l) => ERP.itemName(l.itemId) + ' × ' + l.qty).join('، ') } });
     SA.notify({ title: 'شراء عاجل: ' + lines.map((l) => ERP.itemName(l.itemId)).join('، '), body: 'اعتمد مدير الإنتاج الصرف (' + (apId || '—') + '). أمر الشراء ' + pos.map((p) => p.id).join('، ') + ' أُرسل للمورد ' + ERP.supplierName(pos[0].supplierId) + ' — تابع التوريد اليوم، ' + lName(m.lineId) + ' متوقف.', level: 'urgent', to: ['R-08'], link: '#/scm/po/' + pos[0].id });
     SA.notify({ title: 'تم اعتماد شراء قطع الغيار — ' + id, body: 'أمر الشراء ' + pos[0].id + ' — استلم القطعة فور وصولها واصرفها للأمر.', level: 'info', to: ['R-18'], link: '#/care/maintenance/' + id });
@@ -539,6 +541,23 @@
     SA.audit('PM.SCHEDULED', { target: { type: 'pm_plan', id: pl.id, label: mName(pl.machineId) }, after: { mwo: m.id, date: planned, tasks: (pl.tasks || []).length } });
     return m;
   };
+  /** edit a preventive maintenance plan (frequency, run-hours trigger, tasks checklist, next due, est. hours, active) -> PM.PLAN_UPDATED */
+  CA.updatePlan = function (planId, v) {
+    const pl = ERP.find('pmPlans', planId); if (!pl) return null;
+    const tasks = (v.tasks || []).map((t) => String(t || '').trim()).filter(Boolean);
+    const next = { freqDays: Math.max(1, Math.round(Number(v.freqDays) || pl.freqDays || 30)), freqHours: Number(v.freqHours) > 0 ? Math.round(Number(v.freqHours)) : null, nextDueAt: v.nextDueAt || pl.nextDueAt, estH: Number(v.estH) > 0 ? Number(v.estH) : pl.estH, tasks: tasks.length ? tasks : pl.tasks || [], active: v.active !== false };
+    const keys = ['freqDays', 'freqHours', 'nextDueAt', 'estH', 'active']; const before = {}, after = {};
+    keys.forEach((k) => { if (String(pl[k] == null ? '' : pl[k]) !== String(next[k] == null ? '' : next[k])) { before[k] = pl[k] == null ? null : pl[k]; after[k] = next[k]; } });
+    if ((pl.tasks || []).join('|') !== next.tasks.join('|')) { before.tasks = (pl.tasks || []).length + ' مهام'; after.tasks = next.tasks.length + ' مهام'; }
+    if (!Object.keys(after).length) return { unchanged: true };
+    st.patch('pmPlans', planId, Object.assign({}, next, { updatedAt: nowIso(), updatedBy: me() }));
+    if (after.nextDueAt) st.patch('machines', pl.machineId, { nextPMAt: next.nextDueAt });
+    // keep an open (not yet started) preventive order in sync with the new checklist / date
+    const o = pl.mwoId ? ERP.find('maintenanceOrders', pl.mwoId) : null;
+    if (o && M_OPEN(o) && o.status === 'scheduled' && !(o.checklist || []).some((c) => c.done)) st.patch('maintenanceOrders', o.id, (x) => { if (after.tasks) x.checklist = next.tasks.map((t) => ({ text: t, done: false })); if (after.nextDueAt) x.plannedAt = next.nextDueAt; x.log = (x.log || []).concat([logE('تحديث من خطة الصيانة الوقائية ' + planId, 'edit', 'info')]); });
+    SA.audit('PM.PLAN_UPDATED', { target: { type: 'pm_plan', id: planId, label: mName(pl.machineId) }, before, after, reason: v.reason || '' });
+    return ERP.find('pmPlans', planId);
+  };
   CA.setMachineStatus = function (id, status, reason) {
     const mc = mach(id); if (!mc || mc.status === status) return null; const prev = mc.status;
     st.patch('machines', id, { status, downSince: status === 'down' ? nowIso() : null });
@@ -566,7 +585,7 @@
     if (a.status === 'approved') {
       if (m.approvedSpend || m.poId) return;
       const pos = CA.orderParts(m.id, a.id);
-      if (pos && pos.length && SA.toast) SA.toast('اعتُمد الصرف — أمر الشراء ' + pos[0].id + ' ' + ((C.status.po[pos[0].status] || [])[0] || '') + ' للمورد ' + ERP.supplierName(pos[0].supplierId), 'success', { ms: 6000 });
+      if (pos && pos.length && SA.toast) SA.toast('اعتُمد الصرف — أمر الشراء ' + pos[0].id + ' (' + ((C.status.po[pos[0].status] || [])[0] || '') + ') — ' + ERP.supplierName(pos[0].supplierId), 'success', { ms: 6000 });
     } else if (a.status === 'rejected') {
       if (m.spendDecision === 'rejected') return; const why = ((a.chain || []).find((s) => s.status === 'rejected') || {}).reason || '';
       st.patch('maintenanceOrders', m.id, (x) => { x.spendDecision = 'rejected'; x.spendApprovalId = a.id; x.log = (x.log || []).concat([logE('رُفض طلب الصرف ' + a.id + (why ? ': ' + why : ''), 'xcircle', 'danger')]); });
@@ -639,6 +658,8 @@
 .care-muted { color: var(--color-text-muted); font-size: 12.5px; } .care-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .care-pmnext.is-overdue { color: var(--color-danger); font-weight: 700; display: inline-flex; align-items: center; gap: 4px; } .care-pmnext.is-soon { color: var(--color-warning); font-weight: 600; }
 .care-crit { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; font: 700 12px var(--font-en); background: var(--color-neutral-tint); color: var(--color-text); } .care-crit.is-A { background: var(--color-danger-tint); color: var(--color-danger); } .care-crit.is-B { background: var(--color-warning-tint); color: var(--color-warning); }
+.care-tasks { display: grid; gap: 6px; } .care-task { display: flex; gap: 6px; align-items: center; } .care-task .input { flex: 1; min-width: 0; }
+.care-task-n { width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center; background: var(--color-primary-tint); color: var(--eg-navy); font: 700 12px var(--font-en); flex: none; }
 .care-qty0 { color: var(--color-danger); font-weight: 700; } .care-qtylow { color: var(--color-warning); font-weight: 700; }
 .care-opts { display: grid; gap: 10px; } .care-opt { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border: 1px solid var(--color-border); border-radius: 12px; cursor: pointer; background: #fff; text-align: start; font: inherit; color: inherit; width: 100%; }
 .care-opt:hover { border-color: var(--eg-navy-soft); background: var(--color-primary-tint); } .care-opt b { display: block; } .care-opt small { display: block; color: var(--color-text-muted); font-size: 12.5px; line-height: 1.6; margin-top: 2px; } .care-opt.is-warn { border-color: #f2d6ad; background: #fffaf2; }
@@ -1040,7 +1061,7 @@
       return h('div', {}, head,
         isPortal(t) ? SA.alert('info', h('b', {}, 'تذكرة من بوابة التاجر'), ' — أرسلها ' + (t.createdBy ? uname(t.createdBy) : ERP.customerName(t.customerId)) + '. المتابعات المعلّمة «مرئية للعميل» تظهر للتاجر في صفحة «الدعم والشكاوى» بالبوابة.') : null,
         h('div.card', { style: { padding: '14px 16px', marginBottom: '14px' } }, SA.stepper(['جديدة', 'مُسندة', 'قيد المعالجة', 'بانتظار العميل', 'تم الحل', 'مغلقة'], idx < 0 ? 0 : idx)),
-        U.grid(2, SA.card({ title: 'بيانات التذكرة' }, t.desc ? h('p', { style: { marginTop: 0, lineHeight: 1.8 } }, t.desc) : null, info), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start' } }, SA.card({ title: 'الـSLA' }, slaBox), related)),
+        U.grid(2, SA.card({ title: 'بيانات التذكرة' }, t.desc ? h('p', { style: { marginTop: 0, lineHeight: 1.8 } }, t.desc) : null, info), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start', minWidth: 0 } }, SA.card({ title: 'الـSLA' }, slaBox), related)),
         U.grid(2, SA.card({ title: 'المتابعة والملاحظات', tags: h('span.sap-count', {}, notes.length) }, noteList, addNote), so ? SA.card({ title: 'دورة أمر البيع ' + so.id }, U.chain(so.id)) : SA.card({ title: 'سجل التذكرة' }, timeline(get('audit').filter((a) => a.target && a.target.id === id).slice(0, 8).map((a) => ({ at: a.ts, by: a.actor && a.actor.id, text: SA.auditLabel(a.code) + (a.after && a.after.status ? ' → ' + ((C.status.ticket[a.after.status] || [])[0] || a.after.status) : ''), icon: 'history', tone: 'info' }))))));
     }, ['tickets', 'visits', 'warrantyClaims', 'ncrs', 'salesOrders']);
     return off;
@@ -1286,8 +1307,8 @@
     const short = CA.shortParts(m); const ap = spendAp(m); const po = m.poId ? ERP.find('purchaseOrders', m.poId) : null; const grn = m.grnId ? ERP.find('grns', m.grnId) : null;
     const openPrq = (m.prqIds || []).some((x) => { const r = ERP.find('purchaseRequisitions', x); return r && r.status !== 'rejected'; }) || get('purchaseRequisitions').some((r) => r.status === 'open' && r.source === 'maintenance' && short.some((s) => s.itemId === r.itemId));
     if (short.length && !po) {
-      if (!openPrq) acts.push(SA.btn({ label: 'اطلب شراء عاجل', icon: 'cart', kind: 'ghost', perm: P, onClick: () => act(() => CA.requestParts(m.id), (ids) => 'طلب شراء عاجل ' + (ids || []).join('، ') + ' — تم إبلاغ المشتريات') }));
-      if (!ap || ap.status === 'rejected' || ap.status === 'changes_requested') acts.push(SA.btn({ label: 'طلب اعتماد صرف عاجل', icon: 'inbox', perm: P, onClick: () => act(() => CA.requestSpend(m.id), (a) => 'أُرسل طلب الاعتماد ' + a.id + ' لمدير الإنتاج') }));
+      if (!openPrq) acts.push(SA.btn({ label: 'اطلب شراء عاجل', icon: 'cart', kind: 'ghost', perm: P, onClick: () => partsQtyModal(m, 'prq') }));
+      if (!ap || ap.status === 'rejected' || ap.status === 'changes_requested') acts.push(SA.btn({ label: 'طلب اعتماد صرف عاجل', icon: 'inbox', perm: P, onClick: () => partsQtyModal(m, 'spend') }));
     }
     if (ap && (ap.status === 'pending' || ap.status === 'delegated') && !po) {
       const why = SA.approvals ? SA.approvals.why(ap) : 'شاشة الاعتمادات غير متاحة'; const stp = (ap.chain || []).find((c) => c.status === 'pending') || {};
@@ -1346,8 +1367,8 @@
       return h('div', {}, SA.pageHead({ title: m.title, back: { href: '#/care/maintenance', label: 'أوامر الصيانة' }, tags: [h('span.num.care-muted', {}, m.id), U.status('mwo', m.status), chip(MKIND, m.kind), chip(PRIO, m.priority)], desc: mName(m.machineId) + (ln ? ' · ' + ln.name : ''), actions: mwoFlowBtns(m) }),
         banner, h('div.card', { style: { padding: '14px 16px', marginBottom: '14px' } }, m.status === 'cancelled' ? SA.alert('info', 'أُلغي الأمر' + (m.cancelReason ? ': ' + m.cancelReason : '')) : SA.stepper(['بلاغ', 'مجدول', 'قيد التنفيذ', 'بانتظار قطع غيار', 'تم'], idx < 0 ? 0 : m.status === 'done' ? 5 : idx)),
         showChain ? SA.card({ title: 'سلسلة الاسترداد — من البلاغ حتى عودة الخط' }, recoveryChain(m), chainActions(m)) : null,
-        U.grid(2, SA.card({ title: 'تفاصيل الأمر' }, m.desc ? h('p', { style: { marginTop: 0, lineHeight: 1.8 } }, m.desc) : null, info), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start' } }, partsCard(m), checklist)),
-        U.grid(2, SA.card({ title: 'السجل الزمني' }, mwoTimeline(m)), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start' } },
+        U.grid(2, SA.card({ title: 'تفاصيل الأمر' }, m.desc ? h('p', { style: { marginTop: 0, lineHeight: 1.8 } }, m.desc) : null, info), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start', minWidth: 0 } }, partsCard(m), checklist)),
+        U.grid(2, SA.card({ title: 'السجل الزمني' }, mwoTimeline(m)), h('div', { style: { display: 'grid', gap: '16px', alignContent: 'start', minWidth: 0 } },
           SA.card({ title: 'التوقفات المرتبطة' }, miniTable(['التوقف', 'البداية', 'المدة', 'السبب'], dts.map((d) => [h('span.num', {}, d.id), SA.fmt.dt(d.start), d.end ? dur(dtMinutes(d)) : h('b', { style: { color: 'var(--color-danger)' } }, 'جارٍ'), d.reason]), 'لا يوجد توقف مسجل لهذا الأمر')),
           ln ? SA.card({ title: 'أوامر التشغيل على ' + ln.name }, miniTable(['أمر التشغيل', 'الصنف', 'أمر البيع', 'الحالة'], get('workOrders').filter((w) => w.lineId === ln.id && (w.status === 'on_hold' || w.status === 'in_progress' || (w.resumedAt && ms(w.resumedAt) >= ms(m.openedAt)))).map((w) => [dl(w.id), ERP.itemName(w.itemId), w.soId ? h('span', {}, dl(w.soId), ' ', h('small.care-muted', {}, ERP.customerName((ERP.find('salesOrders', w.soId) || {}).customerId))) : '—', U.status('wo', w.status)]), 'لا توجد أوامر تشغيل نشطة على الخط')) : null)));
     }, ['maintenanceOrders', 'approvals', 'purchaseOrders', 'purchaseRequisitions', 'grns', 'qcInspections', 'stock', 'lines', 'machines', 'workOrders', 'downtime']);
@@ -1356,10 +1377,43 @@
   }
 
   /* ═════════════════════════ 7. PREVENTIVE MAINTENANCE ═════════════════════════ */
+  function pmEditModal(p) {
+    const tasks = (p.tasks || []).slice(); const list = h('div.care-tasks');
+    const draw = () => { SA.clear(list); tasks.forEach((t, i) => list.append(h('div.care-task', {}, h('span.care-task-n.num', {}, String(i + 1)), h('input.input', { value: t, 'aria-label': 'المهمة ' + (i + 1), placeholder: 'وصف المهمة', oninput: (e) => { tasks[i] = e.target.value; } }),
+      h('button.btn.btn-ghost.btn-sm.btn-icon', { type: 'button', 'aria-label': 'تحريك لأعلى', disabled: i === 0, onclick: () => { tasks.splice(i - 1, 0, tasks.splice(i, 1)[0]); draw(); } }, SA.icon('chevup', 'icon-sm')),
+      h('button.btn.btn-ghost.btn-sm.btn-icon', { type: 'button', 'aria-label': 'حذف المهمة', onclick: () => { tasks.splice(i, 1); draw(); } }, SA.icon('trash', 'icon-sm')))));
+      list.append(h('div', {}, h('button.btn.btn-ghost.btn-sm', { type: 'button', onclick: () => { tasks.push(''); draw(); const ins = list.querySelectorAll('input'); if (ins.length) ins[ins.length - 1].focus(); } }, SA.icon('plus', 'icon-sm'), 'إضافة مهمة'))); };
+    draw();
+    const o = p.mwoId ? ERP.find('maintenanceOrders', p.mwoId) : null; const openO = o && M_OPEN(o) ? o : null;
+    return formModal({ title: 'تعديل خطة الصيانة الوقائية', subtitle: p.id + ' · ' + mName(p.machineId), icon: 'edit', size: 'lg', submitLabel: 'حفظ الخطة',
+      fields: [fld({ name: 'freqDays', label: 'التكرار (كل كم يوم)', type: 'number', required: true, value: p.freqDays, min: 1 }), fld({ name: 'freqHours', label: 'أو كل (ساعة تشغيل) — اختياري', type: 'number', value: p.freqHours || '', min: 0 }),
+        fld({ name: 'nextDueAt', label: 'الموعد المستحق التالي', type: 'date', required: true, value: p.nextDueAt }), fld({ name: 'estH', label: 'المدة التقديرية (ساعة)', type: 'number', value: p.estH || '', min: 0 }),
+        fld({ name: 'active', label: 'الخطة نشطة', type: 'switch', value: p.active !== false }), fld({ name: 'reason', label: 'سبب التعديل (اختياري)', placeholder: 'مثال: توصية المورد بعد فحص البرميل' })],
+      extra: h('div', { style: { marginTop: '6px' } }, h('div.sap-sub', {}, 'قائمة المهام (Checklist)'), list,
+        openO ? h('p.care-muted', { style: { marginTop: '10px', display: 'flex', gap: '6px', alignItems: 'flex-start' } }, SA.icon('info', 'icon-sm'), h('span', {}, 'يوجد أمر صيانة مفتوح ' + openO.id + (openO.status === 'scheduled' ? ' — سيُحدَّث بقائمة المهام والموعد الجديد.' : ' — قيد التنفيذ، التعديل يسري على الأمر القادم.'))) : null),
+      collect: () => ({ tasks: tasks.slice() }),
+      check: (v) => (!v.tasks.some((t) => String(t).trim()) ? 'أضف مهمة واحدة على الأقل' : null),
+      onSubmit: (v) => act(() => CA.updatePlan(p.id, v), (r) => (r && r.unchanged ? 'لا توجد تغييرات' : 'تم حفظ خطة ' + mName(p.machineId) + ' — المستحق ' + ERP.fmt.date(v.nextDueAt))) });
+  }
+  /** edit the quantities before a spare-part purchase request / spend approval is raised from an MWO */
+  function partsQtyModal(m, mode) {
+    const base = mode === 'spend' && m.spendLines && m.spendLines.length ? m.spendLines.map((l) => Object.assign({ short: (CA.shortParts(m).find((s) => s.itemId === l.itemId) || {}).short || 0 }, l)) : CA.suggestLines(m);
+    const lines = base.map((l) => Object.assign({}, l)); const tot = h('b.num');
+    const calc = () => { const v = lines.reduce((s, l) => s + (Number(l.qty) || 0) * ((ERP.item(l.itemId) || {}).stdCost || 0), 0); SA.clear(tot); tot.append(U.cost(Math.round(v))); };
+    const rows = lines.map((l) => { const it = ERP.item(l.itemId) || {}; return [U.itemCell(l.itemId), h('span.num', {}, ERP.fmt.num(spareAvail(l.itemId))), h('b.num', { style: { color: 'var(--color-danger)' } }, ERP.fmt.num(l.short)), h('span.num', {}, ERP.fmt.num(it.moq || 1)),
+      h('input.input.num', { type: 'number', min: 0, value: l.qty, name: 'qty-' + l.itemId, style: { width: '96px' }, 'aria-label': 'الكمية المطلوبة — ' + (it.name || l.itemId), oninput: (e) => { l.qty = Number(e.target.value) || 0; calc(); } })]; });
+    calc();
+    const spend = mode === 'spend';
+    return formModal({ title: spend ? 'طلب اعتماد صرف عاجل — ' + m.id : 'طلب شراء عاجل — ' + m.id, subtitle: mName(m.machineId), icon: spend ? 'inbox' : 'cart', size: 'lg', submitLabel: spend ? 'إرسال لمدير الإنتاج' : 'إنشاء طلب الشراء', submitIcon: spend ? 'send' : 'cart',
+      intro: SA.alert('info', spend ? 'راجع الكميات قبل الإرسال — القيمة التقديرية تُحسب منها، وبعد الاعتماد يصدر أمر الشراء بنفس الكميات.' : 'الكمية المقترحة = النقص (أو الحد الأدنى للطلب). عدّلها لو تحتاج احتياطي إضافي.'),
+      extra: h('div', {}, miniTable(['القطعة', 'متاح W-05', 'النقص', 'الحد الأدنى للطلب', 'الكمية المطلوبة'], rows), h('p', { style: { marginTop: '10px' } }, 'القيمة التقديرية: ', tot)),
+      check: () => (!lines.some((l) => Number(l.qty) > 0) ? 'أدخل كمية لقطعة واحدة على الأقل' : lines.some((l) => Number(l.qty) > 0 && Number(l.qty) < l.short) ? 'الكمية أقل من النقص المطلوب لإصلاح العطل' : null),
+      onSubmit: () => (spend ? act(() => CA.requestSpend(m.id, lines), (a) => 'أُرسل طلب الاعتماد ' + a.id + ' لمدير الإنتاج') : act(() => CA.requestParts(m.id, lines), (ids) => 'طلب شراء عاجل ' + (ids || []).join('، ') + ' — تم إبلاغ المشتريات')) });
+  }
   function renderPM(root, ctx) {
     ctx.setCrumbs([{ label: 'صيانة المصنع' }, { label: 'الصيانة الوقائية' }]);
     return SA.live(root, () => {
-      const plans = get('pmPlans').filter((p) => p.active !== false); const pmc = CA.pmCompliance(90); const od = plans.filter((p) => CA.pmState(p) === 'overdue').sort((a, b) => (a.nextDueAt < b.nextDueAt ? -1 : 1));
+      const plans = get('pmPlans').filter((p) => p.active !== false); const inactive = get('pmPlans').filter((p) => p.active === false); const pmc = CA.pmCompliance(90); const od = plans.filter((p) => CA.pmState(p) === 'overdue').sort((a, b) => (a.nextDueAt < b.nextDueAt ? -1 : 1));
       const soon = plans.filter((p) => CA.pmState(p) === 'soon'); const openPM = get('maintenanceOrders').filter((m) => m.kind === 'preventive' && M_OPEN(m));
       const openOf = (p) => { const m = p.mwoId ? ERP.find('maintenanceOrders', p.mwoId) : null; return m && M_OPEN(m) ? m : null; };
       const schedBtn = (p, small) => { const o = openOf(p); return o ? dl(o.id) : SA.btn({ label: 'أنشئ أمر صيانة وقائية', icon: 'plus', size: small ? 'sm' : null, kind: small ? 'ghost' : 'primary', perm: 'care.pm.edit', onClick: () => act(() => CA.schedulePM(p.id), (m) => 'تم إنشاء ' + m.id + ' — ' + mName(p.machineId)) }); };
@@ -1373,7 +1427,9 @@
         U.grid(2, SA.card({ title: 'الالتزام بالصيانة الوقائية' }, h('div', { style: { display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' } }, CH.gauge(pmc || 0, { label: 'آخر 90 يومًا', good: 0.85, warn: 0.7 }), h('div', { style: { flex: 1, minWidth: '200px', display: 'grid', gap: '10px' } }, get('lines').map((l) => { const ps = plans.filter((p) => (mach(p.machineId) || {}).lineId === l.id); const ok = ps.filter((p) => CA.pmState(p) !== 'overdue').length; return CH.meter(ps.length ? ok / ps.length : 1, { label: l.name, text: ok + '/' + ps.length + ' في الموعد' }); })))),
           SA.card({ title: 'المتأخرة', tags: h('span.sap-count', {}, od.length) }, od.length ? h('ul.care-attn', {}, od.map((p) => h('li', {}, h('div', {}, h('span.care-ico.is-danger', {}, SA.icon('calendar', 'icon-sm')), h('span.care-grow', {}, h('b', {}, mName(p.machineId)), h('small', {}, 'مستحقة ' + ERP.fmt.date(p.nextDueAt) + ' — متأخرة ' + -daysTo(p.nextDueAt) + ' يوم · ' + (p.tasks || []).length + ' مهام')), schedBtn(p, true))))) : SA.empty({ icon: 'checkcircle', title: 'لا توجد صيانة وقائية متأخرة' }))),
         SA.card({ title: 'تقويم الصيانة الوقائية — الأسابيع الخمسة القادمة', actions: [h('span.care-row', {}, h('span.care-pmchip.is-overdue', {}, 'متأخرة'), h('span.care-pmchip.is-scheduled', {}, 'لها أمر صيانة'), h('span.care-pmchip', {}, 'مستحقة'))] }, cal),
-        h('div', { style: { marginTop: '16px' } }, SA.card({ title: 'كل الخطط' }, miniTable(['الماكينة', 'الأهمية', 'التكرار', 'آخر تنفيذ', 'المستحق', 'الحالة', 'أمر الصيانة'], plans.slice().sort((a, b) => (a.nextDueAt < b.nextDueAt ? -1 : 1)).map((p) => { const mc = mach(p.machineId) || {}; return [h('div.care-cell', {}, h('a.erp-doc', { href: '#/care/assets/' + p.machineId }, p.machineId), h('small', {}, mc.name)), critCell(mc.criticality), 'كل ' + p.freqDays + ' يوم' + (p.freqHours ? ' / ' + p.freqHours + ' س' : ''), ERP.fmt.date(p.lastDoneAt), pmNext({ nextPMAt: p.nextDueAt }), U.status('care_pm', CA.pmState(p)), schedBtn(p, true)]; })))));
+        h('div', { style: { marginTop: '16px' } }, SA.card({ title: 'كل الخطط', tags: inactive.length ? [SA.chip(inactive.length + ' موقوفة', 'neutral')] : null }, miniTable(['الماكينة', 'الأهمية', 'التكرار', 'المهام', 'آخر تنفيذ', 'المستحق', 'الحالة', 'أمر الصيانة', ''], plans.concat(inactive).slice().sort((a, b) => (a.nextDueAt < b.nextDueAt ? -1 : 1)).map((p) => { const mc = mach(p.machineId) || {}; const off = p.active === false; return [h('div.care-cell', {}, h('a.erp-doc', { href: '#/care/assets/' + p.machineId }, p.machineId), h('small', {}, mc.name)), critCell(mc.criticality), 'كل ' + p.freqDays + ' يوم' + (p.freqHours ? ' / ' + p.freqHours + ' س' : ''),
+          h('span.care-muted', { title: (p.tasks || []).join(' · ') }, (p.tasks || []).length + ' مهام'), ERP.fmt.date(p.lastDoneAt), off ? '—' : pmNext({ nextPMAt: p.nextDueAt }), off ? SA.chip('موقوفة', 'neutral') : U.status('care_pm', CA.pmState(p)), off ? '—' : schedBtn(p, true),
+          SA.btn({ label: 'تعديل', icon: 'edit', kind: 'ghost', size: 'sm', perm: 'care.pm.edit', onClick: () => pmEditModal(p) })]; })))));
     }, ['pmPlans', 'maintenanceOrders', 'machines']);
   }
 

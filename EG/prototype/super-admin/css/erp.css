@@ -99,3 +99,4 @@ body.sap-hide-tags .erp-demo { display: none; }
 
 @media (max-width: 760px) { .erp-hbar { grid-template-columns: 1fr auto; } .erp-hbar-t { grid-column: 1 / -1; grid-row: 2; } .sap-portal-top { padding: 10px 12px; } .sap-portal-main { padding: 14px; } }
 @media (prefers-reduced-motion: reduce) { .erp-svg .erp-bar { transition: none; } }
+.erp-kpi.is-primary .erp-spark path { stroke: rgba(255,255,255,.85); }

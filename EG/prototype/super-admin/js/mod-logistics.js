@@ -40,18 +40,20 @@
 .lgx-q-lines li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; }
 .lgx-q-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px dashed var(--color-border); padding-top: 8px; font-size: 12.5px; color: var(--color-text-muted); }
 .lgx-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(212px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 8px; align-items: start; }
-.lgx-col { background: var(--color-bg-alt); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 280px; border: 2px dashed transparent; transition: border-color .15s, background .15s; }
+.lgx-col { min-width: 0; background: var(--color-bg-alt); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px; min-height: 280px; border: 2px dashed transparent; transition: border-color .15s, background .15s; }
 .lgx-col.is-un { background: #fff8ee; }
 .lgx-col.is-over { border-color: var(--eg-navy-soft); background: var(--color-primary-tint); }
 .lgx-col.is-maint { opacity: .75; }
 .lgx-col-head { display: flex; flex-direction: column; gap: 6px; padding: 2px 2px 10px; border-bottom: 1px solid var(--color-border); }
-.lgx-col-title { display: flex; align-items: center; justify-content: space-between; gap: 6px; } .lgx-col-title b { font-size: var(--text-dense); }
+.lgx-col-title { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-width: 0; } .lgx-col-title b { font-size: var(--text-dense); }
+.lgx-col-title .lgx-plate { flex: 0 1 auto; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; } .lgx-col-title > .chip { flex: none; }
+.lgx-col .erp-meter-l { flex-wrap: wrap; gap: 0 6px; font-size: 11.5px; } .lgx-col .erp-meter-l b { white-space: nowrap; }
 .lgx-trip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; font-size: 11px; color: var(--color-text-muted); text-align: center; background: #fff; border-radius: 8px; padding: 6px 2px; }
 .lgx-trip b { display: block; color: var(--color-text); font: 700 13px var(--font-en); }
-.lgx-card { background: #fff; border: 1px solid var(--color-border); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; cursor: grab; }
+.lgx-card { min-width: 0; background: #fff; border: 1px solid var(--color-border); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; cursor: grab; }
 .lgx-card[draggable="false"] { cursor: default; } .lgx-card.is-moving { background: var(--color-primary-tint); border-style: dashed; }
 .lgx-card:focus-within { box-shadow: 0 0 0 2px var(--eg-navy-tint); }
-.lgx-card-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.lgx-card-top { display: flex; align-items: center; justify-content: space-between; gap: 4px 6px; flex-wrap: wrap; min-width: 0; }
 .lgx-card-acts { display: flex; gap: 4px; justify-content: flex-end; }
 .lgx-day { font-size: 11.5px; font-weight: 700; color: var(--eg-navy); margin-top: 2px; }
 .lgx-drop { border: 1px dashed var(--color-border-strong); border-radius: 10px; padding: 18px 8px; text-align: center; color: var(--color-text-muted); font-size: 12px; }
@@ -633,7 +635,7 @@
         const todays = list.filter((d) => effDate(d) === td);
         cols.push(h('section.lgx-col' + (vs === 'maintenance' ? '.is-maint' : ''), Object.assign({ 'aria-label': 'مركبة ' + v.plate }, vs === 'maintenance' ? {} : dz(v.id)),
           h('div.lgx-col-head', {},
-            h('div.lgx-col-title', {}, h('span.lgx-plate', {}, v.plate), U.status('vehicle', vs)),
+            h('div.lgx-col-title', {}, h('span.lgx-plate', { title: v.plate }, v.plate), U.status('vehicle', vs)),
             h('span.lgx-muted', {}, v.type + ' · ' + (v.driver || '—')),
             loadMeter(maxLoad, v.capacityKg, period === 'week' ? 'أقصى حمولة يومية' : 'الحمولة'),
             h('div.lgx-trip', {}, h('div', {}, h('b', {}, String(trip.stops)), 'توقف'), h('div', {}, h('b', {}, fmt.num(trip.km)), 'كم تقريبًا'), h('div', {}, h('b', {}, trip.hours ? trip.hours.toFixed(1) : '0'), 'ساعة')),
