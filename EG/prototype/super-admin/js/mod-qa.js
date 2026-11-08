@@ -174,13 +174,21 @@
     const acc = preview ? preview.accepted : qc.acceptedQty || 0; const rej = preview ? preview.rejected : qc.rejectedQty || 0; const result = preview ? preview.result : qc.result;
     if (qc.refType === 'work_order') {
       const wo = ERP.find('workOrders', qc.refId); const so = wo && wo.soId ? ERP.find('salesOrders', wo.soId) : null;
-      if (acc > 0) out.push({ icon: 'warehouse', tone: 'success', node: h('span', {}, (preview ? 'دخول ' : 'تم نقل ') + qtyU(acc, qc.itemId) + ' إلى ' + ERP.whName(K.FG) + ' — اللوط ' + (qc.lot || '—') + (preview ? '' : ' (الرصيد المتاح الآن ' + num(K.available(qc.itemId, K.FG)) + ')')) });
+      if (acc > 0) {
+        // a passed final QC no longer moves stock: it creates an FGR «إذن استلام للمخزن» for the finished-goods storekeeper, who counts and receives into W-01
+        const fgr = preview ? null : get('fgReceipts').find((r) => r.qcId === qc.id) || null;
+        if (preview) out.push({ icon: 'inbox', tone: 'success', node: h('span', {}, 'إذن استلام للمخزن (FGR) بـ ' + qtyU(acc, qc.itemId) + ' — اللوط ' + (qc.lot || '—') + ' · أمين مخزن المنتج التام يعدّ ويستلم في ' + ERP.whName(K.FG)) });
+        else if (fgr && fgr.status === 'received') out.push({ icon: 'warehouse', tone: 'success', node: h('span', {}, 'إذن الاستلام ', U.docLink(fgr.id), ' — استلمه ' + SA.userName(fgr.receivedBy) + ' في ' + ERP.whName(K.FG) + ': ' + qtyU(fgr.receivedQty != null ? fgr.receivedQty : fgr.qty, qc.itemId) + ' (الرصيد المتاح الآن ' + num(K.available(qc.itemId, K.FG)) + ')') });
+        else if (fgr) out.push({ icon: 'inbox', tone: 'warning', node: h('span', {}, 'إذن الاستلام ', U.docLink(fgr.id), ' بـ ' + qtyU(fgr.qty, qc.itemId) + ' ← ', U.status('fgr', fgr.status), ' — بانتظار أمين مخزن المنتج التام يعدّ ويستلم في ' + ERP.whName(K.FG)) });
+        else out.push({ icon: 'warehouse', tone: 'success', node: h('span', {}, 'تم نقل ' + qtyU(acc, qc.itemId) + ' إلى ' + ERP.whName(K.FG) + ' — اللوط ' + (qc.lot || '—')) });
+      }
       if (rej > 0) out.push({ icon: 'alert', tone: 'danger', node: h('span', {}, qtyU(rej, qc.itemId) + (preview ? ' إلى ' : ' في ') + ERP.whName(K.QRT) + (preview ? ' + فتح عدم مطابقة (' + (result === 'fail' ? 'رئيسي' : 'بسيط') + ')' : ''), !preview && ncrOf(qc) ? h('span', {}, ' — ', U.docLink(ncrOf(qc))) : null) });
       if (wo) out.push({ icon: 'clipboard', tone: result === 'fail' ? 'danger' : 'success', node: h('span', {}, 'أمر التشغيل ', U.docLink(wo.id), ' ← ', preview ? U.status('wo', result === 'fail' ? 'on_hold' : 'completed') : U.status('wo', wo.status)) });
       if (so) {
         let ready = so.status === 'ready';
         if (preview) ready = so.lines.every((l) => { const need = l.qty - (l.reservedQty || 0); if (need <= 0) return true; const av = K.available(l.itemId, K.FG) + (l.itemId === qc.itemId ? acc : 0); return av >= need; });
-        out.push({ icon: 'cart', tone: ready ? 'success' : 'info', node: h('span', {}, 'أمر البيع ', U.docLink(so.id), ' — ' + ERP.customerName(so.customerId) + ' ← ', preview ? (ready ? h('b', { style: { color: 'var(--color-success)' } }, 'سيصبح «جاهز للتسليم» وتُخطر اللوجستيات') : 'يُحجز المقبول ويبقى قيد التصنيع لباقي البنود') : U.status('so', so.status), !preview && so.status === 'ready' ? ' — تم إخطار اللوجستيات والمخزن' : '') });
+        const fgrWait = !preview && acc > 0 && get('fgReceipts').some((r) => r.qcId === qc.id && r.status === 'pending');
+        out.push({ icon: 'cart', tone: ready ? 'success' : 'info', node: h('span', {}, 'أمر البيع ', U.docLink(so.id), ' — ' + ERP.customerName(so.customerId) + ' ← ', preview ? (ready ? h('b', { style: { color: 'var(--color-success)' } }, 'يصبح «جاهز للتسليم» بمجرد ما أمين مخزن المنتج التام يستلم الكمية') : 'يُحجز المقبول بعد استلام المخزن ويبقى قيد التصنيع لباقي البنود') : U.status('so', so.status), !preview && so.status === 'ready' ? ' — تم إخطار اللوجستيات والمخزن' : fgrWait ? ' — الحجز للطلب بعد استلام أمين المخزن' : '') });
       }
     } else if (qc.refType === 'grn') {
       const g = grnOf(qc);
@@ -218,6 +226,15 @@
       else if (disp === 'use_as_is') K.transfer(n.itemId, K.QRT, K.defaultWh(n.itemId), q, ref, 'قبول كما هو — ' + ncrId);
       else if (disp === 'rework') K.transfer(n.itemId, K.QRT, K.WIP, q, ref, 'إعادة تشغيل — ' + ncrId);
       else if (disp === 'return_to_supplier') K.move({ itemId: n.itemId, whId: K.QRT, qty: -q, type: 'return', ref, note: 'مرتجع للمورد — ' + ncrId });
+    }
+    // production NCR scrapped → the rejected units become factory scrap at «الجودة والتغليف» (W-07 + GL via ERP.factory.logScrap), once per NCR
+    const FX = ERP.factory;
+    if (disp === 'scrap' && FX && FX.logScrap && n.source === 'production' && n.refType === 'work_order' && !get('scrapLogs').some((l) => l.ncrId === ncrId)) {
+      const wo = ERP.find('workOrders', n.refId) || {}; const sq = q || n.qty || 0;
+      if (sq > 0) {
+        const rec = FX.logScrap({ stageId: 'ST-QP', reasonId: 'R20', track: 'main', woId: n.refId, itemId: n.itemId, lineId: wo.lineId || null, qty: sq, kg: Math.round(sq * FX.unitKg(n.itemId, 'main') * 100) / 100, note: 'إعدام بقرار عدم مطابقة ' + ncrId });
+        if (rec && rec.id) st.patch('scrapLogs', rec.id, { ncrId });
+      }
     }
     st.patch('ncrs', ncrId, { status: 'dispositioned', disposition: disp, dispositionNote: note || '', dispositionedAt: ERP.now(), dispositionedBy: me(), dispositionQty: q, pendingDisposition: null });
     SA.audit('NCR.DISPOSITIONED', { target: { type: 'ncr', id: ncrId, label: ERP.itemName(n.itemId) }, before: { status: n.status, disposition: null }, after: { status: 'dispositioned', disposition: disp, qtyMoved: q }, reason: note || '' });

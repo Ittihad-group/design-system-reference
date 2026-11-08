@@ -221,7 +221,7 @@
   ERP.families = { door: 'أبواب WPC & PVC', clad: 'تجاليد WPC', foam: 'ألواح PVC فوم بورد', acc: 'إكسسوارات', rm: 'مواد خام', pkg: 'تغليف', spare: 'قطع غيار' };
 
   /** Document id → route + label (cross-module links). */
-  const DOC = [['SO-', 'crm/orders/', 'أمر بيع'], ['QT-', 'crm/quotes/', 'عرض سعر'], ['LD-', 'crm/leads/', 'عميل محتمل'], ['WO-', 'mfg/workorders/', 'أمر تشغيل'], ['QC-', 'mfg/qc/', 'فحص جودة'], ['NCR-', 'mfg/ncr/', 'عدم مطابقة'], ['BOM-', 'mfg/bom/', 'مكونات منتج'],
+  const DOC = [['MIR-', 'scm/issues/', 'إذن صرف خامات'], ['FGR-', 'scm/fg-receipts?q=', 'استلام إنتاج تام'], ['SCR-', 'mfg/scrap?q=', 'تسجيل هالك'], ['SS-', 'mfg/scrap?q=', 'بيع هوالك'], ['RG-', 'mfg/scrap?q=', 'طحن هوالك'], ['MX-', 'mfg/formulas/', 'خلطة'], ['SO-', 'crm/orders/', 'أمر بيع'], ['QT-', 'crm/quotes/', 'عرض سعر'], ['LD-', 'crm/leads/', 'عميل محتمل'], ['WO-', 'mfg/workorders/', 'أمر تشغيل'], ['QC-', 'mfg/qc/', 'فحص جودة'], ['NCR-', 'mfg/ncr/', 'عدم مطابقة'], ['BOM-', 'mfg/bom/', 'مكونات منتج'],
     ['PRQ-', 'scm/requisitions?q=', 'طلب شراء'], ['PS-', 'scm/po/', 'أمر شراء'], ['GRN-', 'scm/grn/', 'استلام'], ['DN-', 'scm/deliveries/', 'إذن تسليم'], ['SH-', 'scm/shipments/', 'شحنة'], ['IT-', 'scm/stock/', 'صنف'],
     ['INV-', 'fin/invoices/', 'فاتورة'], ['RV-', 'fin/receipts?q=', 'سند قبض'], ['PV-', 'fin/vouchers/', 'سند صرف'], ['BILL-', 'fin/bills?q=', 'فاتورة مورد'], ['JE-', 'fin/journal/', 'قيد'], ['CHQ-', 'fin/cheques?q=', 'شيك'],
     ['TKT-', 'care/tickets/', 'تذكرة'], ['MWO-', 'care/maintenance/', 'أمر صيانة'], ['ITK-', 'care/it/', 'تذكرة IT'], ['M-', 'care/assets/', 'ماكينة'], ['EV-', 'expo/events/', 'معرض'], ['L-', 'mfg/lines/', 'خط إنتاج'], ['C-', 'crm/customers/', 'عميل'], ['AP-', 'approvals/', 'طلب اعتماد']];
@@ -423,20 +423,19 @@
   };
   /** material check vs raw-material store → [{itemId, need, avail, short}] */
   F.woMaterials = function (woId) { const wo = ERP.find('workOrders', woId); if (!wo) return []; return ERP.materialsFor(wo.itemId, wo.qty - (wo.qtyDone || 0)).map((m) => { const avail = K.available(m.itemId, K.defaultWh(m.itemId)); return { itemId: m.itemId, need: m.qty, uom: m.uom, avail, short: Math.max(0, Math.round((m.qty - avail) * 100) / 100) }; }); };
-  /** release: issue materials RM → WIP (GL Dr 1142 / Cr 1141). If short and !o.force → {ok:false, shortages}; with o.raisePR the shortages become purchase requisitions. */
+  /** release: the WO goes to the floor and a material issue request (إذن صرف — ERP.factory.createMIR) goes to the raw-materials storekeeper, who issues to the mixer
+      (stock + GL Dr 1142 / Cr 1141 happen on issue, see erp-factory.js). If short and !o.force → {ok:false, shortages}; with o.raisePR the shortages become purchase requisitions. */
   F.releaseWO = function (woId, o) {
     o = o || {}; const wo = ERP.find('workOrders', woId); if (!wo || wo.status !== 'planned') return { ok: false, reason: 'status' };
     const mats = F.woMaterials(woId); const short = mats.filter((m) => m.short > 0);
     if (short.length && !o.force) { if (o.raisePR) short.forEach((m) => F.createPRQ({ itemId: m.itemId, qty: Math.ceil(m.short * 1.1), reason: 'نقص خامات لأمر التشغيل ' + woId, source: 'mrp', woId })); return { ok: false, shortages: short }; }
-    let val = 0;
-    mats.forEach((m) => { const q = Math.min(m.need, m.avail); if (q <= 0) return; const wh = K.defaultWh(m.itemId); K.move({ itemId: m.itemId, whId: wh, qty: -q, type: 'issue', ref: { type: 'work_order', id: woId }, note: 'صرف خامات لأمر تشغيل', lot: wo.lot }); val += q * ((ERP.item(m.itemId) || {}).stdCost || 0); });
-    patch('workOrders', woId, { status: 'released', issued: true, releasedAt: ERP.now(), releasedBy: me(), issuedValue: Math.round(val) });
-    if (val > 0) GL.post({ memo: 'صرف خامات لأمر التشغيل ' + woId, ref: { type: 'work_order', id: woId }, lines: [{ acc: '1142', dr: val }, { acc: '1141', cr: val }] });
-    audit('WO.RELEASED', { target: { type: 'work_order', id: woId, label: ERP.itemName(wo.itemId) }, after: { materials: mats.length, value: Math.round(val) } });
-    return { ok: true, shortages: short };
+    const FXm = ERP.factory; const mir = FXm ? FXm.createMIR(woId, { force: !!o.force }) : null;
+    patch('workOrders', woId, (w) => { w.status = 'released'; w.issued = false; w.releasedAt = ERP.now(); w.releasedBy = me(); w.mirId = mir ? mir.id : null; if (FXm && (!w.stages || !w.stages.length)) w.stages = FXm.initStages(Object.assign({}, w)); });
+    audit('WO.RELEASED', { target: { type: 'work_order', id: woId, label: ERP.itemName(wo.itemId) }, after: { materials: mats.length, mir: mir ? mir.id : null } });
+    return { ok: true, shortages: short, mirId: mir ? mir.id : null };
   };
   F.startWO = function (woId, shift) {
-    const wo = ERP.find('workOrders', woId); if (!wo) return; patch('workOrders', woId, { status: 'in_progress', actualStart: wo.actualStart || ERP.now(), shift: shift || wo.shift || 'A' });
+    const wo = ERP.find('workOrders', woId); if (!wo) return { ok: false, reason: 'not_found' }; if (!wo.issued) return { ok: false, reason: 'not_issued' }; patch('workOrders', woId, { status: 'in_progress', actualStart: wo.actualStart || ERP.now(), shift: shift || wo.shift || 'A' });
     patch('lines', wo.lineId, { currentWoId: woId, status: 'running' });
     audit('WO.STARTED', { target: { type: 'work_order', id: woId, label: ERP.itemName(wo.itemId) }, after: { line: wo.lineId } });
   };
@@ -478,7 +477,8 @@
     if (ncr) patch('qcInspections', qcId, { ncrId: ncr.id });
     if (qc.refType === 'work_order') {
       const wo = ERP.find('workOrders', qc.refId); const it = ERP.item(qc.itemId); const cost = (it && it.stdCost) || 0;
-      if (accepted > 0) { K.move({ itemId: qc.itemId, whId: K.FG, qty: accepted, type: 'production', ref: { type: 'work_order', id: qc.refId }, note: 'استلام إنتاج تام بعد فحص الجودة', lot: qc.lot }); GL.post({ memo: 'إنتاج تام من ' + qc.refId, ref: { type: 'work_order', id: qc.refId }, lines: [{ acc: '1143', dr: accepted * cost }, { acc: '1142', cr: accepted * cost }] }); }
+      // accepted goods wait for the finished-goods storekeeper (ERP.factory.receiveFG moves them into W-01 + GL Dr 1143 / Cr 1142 + re-reserves the order)
+      if (accepted > 0) { if (ERP.factory) ERP.factory.createFGR({ woId: qc.refId, qcId, itemId: qc.itemId, qty: accepted, lot: qc.lot }); else { K.move({ itemId: qc.itemId, whId: K.FG, qty: accepted, type: 'production', ref: { type: 'work_order', id: qc.refId }, note: 'استلام إنتاج تام بعد فحص الجودة', lot: qc.lot }); GL.post({ memo: 'إنتاج تام من ' + qc.refId, ref: { type: 'work_order', id: qc.refId }, lines: [{ acc: '1143', dr: accepted * cost }, { acc: '1142', cr: accepted * cost }] }); } }
       if (rejected > 0) K.move({ itemId: qc.itemId, whId: K.QRT, qty: rejected, type: 'scrap', ref: { type: 'qc', id: qcId }, note: 'حجر جودة — عدم مطابقة', lot: qc.lot });
       patch('workOrders', qc.refId, { status: result === 'fail' ? 'on_hold' : 'completed', completedAt: ERP.now(), ncrId: ncr ? ncr.id : null });
       if (result !== 'fail') audit('WO.COMPLETED', { target: { type: 'work_order', id: qc.refId, label: ERP.itemName(qc.itemId) }, after: { accepted } });

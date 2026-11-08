@@ -109,7 +109,7 @@
 
   /* ───────────────────────── store ───────────────────────── */
   const LS_KEY = 'eg.sa.proto.v1';
-  const SEED_VERSION = 7;
+  const SEED_VERSION = 8;
   let state = null, memCopy = null, saveTimer = null;
   const subs = [];
   let pendingCbs = new Set(), flushQueued = false;

@@ -227,10 +227,22 @@ body:has(.sap-drawer, .sap-modal) .xai-fab, body.sap-tl-open .xai-fab { opacity:
   G.complaints = () => { const open = get('tickets').filter((t) => ['resolved', 'closed'].indexOf(t.status) < 0 && M.custOK(t.customerId)); if (!open.length) return null; const brk = open.filter((t) => minsSince(t.openedAt) / 60 > (t.slaHours || 48)); const hi = open.filter((t) => t.priority === 'high'); const top = hi[0] || open[0];
     return { id: 'tickets', tone: brk.length ? 'danger' : hi.length ? 'warning' : 'info', title: pl(open.length, FN.tkt) + (hi.length ? '، منها ' + hi.length + ' عالية الأولوية' : ''), text: 'الأهم: ' + top.id + ' — ' + top.title + ' (' + ERP.customerName(top.customerId) + '، مفتوحة منذ ' + Math.round(minsSince(top.openedAt) / 60) + ' ساعة من ' + top.slaHours + ' ساعة SLA)' + (top.ncrId ? ' ومرتبطة بـ ' + top.ncrId : '') + '.' + (brk.length ? ' ' + brk.length + ' تجاوزت زمن الخدمة.' : ''), why: 'تذاكر العملاء غير المحلولة مقارنة بزمن الخدمة (SLA) لكل تذكرة.', actions: acts(act('التذكرة', 'care/tickets/' + top.id), act('كل التذاكر', 'care/tickets')) }; };
 
+  /* scrap (mod-scrap.js → ERP.scrap): a stage above its allowed scrap for several days in a row (seed: الترويس on M-205) */
+  G.scrap = () => {
+    const S = ERP.scrap; if (!S || !S.analysis) return null; const a = S.analysis(30);
+    const over = a.stages.filter((s) => s.streak >= 3).sort((x, y) => y.streak - x.streak)[0]; if (!over) return null;
+    const m = a.machines.filter((x) => x.stageId === over.stageId).sort((x, y) => y.kg - x.kg)[0]; const mc = m ? m.mc : null;
+    const late = mc && mc.nextPMAt && mc.nextPMAt < ERP.day(0) ? ERP.daysBetween(mc.nextPMAt) : 0; const tod = a.today.find((x) => x.stageId === over.stageId);
+    return { id: 'scrap-' + over.stageId, tone: 'danger', title: 'هالك ' + over.name + ' أعلى من المسموح ' + over.streak + ' أيام متتالية' + (m ? ' — ' + m.id : ''),
+      text: 'آخر 7 أيام ' + pct(over.ratio7) + ' من المسموح' + (tod ? ' والنهارده ' + pct1(tod.rate) + ' مقابل ' + pct1(tod.std) : '') + (m ? '، وأغلبه على ' + m.id + ' ' + m.name : '') + (late ? ' والصيانة الوقائية متأخرة ' + late + ' يوم' : '') + '. الزيادة عن المسموح ≈ ' + num(over.excessStreak) + ' كجم' + (ERP.ui.canCost() ? ' (≈ ' + short(over.excessStreak * ERP.factory.compoundCostKg()) + ')' : '') + '. التوصية: فحص/تغيير السكينة وتنفيذ الصيانة الوقائية — الهالك الزيادة بيرجع W-07 بس بخسارة.',
+      why: 'هالك كل مرحلة بالكيلو (من تقارير المراحل) مقابل المسموح = الكمية الداخلة للمرحلة تقديريًا × النسبة المعيارية للمرحلة. «أعلى من المسموح» = أكتر من 110% في اليوم.',
+      actions: acts(act('الهوالك', 'mfg/scrap?stage=' + over.stageId), m ? act('الماكينة ' + m.id, 'care/assets/' + m.id) : null, late ? act('الصيانة الوقائية', 'care/pm') : null) };
+  };
+
   const AREAS = {
     exec: ['lineDown', 'film', 'cashFc', 'payRisk', 'stockoutFG', 'ncr', 'demandCap', 'pm', 'expoWinner'],
     crm: ['dealerPending', 'stockoutFG', 'payRisk', 'staleLeads', 'lineDown', 'expoFollow', 'demandCap'],
-    mfg: ['lineDown', 'qcPending', 'ncr', 'mrpShort', 'pm', 'demandCap'],
+    mfg: ['lineDown', 'qcPending', 'ncr', 'mrpShort', 'pm', 'demandCap', 'scrap'],
     scm: ['film', 'spareUrgent', 'mrpShort', 'stockoutFG', 'supplierQ'],
     fin: ['cashFc', 'payRisk', 'chequesDue', 'vouchers', 'margin'],
     care: ['lineDown', 'spareUrgent', 'lowMtbf', 'pm', 'complaints'],
@@ -522,10 +534,35 @@ body:has(.sap-drawer, .sap-modal) .xai-fab, body.sap-tl-open .xai-fab { opacity:
   intent({ id: 'approvals', label: 'الاعتمادات', w: 4, req: ['اعتماد', 'اعتمادات', 'الاعتمادات', 'موافقه', 'موافقات', 'موافقتي', 'قراري', 'مستني', 'pending', 'تنتظرني', 'مستنياني'], answer: ansApprovals });
   intent({ id: 'quality', label: 'مؤشرات الجودة', need: NEED.quality, w: 4, req: ['جوده', 'الجوده', 'ncr', 'عدم مطابقه', 'عيوب', 'fpy', 'مرفوض', 'capa', 'مطابقه', 'اختلاف اللون'], answer: ansQuality });
   intent({ id: 'customer', label: 'بيانات العملاء', need: NEED.cust, match: (n) => { const f = findCustomer(n); if (!f) return 0; return 1 + f.s + (has(n, N(['حساب', 'رصيد', 'عليه', 'مديونيه', 'كشف', 'عميل', 'العميل', 'طلبات', 'وضع'])) ? 2 : 0); }, answer: ansCustomer });
+  /* الهوالك / الهالك / الفاقد / المطحون — from ERP.factory.scrapStats (+ ERP.scrap.analysis for «فوق المسموح» when mod-scrap is loaded) */
+  function ansScrap(n) {
+    const FXs = ERP.factory; if (!FXs || !FXs.scrapStats) return null; const S = ERP.scrap; const canC = ERP.ui.canCost(); const TOL = (S && S.TOL) || 1.1;
+    const days = has(n, N(['النهارده', 'انهارده', 'اليوم', 'النهار ده'])) ? 1 : has(n, N(['الاسبوع', 'اسبوع', '7 ايام'])) ? 7 : 30;
+    const per = days === 1 ? 'النهارده' : days === 7 ? 'آخر 7 أيام' : 'آخر 30 يوم';
+    const ss = FXs.scrapStats({ days }); const a = S && S.analysis ? S.analysis(days) : null;
+    const W = FXs.SCRAP_WH; const reg = K.qty(FXs.REG, W), gr = K.qty('IT-SCR-GR', W), du = K.qty('IT-SCR-DUST', W), fi = K.qty('IT-SCR-FILM', W);
+    const sales = get('scrapSales'); const pend = sales.filter((s) => s.status === 'pending_approval'), appr = sales.filter((s) => s.status === 'approved');
+    const focus = has(n, N(['مطحون', 'طحن', 'كساره', 'regrind', 'اعاده تدوير'])) ? 'reg' : has(n, N(['بيع', 'نبيع', 'اتباع', 'خرده', 'المشتري'])) ? 'sale' : 'all';
+    const stRows = (a ? a.stages.filter((s) => s.kg > 0) : Object.keys(ss.byStage).map((id) => ({ stageId: id, name: FXs.stageName(id), kg: ss.byStage[id].kg, ratio: null }))).sort((x, y) => y.kg - x.kg);
+    const over = days === 1 && S && S.todayOver ? S.todayOver().map((t) => ({ name: FXs.stageName(t.stageId).replace(/\s*\([^)]*\)/g, ''), ratio: t.ratio })) : a ? a.stages.filter((s) => s.ratio != null && s.ratio > TOL).sort((x, y) => y.ratio - x.ratio) : [];
+    const streak = a ? a.stages.filter((s) => s.streak >= 3).sort((x, y) => y.streak - x.streak)[0] : null;
+    const sm = streak ? a.machines.filter((x) => x.stageId === streak.stageId).sort((x, y) => y.kg - x.kg)[0] : null;
+    let text = 'الهالك ' + per + ': ' + num(ss.kg) + ' كجم في ' + ss.n + ' تسجيل' + (ss.kg ? '، منه غير طبيعي ' + pct(ss.abnormalKg / ss.kg) : '') + (a && a.pctOut != null && days > 1 ? ' (≈ ' + pct1(a.pctOut) + ' من الإنتاج — تقديري)' : '') + (canC ? '. التكلفة ' + short(ss.cost) + ' والمسترد لمخزن الهوالك ' + short(ss.recoverable) + ' فصافي الفاقد (5204) ' + short(ss.cost - ss.recoverable) : '') + '.';
+    if (focus === 'all') { if (over.length) text += ' فوق المسموح: ' + over.map((s) => s.name + ' ' + pct(s.ratio)).join('، ') + '.'; else if (a) text += ' كل المراحل في حدود المسموح.'; if (streak) text += ' ' + streak.name + ' أعلى من المسموح ' + streak.streak + ' أيام متتالية' + (sm ? ' على ' + sm.id + ' ' + sm.name : '') + '.'; }
+    if (focus !== 'sale') text += ' المطحون: رصيد ' + num(reg) + ' كجم جاهز للخلاطة + ' + num(gr) + ' كجم هوالك قابلة للطحن في W-07' + (a ? '، ورجع للخلاطة ' + num(a.regKg) + ' كجم ' + per : '') + '.';
+    if (focus !== 'reg') text += ' البيع: تراب ' + num(du) + ' كجم وفويل ' + num(fi) + ' كجم في المخزن' + (pend.length ? '، و' + pl(pend.length, ['طلب بيع واحد', 'طلبين', 'طلبات بيع', 'طلب بيع']) + ' بانتظار اعتماد المدير المالي (' + pend.map((s) => s.id + ' ' + short(s.total)).join('، ') + ')' : '') + (appr.length ? '، و' + appr.length + ' معتمد مستني التسليم' : '') + '.';
+    const chipOf = (r) => (r == null ? '—' : r > TOL ? { text: 'أعلى من المسموح', chip: 'danger' } : r > 1 ? { text: 'على الحد', chip: 'warning' } : { text: 'ضمن المسموح', chip: 'success' });
+    return { tone: over.length || streak ? 'warning' : null, text,
+      table: stRows.length ? { cols: ['المرحلة', 'كجم', 'من المسموح', 'الحالة'], num: [1, 2], rows: stRows.slice(0, 10).map((s) => [L(s.name, 'mfg/scrap?stage=' + s.stageId), num(s.kg), s.ratio == null ? '—' : pct(s.ratio), chipOf(s.ratio)]) } : null,
+      chart: stRows.length ? { type: 'bars', title: 'الهالك حسب المرحلة (كجم) — ' + per, fmt: 'num', data: stRows.slice(0, 8).map((s) => ({ label: s.name, value: Math.round(s.kg), color: s.ratio != null && s.ratio > TOL ? '#b9141b' : '#345383', route: 'mfg/scrap?stage=' + s.stageId })) } : null,
+      links: [{ label: 'الهوالك وإعادة التدوير', route: 'mfg/scrap' }, streak && sm ? { label: 'الماكينة ' + sm.id, route: 'care/assets/' + sm.id } : null].filter(Boolean) };
+  }
+  intent({ id: 'scrap', label: 'الهوالك والمطحون', need: ['exec.dashboard.view', 'mfg.scrap.view'], w: 8, req: ['هوالك', 'هالك', 'فاقد', 'هادر', 'مطحون', 'طحن', 'كساره', 'خرده', 'scrap', 'regrind'], answer: ansScrap });
 
   const sampleSO = () => { const all = M.orders(); const pref = all.find((o) => o.id === 'SO-2026-0480'); if (pref) return pref.id; const o = all.find((x) => M.OPEN_SO.indexOf(x.status) >= 0) || all[0]; return o ? o.id : null; };
   const SUGG = [['مبيعات الشهر', 'sales'], ['قارن بالشهر اللي فات', 'compare'], ['حالة خطوط الإنتاج والـOEE', 'lines'], ['مين متأخر في السداد؟', 'overdue'], ['الخامات اللي هتخلص', 'materials'], ['إيه اللي مستني موافقتي؟', 'approvals'], ['__SO__', 'orderStatus'], ['أكبر العملاء', 'topCustomers'],
     ['حالة طلبيات التصدير', 'export'], ['الكاش المتاح', 'cash'], ['الشيكات المستحقة', 'cheques'], ['أوامر التشغيل المتأخرة', 'lateWO'], ['أرباح الشهر', 'profit'], ['أداء المندوبين', 'reps'], ['المعارض والعائد', 'expo'], ['الشكاوى المفتوحة', 'complaints'], ['الأعطال والصيانة', 'maintenance'], ['توقع مبيعات الشهور الجاية', 'forecast'], ['مؤشرات الجودة', 'quality'], ['اعمل طلب شراء لفويل الديكور', 'prq']];
+  SUGG.splice(3, 0, ['الهوالك والفاقد آخر 30 يوم', 'scrap']);
   const okIntent = (id) => { const it = byId[id]; if (!allowed(it)) return false; if (id === 'profit') return ERP.ui.canProfit(); if (id === 'orderStatus') return !!sampleSO(); return true; };
   function suggestions(n, skip) { skip = skip || []; return SUGG.filter((s) => okIntent(s[1])).map((s) => (s[0] === '__SO__' ? 'حالة طلب ' + sampleSO() : s[0])).filter((t) => skip.indexOf(t) < 0).slice(0, n || 6); }
 
