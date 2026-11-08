@@ -300,7 +300,7 @@ a.fct-model:hover { border-color: var(--eg-navy); }
       if (w.status === 'released' && !w.issued) node('MIX').waiting.push(w);
     });
     let scrapKg = 0, scrapN = 0;
-    get('scrapLogs').forEach((l) => { if (l.date !== t) return; const a = node(nodeKey(famOf(l.itemId, l.lineId), l.track, l.stageId)); a.scrapKg += l.kg || 0; a.logs.push(l); scrapKg += l.kg || 0; scrapN++; });
+    get('scrapLogs').forEach((l) => { if (l.reversed || l.date !== t) return; const a = node(nodeKey(famOf(l.itemId, l.lineId), l.track, l.stageId)); a.scrapKg += l.kg || 0; a.logs.push(l); scrapKg += l.kg || 0; scrapN++; });
     Object.keys(A).forEach((k) => { const a = A[k]; const d = NODES[k]; const std = FX.stdPct(d ? d.stageId : ''); a.std = std; const base = a.procKg + a.scrapKg;
       a.pct = base > 0 && a.procKg > 0 ? a.scrapKg / base : null; a.tone = a.pct == null ? 'none' : a.pct <= std ? 'ok' : a.pct <= std * 1.5 ? 'warn' : 'bad'; });
     const mix = A.MIX || {}; const plantPct = mix.procKg > 0 ? scrapKg / (mix.procKg + scrapKg) : null;
@@ -487,7 +487,7 @@ a.fct-model:hover { border-color: var(--eg-navy); }
     const logList = logs.length ? h('ul.fct-list', {}, logs.map((l) => h('li', {}, h('div.fct-grow', {}, h('span', {}, doc(l.id), ' · ', SA.fmt.time ? SA.fmt.time(l.at) : SA.fmt.rel(l.at), l.woId ? [' · ', doc(l.woId)] : null), h('small', {}, FX.reasonLabel(l.reasonId) + (l.machineId ? ' · ' + l.machineId : '') + ' · وردية ' + (l.shift || '—') + (l.note ? ' · ' + l.note : ''))),
       l.qty ? h('span.fct-muted', {}, num(l.qty) + ' قطعة') : null, h('span.fct-kgv', {}, num(l.kg, 1) + ' كجم'), SA.chip(l.normal ? 'طبيعي' : 'غير طبيعي', l.normal ? 'neutral' : 'warning'))))
       : h('p.fct-muted', {}, 'مفيش هالك متسجل للمرحلة النهارده.');
-    const days = Array.from({ length: 21 }, (_, i) => ERP.day(i - 20)); const byDay = {}; get('scrapLogs').forEach((l) => { if (l.date < days[0]) return; if (nodeKey(famOf(l.itemId, l.lineId), l.track, l.stageId) !== k) return; byDay[l.date] = (byDay[l.date] || 0) + (l.kg || 0); });
+    const days = Array.from({ length: 21 }, (_, i) => ERP.day(i - 20)); const byDay = {}; get('scrapLogs').forEach((l) => { if (l.reversed || l.date < days[0]) return; if (nodeKey(famOf(l.itemId, l.lineId), l.track, l.stageId) !== k) return; byDay[l.date] = (byDay[l.date] || 0) + (l.kg || 0); });
     const short = (ds) => { const p = ds.split('-'); return Number(p[2]) + '/' + Number(p[1]); };
     const chart = CH.columns({ labels: days.map((x) => short(x).split('/')[0]), series: [{ name: 'هالك (كجم)', values: days.map((x) => Math.round((byDay[x] || 0) * 10) / 10), color: a.tone === 'bad' ? '#b9141b' : ERP.palette[1] }], height: 150, fmt: (v) => num(v) });
     return h('div', { class: 'fct-dr' }, stats, warn,
@@ -687,4 +687,22 @@ a.fct-model:hover { border-color: var(--eg-navy); }
   if (SA.search && SA.search.register) SA.search.register({ id: 'mfg-formulas', label: 'الخلطات الكيميائية', perm: 'mfg.formulas.view', query(q) { q = String(q || '').toLowerCase(); if (q.length < 2) return []; return get('formulas').filter((f) => (f.id + ' ' + f.name + ' ' + (f.uses || '')).toLowerCase().indexOf(q) >= 0).slice(0, 6).map((f) => ({ title: f.id + ' — ' + f.name, sub: (FAM[f.family] || '') + ' · v' + f.version, icon: 'beaker', route: 'mfg/formulas/' + f.id })); } });
 
   ERP.fct = { openStage, report, reportDialog, updateFormula: updateFormulaCore, model: buildModel };
+
+  /* Test Lab missions — the real plant flow from the notebook (storekeepers → stages → scrap) */
+  if (SA.missions && SA.missions.add) {
+    if (SA.missions.areas && !SA.missions.areas.factory) SA.missions.areas.factory = 'مسار المصنع والمخازن والهوالك';
+    const MI = (o) => SA.missions.add(Object.assign({ area: 'factory' }, o));
+    MI({ id: 'M-F1', title: 'أمين مخزن الخامات: اصرف إذن الخلاطة لأبواب التصدير', persona: 'whin', route: 'scm/desk', est: '2 د', goal: 'أمر تشغيل أبواب D115 (تصدير عُمان) اتطلق، والتشغيل مستني الخامات. من مكتبك اصرف الإذن: الخامات تخرج من المخزن، المطحون بيتصرف بدل جزء من الـPVC، والإنتاج يتبلّغ يبدأ.',
+      steps: [{ text: 'افتح مكتب أمين المخزن وشوف إذن الصرف المستعجل (تصدير)', route: 'scm-desk' }, { text: 'اضغط «صرف الكل» وراجع الأثر', audit: 'MIR.ISSUED' }], detect: [{ audit: 'MIR.ISSUED' }] });
+    MI({ id: 'M-F2', title: 'المشرف: سجّل مرحلة بهالكها وسببها', persona: 'supervisor', route: 'mfg/flow', est: '3 د', goal: 'من «مسار التصنيع» اضغط على مرحلة عليها شغل مستني (مثلاً الشريط أو اللمينيشن) وسجّل السليم والهالك بالسبب — الهالك يدخل مخزن الهوالك بالوزن ويتقيّد لوحده.',
+      steps: [{ text: 'افتح مسار التصنيع واضغط على مرحلة', route: 'mfg-flow' }, { text: 'سجّل الكمية السليمة + هالك بسبب', audit: 'STAGE.REPORTED' }, { text: 'شوف الهالك في «الهوالك وإعادة التدوير»', audit: 'SCRAP.LOGGED' }], detect: [{ audit: 'STAGE.REPORTED' }, { audit: 'SCRAP.LOGGED' }] });
+    MI({ id: 'M-F3', title: 'أمين مخزن المنتج التام: استلم الإنتاج وعدّه', persona: 'whout', route: 'scm/fg-receipts', est: '2 د', goal: '36 باب D104 عدّوا الفحص النهائي ومستنيين الاستلام. اعدّهم واستلمهم: يدخلوا المخزن ويتعمل القيد، ولو العدد أقل لازم سبب ويتقيّد فاقد.',
+      steps: [{ text: 'افتح إذن الاستلام المعلّق', route: 'scm-fgreceipts' }, { text: 'اعدّ واستلم', audit: 'FG.RECEIVED' }], detect: [{ audit: 'FG.RECEIVED' }] });
+    MI({ id: 'M-F4', title: 'الهوالك: اطحن دفعة واطلب بيع الزيادة', persona: 'whin', route: 'mfg/scrap', est: '3 د', goal: 'الهوالك القابلة للطحن ترجع الخلاطة كمطحون — اطحن دفعة على الكسارة M-502، وبعدين اطلب بيع تراب السنفرة والفويل (بيروح للمدير المالي يعتمده).',
+      steps: [{ text: '«طحن دفعة» من شاشة الهوالك', audit: 'SCRAP.GROUND' }, { text: '«طلب بيع» للتراب والفويل', audit: 'SCRAP.SALE_REQUESTED' }], detect: [{ audit: 'SCRAP.GROUND' }, { audit: 'SCRAP.SALE_REQUESTED' }] });
+    MI({ id: 'M-F5', title: 'المدير المالي: اعتمد بيع الهوالك ثم سلّمه أمين المخزن', persona: 'cfo', route: 'mfg/scrap', est: '3 د', goal: 'اعتمد طلب بيع الهوالك المعلّق (من الاعتمادات أو من شاشة الهوالك). بعد التسليم يطلع سند قبض في المالية وقيد إيرادات بيع خردة 4201.',
+      steps: [{ text: 'اعتمد طلب البيع', audit: 'APPROVAL.APPROVED' }, { text: 'كأمين مخزن الخامات: «تسليم للمشتري»', audit: 'SCRAP.SOLD' }], detect: [{ audit: 'APPROVAL.APPROVED' }, { audit: 'SCRAP.SOLD' }] });
+    MI({ id: 'M-F6', title: 'مدير الإنتاج: عدّل نسبة في خلطة بسبب', persona: 'prod', route: 'mfg/formulas/MX-02', est: '2 د', goal: 'غيّر نسبة مكوّن في خلطة الضلفة الديكور (المجموع لازم 100%) — بيطلع إصدار جديد ويتسجّل في التدقيق ويتبلّغ أمين المخزن والجودة.',
+      steps: [{ text: 'افتح الخلطة MX-02 واضغط تعديل', route: 'mfg-formulas' }, { text: 'غيّر النسب واحفظ بسبب', audit: 'FORMULA.UPDATED' }], detect: [{ audit: 'FORMULA.UPDATED' }] });
+  }
 })();
