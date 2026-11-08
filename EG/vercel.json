@@ -1,5 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "node _build/copy-demo.mjs",
+  "outputDirectory": "dist",
   "redirects": [
     { "source": "/", "destination": "/prototype/index.html", "permanent": false }
   ],
