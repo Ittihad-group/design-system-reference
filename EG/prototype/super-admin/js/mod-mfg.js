@@ -1,6 +1,8 @@
 /* EG ERP prototype — mod-mfg.js  (app mfg «التصنيع والجودة» — groups mfg-dash · mfg-plan · mfg-exec · mfg-eng)
    Routes: mfg/dashboard · mfg/planning · mfg/mrp · mfg/workorders[/WO-id] · mfg/shopfloor · mfg/bom[/BOM-id] · mfg/lines[/L-id]
-   Business actions go through ERP.flow (createWO · releaseWO · startWO · reportWO · woMaterials · mrp · createPRQ).
+   Business actions go through ERP.flow (createWO · releaseWO → إذن صرف MIR · startWO · woMaterials · mrp · createPRQ) and ERP.factory (stageView · reportStage — the real plant stages:
+   الضلفة / الحلق ← الجودة والتغليف; release creates an issue voucher for the raw-materials storekeeper, stock + GL move when he issues).
+   ERP.mfg.ui.report(woId, {stageKey}) opens the stage-aware report dialog from any module.
    Own actions (store + SA.audit + SA.notify): hold/resume WO (WO.HELD / WO.RESUMED), reschedule (WO.RESCHEDULED), breakdown report from the shop floor
    (maintenanceOrders + downtime + line down: MNT.REQUESTED + LINE.STATUS_CHANGED), line status (LINE.STATUS_CHANGED), BOM line edit (BOM.UPDATED), MRP run (MRP.RUN).
    Module-private data: mfgShiftLog[] {id, at, lineId, woId, good, scrap, shift, src:'counter'|'report'} — line counters (demo) · mfgMrp {at, by, rows} — last MRP run.
@@ -167,6 +169,73 @@
 .mfg-details[open] > summary { border-bottom: 1px solid var(--color-border); }
 .mfg-details > div { padding: 10px 14px; }
 .mfg-grow { flex: 1; }
+/* مراحل التشغيل (stage flow) — RTL: the flow runs right → left */
+.mfg-flowcard .sap-card-body { display: flex; flex-direction: column; gap: 14px; }
+.mfg-st-meta { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; font-size: 13px; background: var(--color-bg-alt); border-radius: 12px; padding: 10px 14px; }
+.mfg-st-meta > span { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; min-width: 0; }
+.mfg-st-meta > span > small { color: var(--color-text-muted); font-size: 12px; }
+.mfg-st-meta .mfg-lbl { color: var(--color-text-muted); font-weight: 600; font-size: 12.5px; }
+.mfg-lanes { display: grid; gap: 14px; grid-template-columns: minmax(0, var(--a, 2fr)) minmax(0, var(--b, 1fr)); }
+.mfg-lanes.is-one { grid-template-columns: minmax(0, 1fr); }
+.mfg-lane { border: 1px solid var(--color-border); border-radius: 14px; padding: 10px 16px 14px 14px; background: #fbfcfe; min-width: 0; }
+.mfg-lane-h { display: flex; align-items: center; justify-content: space-between; gap: 6px 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.mfg-lane-h b { font-size: 14.5px; color: var(--eg-navy); display: inline-flex; gap: 6px; align-items: center; }
+.mfg-lane-h small { color: var(--color-text-muted); font-size: 12px; }
+.mfg-lane-tiles { display: grid; gap: 12px 18px; grid-template-columns: repeat(auto-fill, minmax(124px, 1fr)); }
+.mfg-st { position: relative; background: #fff; border: 1px solid var(--color-border); border-top: 3px solid var(--color-border-strong); border-radius: 11px; padding: 8px 9px 9px; display: flex; flex-direction: column; gap: 5px; min-width: 0; font-size: 12.5px; }
+.mfg-st.is-done { border-top-color: var(--color-success); } .mfg-st.is-active { border-top-color: var(--eg-navy); }
+.mfg-st.is-ready { border-top-color: #7d9cd1; box-shadow: 0 0 0 2px rgba(125, 156, 209, .22); } .mfg-st.is-waiting { background: #fafbfc; }
+.mfg-st:not(:last-child)::after { content: ''; position: absolute; left: -13px; top: 15px; width: 7px; height: 7px; border-left: 2px solid #9fb0c8; border-bottom: 2px solid #9fb0c8; transform: rotate(45deg); }
+.mfg-st-h { display: flex; align-items: flex-start; gap: 6px; min-width: 0; }
+.mfg-st-h b { font-size: 13px; line-height: 1.35; min-width: 0; overflow-wrap: anywhere; } .mfg-st-h small { display: block; font-size: 11.5px; color: var(--color-text-muted); font-weight: 600; }
+.mfg-st-n { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--font-en); background: var(--color-neutral-tint); color: var(--color-text-muted); margin-top: 1px; }
+.mfg-st.is-done .mfg-st-n { background: var(--color-success); color: #fff; } .mfg-st.is-active .mfg-st-n { background: var(--eg-navy); color: #fff; } .mfg-st.is-ready .mfg-st-n { background: #dbe5f5; color: var(--eg-navy); }
+.mfg-st .chip { align-self: flex-start; font-size: 11.5px; }
+.mfg-st-q { display: flex; align-items: baseline; gap: 3px; flex-wrap: wrap; } .mfg-st-q b { font: 700 19px var(--font-en); color: var(--color-text); line-height: 1.1; } .mfg-st-q span { color: var(--color-text-muted); font: 600 12.5px var(--font-en); } .mfg-st-q small { color: var(--color-text-muted); font-size: 11px; width: 100%; }
+.mfg-st-bar { height: 4px; border-radius: 4px; background: var(--color-neutral-tint); overflow: hidden; } .mfg-st-bar i { display: block; height: 100%; background: var(--eg-navy); border-radius: 4px; } .mfg-st.is-done .mfg-st-bar i { background: var(--color-success); }
+.mfg-st-r { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; color: var(--color-text-muted); font-size: 12px; min-width: 0; }
+.mfg-st-r b { color: var(--color-text); font-family: var(--font-en); } .mfg-st-r a { color: inherit; text-decoration: none; display: inline-flex; gap: 4px; align-items: center; } .mfg-st-r a:hover { text-decoration: underline; }
+.mfg-st-r.is-wait, .mfg-st-r.is-wait b { color: var(--eg-navy); font-weight: 700; }
+.mfg-st-r.is-over, .mfg-st-r.is-over b { color: var(--color-danger); font-weight: 700; }
+.mfg-st > .btn { margin-top: auto; justify-content: center; min-height: 34px; }
+.mfg-join { display: grid; grid-template-columns: minmax(0, var(--a, 2fr)) minmax(0, var(--b, 1fr)); column-gap: 14px; height: 30px; }
+.mfg-join > span { position: relative; }
+.mfg-join > span::before { content: ''; position: absolute; top: 0; height: 14px; right: 50%; border-right: 2px solid #9fb0c8; }
+.mfg-join > span:first-child::after { content: ''; position: absolute; top: 14px; right: 50%; left: -8px; border-top: 2px solid #9fb0c8; }
+.mfg-join > span:last-child::after { content: ''; position: absolute; top: 14px; left: 50%; right: -8px; border-top: 2px solid #9fb0c8; }
+.mfg-join > span > i { position: absolute; right: -8px; top: 14px; height: 12px; border-right: 2px solid #9fb0c8; }
+.mfg-join > span > i::after { content: ''; position: absolute; top: 9px; right: -6px; border: 5px solid transparent; border-top: 7px solid #9fb0c8; }
+.mfg-merge { border: 2px solid var(--eg-navy); border-radius: 14px; background: linear-gradient(180deg, #f3f6fb, #fff); padding: 12px 16px; display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr)) auto; gap: 10px 18px; align-items: center; }
+.mfg-merge.is-done { border-color: var(--color-success); } .mfg-merge.is-waiting { border-color: var(--color-border-strong); }
+.mfg-merge-t { display: flex; gap: 10px; align-items: flex-start; min-width: 0; }
+.mfg-merge-t > span:first-child { width: 38px; height: 38px; border-radius: 11px; background: var(--eg-navy); color: #fff; display: grid; place-items: center; flex: none; }
+.mfg-merge-t b { font-size: 16px; color: var(--eg-navy); display: block; } .mfg-merge-t small { color: var(--color-text-muted); font-size: 12px; display: block; line-height: 1.6; }
+.mfg-merge-v small { color: var(--color-text-muted); font-size: 12px; font-weight: 600; display: block; } .mfg-merge-v b { font: 700 22px var(--font-en); color: var(--color-text); } .mfg-merge-v b span { font-size: 13px; color: var(--color-text-muted); }
+.mfg-merge-v.is-over b, .mfg-merge-v.is-over small { color: var(--color-danger); }
+.mfg-merge-v a { color: inherit; text-decoration: none; } .mfg-merge-v a:hover { text-decoration: underline; }
+.mfg-merge > .btn { min-height: 44px; }
+.mfg-next { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 12.5px; color: var(--color-text-muted); grid-column: 1 / -1; border-top: 1px dashed var(--color-border); padding-top: 8px; }
+.mfg-next .erp-doc { font-size: 12.5px; }
+.mfg-lane .mfg-next { margin-top: 12px; }
+/* stage report dialog + shop-floor WIP chips */
+.mfg-rep-info { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); margin-block: 10px 6px; }
+.mfg-rep-next { font-size: 12.5px; color: var(--color-text-muted); display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.mfg-wips { display: flex; flex-direction: column; gap: 6px; }
+.mfg-wips > small { color: var(--color-text-muted); font-size: 12.5px; font-weight: 600; }
+.mfg-wips > div { display: flex; flex-wrap: wrap; gap: 6px; }
+.mfg-wip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #c9d6ea; background: #f2f6fc; color: var(--eg-navy); border-radius: 999px; padding: 5px 11px; font: 600 13px var(--font-ar); cursor: pointer; min-height: 36px; }
+.mfg-wip b { font: 700 13.5px var(--font-en); background: var(--eg-navy); color: #fff; border-radius: 999px; padding: 1px 8px; }
+.mfg-wip small { font: 600 11px var(--font-en); color: var(--color-text-muted); }
+.mfg-wip:hover, .mfg-wip:focus-visible { box-shadow: 0 0 0 2px var(--color-focus); }
+.mfg-wip.is-locked { cursor: default; background: var(--color-neutral-tint); color: var(--color-text-muted); border-color: var(--color-border); } .mfg-wip.is-locked b { background: #8a8a8a; }
+.mfg-wohint { font-size: 11.5px; color: var(--color-text-muted); } .mfg-wohint.is-warn { color: var(--color-warning); font-weight: 600; }
+@media (max-width: 900px) { .mfg-merge { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mfg-merge > .mfg-merge-t, .mfg-merge > .btn { grid-column: 1 / -1; } }
+@media (max-width: 760px) {
+  .mfg-lanes, .mfg-join { grid-template-columns: minmax(0, 1fr); }
+  .mfg-join > span:first-child { display: none; } .mfg-join > span::before, .mfg-join > span::after { display: none; }
+  .mfg-join > span > i { right: 50%; top: 0; height: 20px; }
+  .mfg-lane { padding: 10px 14px 12px 12px; } .mfg-lane-tiles { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 10px 16px; }
+}
 @media (max-width: 760px) { .mfg-head { grid-template-columns: 1fr; } .mfg-big b { font-size: 26px; } }`;
     document.head.appendChild(s);
   })();
@@ -214,6 +283,22 @@
   const WEEKDAY = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   const wday = (ds) => WEEKDAY[new Date(ds + 'T12:00:00').getDay()];
   function safeNotify(o) { try { SA.notify(o); } catch (e) { /* noop */ } }
+  /* ── factory stages (ERP.factory — erp-factory.js) ── */
+  const FX = ERP.factory || null;
+  const r2 = (n) => Math.round((Number(n) || 0) * 100) / 100;
+  const trackLbl = (t) => (FX && FX.TRACKS[t]) || '';
+  const stNm = (sid) => (sid === 'ST-DECOR' ? 'الديكور' : FX ? FX.stageName(sid) : sid);
+  /** 'leaf:ST-SAND' → 'السنفرة — الضلفة' */
+  const withTrack = (sid, t, sep) => { const n = stNm(sid); return t && t !== 'main' && n.indexOf(trackLbl(t)) < 0 ? n + (sep || ' — ') + trackLbl(t) : n; };
+  const stageLabel = (key) => { if (!key || !FX) return '—'; const p = String(key).split(':'); return withTrack(p[1] || p[0], p[1] ? p[0] : 'main'); };
+  const mirOf = (w) => (w && w.mirId ? ERP.find('issueRequests', w.mirId) : null);
+  const fgrOf = (w) => get('fgReceipts').filter((r) => r.woId === w.id)[0] || null;
+  const isRunning = (w) => ['released', 'in_progress'].indexOf(w.status) >= 0;
+  /** scrap rate at a stage (kg basis, like the foundation's alert): kg ÷ (processed pieces × unit kg + kg) */
+  const stageRate = (w, s) => { const kg = s.scrapKg || 0; if (kg <= 0) return 0; return kg / (((s.good || 0) + (s.scrap || 0)) * FX.unitKg(w.itemId, s.track) + kg); };
+  /** machines for a stage on the stage's own line (falls back to every machine of the stage) */
+  const stageMachines = (s) => { if (!FX) return []; const all = FX.machinesOf(s.stageId); const own = all.filter((m) => m.lineId === s.lineId); return own.length ? own : all; };
+  const nextOf = (view, s) => { const tl = view.filter((x) => x.track === s.track); const i = tl.indexOf(s); if (i >= 0 && i < tl.length - 1) return tl[i + 1]; return s.track !== 'main' ? view.find((x) => x.merge) || null : null; };
   function ensure(coll) { if (!Array.isArray(st.get(coll))) st.set(coll, []); }
   const miniTable = (cols, rows) => h('div.table-wrap', {}, h('table.table.mfg-mini', {}, h('thead', {}, h('tr', {}, cols.map((c) => h('th', { class: c.cls || null }, c.label || c)))), h('tbody', {}, rows)));
   const td = (v, cls) => h('td', { class: cls === 'num' ? 'mfg-n' : cls || null }, v == null || v === '' ? '—' : cls === 'num' && typeof v === 'string' ? h('span.num', {}, v) : v);
@@ -264,7 +349,8 @@
   function resumeCore(woId, note) {
     const wo = ERP.find('workOrders', woId); if (!wo || wo.status !== 'on_hold') return null; const ln = ERP.line(wo.lineId);
     if (ln && ln.status === 'down') return { blocked: 'line_down' };
-    const to = !wo.issued ? 'planned' : (wo.qtyDone || 0) > 0 || wo.actualStart ? 'in_progress' : 'released';
+    // released WOs keep their issue voucher (MIR) — only a never-released WO goes back to planned
+    const to = !wo.issued ? (wo.mirId || wo.releasedAt || wo.statusBeforeHold === 'released' ? 'released' : 'planned') : (wo.qtyDone || 0) > 0 || wo.actualStart ? 'in_progress' : 'released';
     st.patch('workOrders', woId, { status: to, lastHoldReason: wo.holdReason || null, holdReason: null, resumedAt: ERP.now(), resumedBy: me() });
     if (to === 'in_progress' && ln) st.patch('lines', ln.id, { currentWoId: woId, status: ln.status === 'idle' || ln.status === 'setup' ? 'running' : ln.status });
     SA.audit('WO.RESUMED', { target: { type: 'work_order', id: woId, label: ERP.itemName(wo.itemId) }, before: { status: 'on_hold' }, after: { status: to }, reason: note || '' });
@@ -329,10 +415,12 @@
     safeNotify({ title: 'تعديل تركيبة: ' + b.name, body: ERP.itemName(l.itemId) + ' ' + before.qty + ' ← ' + qty + ' (إصدار ' + after.version + '). راجع التكلفة المعيارية.', level: 'info', to: ['R-22', 'R-05'], link: '#/mfg/bom/' + bomId });
     return ERP.find('boms', bomId);
   }
-  function logReport(wo, good, scrap, shift) {
+  /** line counters (dashboard / kiosk): finished units only from the final stage ST-QP; scrap pieces from every stage, on the stage's own line */
+  let slN = 0;
+  function logStage(wo, s, good, scrap, shift) {
+    const fin = s.stageId === 'ST-QP'; const g = fin ? good : 0; if (g <= 0 && scrap <= 0) return;
     ensure('mfgShiftLog');
-    st.insert('mfgShiftLog', { id: 'SL-R' + Date.now().toString(36), at: ERP.now(), lineId: wo.lineId, woId: wo.id, good, scrap, shift, src: 'report' }, true);
-    st.patch('workOrders', wo.id, (w) => { if (w.reports && w.reports[0]) w.reports[0].shift = shift; w.shift = shift; });
+    st.insert('mfgShiftLog', { id: 'SL-R' + Date.now().toString(36) + (++slN), at: ERP.now(), lineId: s.lineId || wo.lineId, woId: wo.id, good: g, scrap, shift, src: 'report', stage: s.key }, true);
   }
 
   /* ── UI wrappers ── */
@@ -357,30 +445,50 @@
     const wo = ERP.find('workOrders', woId); if (!wo) return;
     const mats = F.woMaterials(woId); const short = mats.filter((m) => m.short > 0);
     if (short.length) return openShortages(woId, short);
-    const r = await SA.confirm({ title: 'إطلاق ' + woId + ' وصرف الخامات', icon: 'play', confirmLabel: 'إطلاق وصرف الخامات',
-      impact: ['صرف ' + mats.length + ' خامة من مخزن الخامات/الإكسسوارات على أمر التشغيل (اللوط ' + wo.lot + ')', 'قيد آلي: من ح/ مخزون تحت التشغيل 1142 إلى ح/ مخزون خامات 1141', 'الحالة: مخطط ← مُطلق (صُرفت الخامات)'] });
+    const fms = FX ? FX.formulasFor(wo.itemId) : [];
+    const r = await SA.confirm({ title: 'إطلاق ' + woId + ' وطلب صرف الخامات', icon: 'play', confirmLabel: 'إطلاق وطلب صرف الخامات',
+      text: ERP.itemName(wo.itemId) + ' × ' + num(wo.qty) + ' — ' + (ERP.line(wo.lineId) || {}).name,
+      impact: ['يُنشأ إذن صرف (MIR) بـ ' + mats.length + ' خامة ويروح لأمين مخزن الخامات' + (fms.length ? ' — حسب الخلطات ' + fms.map((f) => f.formulaId + ' (' + trackLbl(f.track) + ')').join(' + ') : ''),
+        'المخزون لا يتحرك الآن — بيتحرك لما أمين المخزن يصرف للخلاطة (اللوط ' + wo.lot + ')',
+        'لا يوجد قيد محاسبي عند الإطلاق — القيد (1142 مخزون تحت التشغيل / 1141 مخزون خامات) يتعمل عند الصرف',
+        'الحالة: مخطط ← مُطلق (بانتظار صرف الخامات) · المراحل تبدأ بعد الصرف'] });
     if (!r.ok) return;
     let res; try { res = await SA.api(() => F.releaseWO(woId)); } catch (e) { return SA.fail(e); }
-    if (res && res.ok) { const w = ERP.find('workOrders', woId); SA.toast('تم إطلاق ' + woId + ' وصرف الخامات' + (U.canCost() && w.issuedValue ? ' — قيمة الصرف ' + ERP.fmt.money(w.issuedValue) : ''), 'success'); }
+    if (res && res.ok) SA.toast('تم إطلاق ' + woId + (res.mirId ? ' — إذن الصرف ' + res.mirId + ' اتبعت لأمين مخزن الخامات' : ''), 'success');
     else if (res && res.shortages) openShortages(woId, res.shortages);
     else SA.toast('لا يمكن إطلاق الأمر في حالته الحالية.', 'warn');
   }
   function openShortages(woId, short) {
     const rows = short.map((m) => h('tr.is-short', {}, td(U.itemCell(m.itemId)), td(qtyU(m.need, m.itemId), 'num'), td(qtyU(m.avail, m.itemId), 'num'), td(h('b.num', { style: { color: 'var(--color-danger)' } }, qtyU(m.short, m.itemId)))));
     const md = SA.modal({ title: 'نقص خامات — ' + woId, icon: 'alert', danger: true, size: 'lg',
-      body: h('div', {}, SA.alert('warning', 'الرصيد المتاح لا يكفي لإطلاق الأمر بالكامل. اختر: إنشاء طلبات شراء للنقص (الأمر يبقى مخططًا) أو إطلاق جزئي بالمتاح الآن.'), miniTable(['الخامة', 'المطلوب', 'المتاح', 'النقص'], rows)),
+      body: h('div', {}, SA.alert('warning', 'الرصيد المتاح لا يكفي لطلب صرف الأمر بالكامل. اختر: إنشاء طلبات شراء للنقص (الأمر يبقى مخططًا) أو إطلاق جزئي — إذن صرف بالمتاح الآن فقط.'), miniTable(['الخامة', 'المطلوب', 'المتاح', 'النقص'], rows)),
       foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => md.close() }, 'إلغاء'),
         SA.btn({ label: 'إطلاق جزئي بالمتاح', icon: 'play', kind: 'ghost', perm: 'mfg.workorders.release', onClick: async () => {
-          const r = await SA.confirm({ title: 'إطلاق جزئي ' + woId, danger: true, confirmLabel: 'إطلاق جزئي', impact: ['يُصرف المتاح فقط من كل خامة', short.length + ' خامة ناقصة — قد يتوقف التشغيل لاحقًا', 'يُسجّل WO.RELEASED'] });
-          if (!r.ok) return; try { await SA.api(() => F.releaseWO(woId, { force: true })); } catch (e) { return SA.fail(e); }
-          md.close(); SA.toast('تم الإطلاق الجزئي لـ ' + woId, 'success'); } }),
+          const r = await SA.confirm({ title: 'إطلاق جزئي ' + woId, danger: true, confirmLabel: 'إطلاق وطلب صرف المتاح', impact: ['إذن صرف (MIR) لأمين مخزن الخامات بالمتاح فقط من كل خامة', short.length + ' خامة ناقصة — قد يتوقف التشغيل لاحقًا', 'المخزون والقيد يتحركوا عند الصرف وليس الآن · يُسجّل WO.RELEASED'] });
+          if (!r.ok) return; let res; try { res = await SA.api(() => F.releaseWO(woId, { force: true })); } catch (e) { return SA.fail(e); }
+          md.close(); SA.toast('تم الإطلاق الجزئي لـ ' + woId + (res && res.mirId ? ' — إذن الصرف ' + res.mirId + ' عند أمين مخزن الخامات' : ''), 'success'); } }),
         SA.btn({ label: 'أنشئ طلبات شراء', icon: 'cart', kind: 'primary', perm: 'scm.requisitions.create', onClick: async () => {
           const n0 = get('purchaseRequisitions').length; try { await SA.api(() => F.releaseWO(woId, { raisePR: true })); } catch (e) { return SA.fail(e); }
           const n = get('purchaseRequisitions').length - n0; md.close(); SA.toast('تم إنشاء ' + n + ' طلب شراء لقسم المشتريات — الأمر يبقى مخططًا حتى وصول الخامات.', 'success'); } })] });
   }
   function shiftSeg(cur, onChange) { return h('div.mfg-seg-lg', {}, SA.segmented(SHIFTS.map((s) => [s[0], s[1] + ' · ' + SHIFT_HOURS[s[0]]]), cur, onChange)); }
+  /** released but the raw-materials storekeeper has not issued the MIR yet → explain + link (+ reminder) instead of starting/reporting */
+  function blockNotIssued(wo, what) {
+    const mir = mirOf(wo); const fms = mir && mir.formulas ? mir.formulas : FX ? FX.formulasFor(wo.itemId) : [];
+    const remind = SA.btn({ label: 'تذكير أمين المخزن', icon: 'bell', kind: 'ghost', perm: 'mfg.workorders.release', onClick: async () => {
+      try { await SA.api(() => safeNotify({ title: 'تذكير: إذن صرف ' + (mir ? mir.id : '') + ' للخلاطة', body: wo.id + ' — ' + ERP.itemName(wo.itemId) + ' × ' + wo.qty + ' · الإنتاج منتظر الخامات' + (wo.soId ? ' (' + wo.soId + ')' : ''), level: 'action', to: ['R-23', 'R-06'], link: mir ? '#/scm/issues/' + mir.id : '#/mfg/workorders/' + wo.id })); } catch (e) { return SA.fail(e); }
+      md.close(); SA.toast('اتبعت تذكير لأمين مخزن الخامات' + (mir ? ' بخصوص ' + mir.id : ''), 'success'); } });
+    const md = SA.modal({ title: 'لا يمكن ' + what + ' قبل صرف الخامات', subtitle: wo.id + ' — ' + ERP.itemName(wo.itemId), icon: 'inbox', size: 'md',
+      body: h('div.sap-confirm', {}, h('p', {}, 'الخلاطة لسه ما استلمتش خامات الأمر. أمين مخزن الخامات لازم يصرف إذن الصرف الأول (وزن الخلطة حسب التركيبة) — بعدها تبدأ المراحل من الخلاطة والسحب.'),
+        mir ? SA.kv([['إذن الصرف', h('span', {}, U.docLink(mir.id), ' ', U.status('mir', mir.status))], ['طُلب', SA.fmt.rel(mir.requestedAt) + ' — ' + SA.userName(mir.requestedBy)],
+          ['الخلطات', fms.length ? h('span', {}, fms.map((f) => h('span', {}, U.docLink(f.formulaId), ' ' + trackLbl(f.track) + (f.batches ? ' · ' + f.batches + ' خلطة ' : ' '), ' '))) : '—'], ['الخامات', mir.lines ? mir.lines.length + ' بند' + (mir.regKg ? ' · منها مطحون ' + num(mir.regKg) + ' كجم' : '') : '—']])
+          : SA.alert('warning', 'لا يوجد إذن صرف مرتبط بالأمر.')),
+      foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => md.close() }, 'إغلاق'), remind, mir && SA.can('scm.issues.view') ? SA.btn({ label: 'فتح إذن الصرف', icon: 'inbox', onClick: () => { md.close(); SA.nav('scm/issues/' + mir.id); } }) : null] });
+    return md;
+  }
   function uiStart(woId) {
     const wo = ERP.find('workOrders', woId); if (!wo) return; const ln = ERP.line(wo.lineId); let shift = shiftNow();
+    if (!wo.issued) { blockNotIssued(wo, 'بدء التشغيل'); return; }
     if (ln && ln.status === 'down') { SA.toast('الخط ' + ln.name + ' متوقف — لا يمكن بدء التشغيل.', 'warn'); return; }
     const other = ln && ln.currentWoId && ln.currentWoId !== woId ? ERP.find('workOrders', ln.currentWoId) : null;
     const md = SA.modal({ title: 'بدء تشغيل ' + woId, icon: 'play', size: 'md',
@@ -389,30 +497,74 @@
       foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => md.close() }, 'إلغاء'), SA.btn({ label: 'بدء التشغيل', icon: 'play', perm: 'mfg.workorders.edit', onClick: async () => {
         try { await SA.api(() => F.startWO(woId, shift)); } catch (e) { return SA.fail(e); } md.close(); SA.toast('بدأ تشغيل ' + woId + ' — ' + SHIFTS.find((s) => s[0] === shift)[1], 'success'); } })] });
   }
-  /** report production (good/scrap). When the WO reaches its quantity ERP.flow moves it to qc_pending + creates the final QC — shown in a follow-up dialog. */
+  /** stage report (operator / supervisor): good passes to the next stage, scrap (pieces + kg + reason) is logged where it happened → ERP.factory.reportStage.
+      When every stage is done the WO goes to qc_pending + final QC (with shortfall if scrap left fewer units) — shown in a follow-up dialog.
+      o = {stageKey, shift, onDone} — also exported as ERP.mfg.ui.report(woId, {stageKey}). */
   function uiReport(woId, o) {
-    o = o || {}; const wo = ERP.find('workOrders', woId); if (!wo) return; const rem = remaining(wo); let shift = o.shift || shiftNow();
-    const fGood = SA.form.field({ name: 'good', label: 'الكمية السليمة (' + uomOf(wo.itemId) + ')', type: 'number', value: '', required: true, min: 0, class: 'mfg-numin' });
-    const fScrap = SA.form.field({ name: 'scrap', label: 'الهالك', type: 'number', value: 0, min: 0, class: 'mfg-numin' });
-    const quick = h('div.mfg-quick', {}, [10, 50, 100].map((n) => h('button.btn.btn-ghost', { type: 'button', onclick: () => fGood.set((Number(fGood.get()) || 0) + n) }, '+' + n)), rem > 0 ? h('button.btn.btn-ghost', { type: 'button', onclick: () => fGood.set(rem) }, 'المتبقي كله (' + num(rem) + ')') : null);
-    const md = SA.modal({ title: 'تسجيل إنتاج — ' + woId, subtitle: ERP.itemName(wo.itemId), icon: 'activity', size: 'md',
-      body: h('div', {}, h('div.mfg-kpi-row', {}, stat('الكمية', num(wo.qty)), stat('المنجز', num(wo.qtyDone || 0)), stat('المتبقي', num(rem), rem ? 'warning' : 'success')),
-        h('div.mfg-form-grid', {}, h('div', {}, fGood.el, quick), fScrap.el), h('p.label', { style: { marginTop: '10px' } }, 'الوردية'), shiftSeg(shift, (v) => { shift = v; }),
-        h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'عند اكتمال الكمية ينتقل الأمر تلقائيًا لـ«بانتظار الجودة» ويُفتح فحص نهائي للمفتش.'))),
-      foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => md.close() }, 'إلغاء'), SA.btn({ label: 'حفظ الإنتاج', icon: 'check', perm: 'mfg.shopfloor.report', onClick: async () => {
-        const g = Number(fGood.get()) || 0, s = Number(fScrap.get()) || 0;
-        if (g < 0 || s < 0) return fGood.error('قيم غير صحيحة');
-        if (g + s <= 0) return fGood.error('أدخل كمية سليمة أو هالك');
-        if (g > Math.max(rem, 1) * 1.2) return fGood.error('الكمية أكبر من المتبقي (' + num(rem) + ') بأكثر من 20%');
-        let w2; try { w2 = await SA.api(() => { const r = F.reportWO(woId, g, s); logReport(wo, g, s, shift); return ERP.find('workOrders', woId); }); } catch (e) { return SA.fail(e); }
+    o = o || {}; const wo = ERP.find('workOrders', woId); if (!wo) return;
+    if (!FX) { SA.toast('محرك المراحل غير محمّل.', 'warn'); return; }
+    if (!isRunning(wo)) { SA.toast('الأمر ' + woId + ' ليس قيد التشغيل (' + ((SA.catalog.status.wo[wo.status] || [])[0] || wo.status) + ').', 'warn'); return; }
+    if (!wo.issued) { blockNotIssued(wo, 'تسجيل الإنتاج'); return; }
+    const view0 = FX.stageView(wo); if (!view0.length) { SA.toast('لا يوجد مسار مراحل لهذا المنتج.', 'warn'); return; }
+    const door = famOf(wo.itemId) === 'door';
+    let key = o.stageKey && view0.some((s) => s.key === o.stageKey) ? o.stageKey : (view0.find((s) => s.avail > 0) || view0[0]).key;
+    let shift = o.shift || shiftNow();
+    const optLbl = (s) => (door ? (s.merge ? 'باب كامل' : trackLbl(s.track)) + ' · ' : '') + stNm(s.stageId) + ' — منتظر ' + num(s.avail);
+    const fStage = SA.form.field({ name: 'stage', label: 'المرحلة', type: 'select', value: key, options: view0.map((s) => [s.key, optLbl(s)]), onChange: (v) => { key = v; draw(); } });
+    const host = h('div'); let f = {}; let cur = null; let kgTouched = false;
+    function draw() {
+      SA.clear(host); kgTouched = false;
+      const view = FX.stageView(woId); const s = view.find((x) => x.key === key) || view[0]; cur = s;
+      const sd = FX.stage(s.stageId) || {}; const kgF = !!sd.kgFocus; const uKg = FX.unitKg(wo.itemId, s.track); const nx = nextOf(view, s); const mcs = stageMachines(s);
+      const uom = s.track === 'leaf' ? 'ضلفة' : s.track === 'frame' ? 'حلق' : uomOf(wo.itemId);
+      f.machine = SA.form.field({ name: 'machineId', label: 'الماكينة', type: 'select', value: s.machineId || (mcs.length === 1 ? mcs[0].id : ''), options: [['', mcs.length ? 'اختر الماكينة…' : '— بدون ماكينة —']].concat(mcs.map((m) => [m.id, m.id + ' — ' + m.name])) });
+      f.good = SA.form.field({ name: 'good', label: 'سليم (' + uom + ')', type: 'number', value: '', min: 0, class: 'mfg-numin' });
+      const quick = h('div.mfg-quick', {}, [5, 10, 50].filter((n) => n <= Math.max(5, s.avail)).map((n) => h('button.btn.btn-ghost', { type: 'button', onclick: () => f.good.set((Number(f.good.get()) || 0) + n) }, '+' + n)), s.avail > 0 ? h('button.btn.btn-ghost', { type: 'button', 'data-mfg-all': '1', onclick: () => f.good.set(Math.max(0, s.avail - (kgF ? 0 : Number(f.scrap.get()) || 0))) }, 'كل المنتظر (' + num(s.avail) + ')') : null);
+      f.kg = SA.form.field({ name: 'scrapKg', label: kgF ? 'وزن الهالك (كجم) — من الميزان' : 'وزن الهالك (كجم)', type: 'number', value: kgF ? '' : 0, min: 0, class: kgF ? 'mfg-numin' : null, onInput: () => { kgTouched = true; } });
+      f.scrap = SA.form.field({ name: 'scrap', label: 'هالك (قطع)', type: 'number', value: 0, min: 0, class: 'mfg-numin', onInput: (v) => { if (!kgTouched) f.kg.set(r2((Number(v) || 0) * uKg)); } });
+      f.reason = SA.form.field({ name: 'reasonId', label: 'سبب الهالك (مطلوب لو فيه هالك)', type: 'select', value: '', options: [['', 'اختر السبب…']].concat(FX.reasonsFor(s.stageId).map((r) => [r.id, r.label + (r.normal && r.label.indexOf('طبيعي') < 0 ? ' — طبيعي' : '')])) });
+      f.note = SA.form.field({ name: 'note', label: 'ملاحظة (اختياري)', type: 'text', value: '' });
+      const rate = stageRate(wo, s); const over = rate > s.std;
+      host.append(
+        h('div.mfg-rep-info', {}, stat('منتظر عند المرحلة', num(s.avail), s.avail ? 'warning' : null), stat('سليم / وارد', num(s.good || 0) + ' / ' + num(s.input || 0)), stat('وزن القطعة (كجم)', num(uKg, 2)), stat('هالك المرحلة (كجم)', num(s.scrapKg || 0, 1), over ? 'danger' : null), stat('نسبة الهالك / المسموح', pct(rate, 1) + ' / ' + pct(s.std, 1), over ? 'danger' : null)),
+        h('div.mfg-rep-next', {}, SA.icon('route', 'icon-sm'), h('span', {}, door && s.merge ? 'الجودة والتغليف: الضلفة + الحلق بيتقابلوا هنا — المتاح = أقل من خرج الاتنين.' : nx ? 'السليم ينتقل تلقائيًا لمرحلة «' + stNm(nx.stageId) + '»' + (nx.merge ? ' (يتجمّع مع ' + (s.track === 'leaf' ? 'الحلق' : 'الضلفة') + ')' : '') + '.' : 'آخر مرحلة — السليم يروح للفحص النهائي ثم أمين مخزن المنتج التام.')),
+        h('div.mfg-form-grid', {}, h('div', {}, f.good.el, quick), kgF ? f.kg.el : f.scrap.el, kgF ? null : f.kg.el, f.reason.el, f.machine.el),
+        kgF ? h('p.sap-hint', {}, SA.icon('scale', 'icon-sm'), h('span', {}, 'في ' + stNm(s.stageId) + ' الهالك بيتسجّل بالوزن (تنظيف / بداية تشغيل / خلطة خارج المواصفة) — القطع السليمة تعدّي للمرحلة اللي بعدها.')) : h('p.sap-hint', {}, SA.icon('info', 'icon-sm'), h('span', {}, 'الوزن بيتحسب تلقائيًا = القطع × ' + num(uKg, 2) + ' كجم — عدّله لو وزنت على الميزان. الهالك بيروح مخزن الهوالك W-07 للطحن.')),
+        f.note.el);
+    }
+    draw();
+    const md = SA.modal({ title: 'تسجيل مرحلة — ' + woId, subtitle: ERP.itemName(wo.itemId) + (door ? ' · ' + FX.FINISH[FX.finishType(wo.itemId)] : ''), icon: 'activity', size: 'lg',
+      body: h('div', {}, fStage.el, host, h('p.label', { style: { marginTop: '6px' } }, 'الوردية'), shiftSeg(shift, (v) => { shift = v; })),
+      foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => md.close() }, 'إلغاء'), SA.btn({ label: 'حفظ المرحلة', icon: 'check', perm: 'mfg.shopfloor.report', attrs: { 'data-mfg-save': '1' }, onClick: async () => {
+        const s = cur; const sd = FX.stage(s.stageId) || {}; const kgF = !!sd.kgFocus;
+        const g = Number(f.good.get()) || 0, sc = kgF ? 0 : Number(f.scrap.get()) || 0; const kv = f.kg.get(); const kg = kv == null ? r2(sc * FX.unitKg(wo.itemId, s.track)) : Math.max(0, Number(kv) || 0);
+        const reasonId = f.reason.get();
+        if (g < 0 || sc < 0) return f.good.error('قيم غير صحيحة');
+        if (g + sc > s.avail) return f.good.error('السليم + الهالك أكبر من المنتظر عند المرحلة (' + num(s.avail) + ')');
+        if (g + sc <= 0 && kg <= 0) return f.good.error('أدخل كمية سليمة أو هالك');
+        if ((sc > 0 || kg > 0) && !reasonId) return f.reason.error('اختر سبب الهالك');
+        let res; try { res = await SA.api(() => { const r = FX.reportStage(woId, s.key, { good: g, scrap: sc, scrapKg: kg, reasonId: reasonId || null, machineId: f.machine.get() || null, shift, note: f.note.get() || '' }); if (r.ok) logStage(wo, s, g, sc, shift); return r; }); } catch (e) { return SA.fail(e); }
+        if (!res || !res.ok) return f.good.error((res && res.reason) || 'تعذّر التسجيل');
         md.close();
-        if (w2 && w2.status === 'qc_pending') {
-          SA.toast('اكتمل ' + woId + ' — انتقل تلقائيًا للجودة (' + w2.qcId + ')', 'success');
-          const d = SA.modal({ title: 'اكتمل أمر التشغيل ' + woId, icon: 'checkcircle', size: 'sm', body: h('div.sap-confirm', {}, h('p', {}, 'تم تسجيل ' + num(w2.qtyDone) + ' ' + uomOf(w2.itemId) + ' — الأمر الآن ', U.status('wo', 'qc_pending'), '.'), h('ul', {}, h('li', {}, 'تم إنشاء فحص نهائي ', U.docLink(w2.qcId), ' وإشعار مسؤول الجودة.'), w2.soId ? h('li', {}, 'بعد اعتماد الفحص تدخل الكمية مخزن المنتج التام ويُحجز لأمر البيع ', U.docLink(w2.soId), '.') : null)),
-            foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => d.close() }, 'تم'), SA.can('mfg.qc.view') ? SA.btn({ label: 'فتح فحص الجودة', icon: 'checkcircle', onClick: () => { d.close(); SA.nav('mfg/qc/' + w2.qcId); } }) : null] });
-        } else SA.toast('تم تسجيل ' + num(g) + ' سليم' + (s ? ' و' + num(s) + ' هالك' : '') + ' على ' + woId, 'success');
+        const w2 = res.wo || ERP.find('workOrders', woId);
+        if (res.completed) completedModal(w2);
+        else { const v2 = FX.stageView(w2); const s2 = v2.find((x) => x.key === s.key); const nx = s2 ? nextOf(v2, s2) : null;
+          SA.toast('تم تسجيل «' + stageLabel(s.key) + '»: ' + num(g) + ' سليم' + (sc ? ' + ' + num(sc) + ' هالك' : '') + (kg ? ' (' + num(kg, 1) + ' كجم)' : '') + (g && nx ? ' — اتنقلوا لـ«' + stNm(nx.stageId) + '»' : g && s.stageId === 'ST-QP' ? ' — المنجز ' + num(w2.qtyDone || 0) + '/' + num(w2.qty) : ''), 'success'); }
         if (o.onDone) o.onDone(w2);
       } })] });
+    return md;
+  }
+  function completedModal(w2) {
+    const so = w2.soId ? ERP.find('salesOrders', w2.soId) : null; const short = w2.shortfall || 0;
+    SA.toast('اكتمل ' + w2.id + ' — انتقل تلقائيًا للجودة (' + w2.qcId + ')', 'success');
+    const d = SA.modal({ title: 'اكتملت كل مراحل ' + w2.id, icon: 'checkcircle', size: 'sm',
+      body: h('div.sap-confirm', {}, h('p', {}, 'تم تغليف ' + num(w2.qtyDone) + ' ' + uomOf(w2.itemId) + ' من ' + num(w2.qty) + ' — الأمر الآن ', U.status('wo', 'qc_pending'), '.'),
+        short ? SA.alert('warning', h('b', {}, 'عجز ' + num(short) + ' ' + uomOf(w2.itemId) + ' بسبب الهوالك'), h('div', {}, 'الكمية الخارجة أقل من المطلوب' + (so ? ' لأمر البيع ' + so.id + ' (' + ERP.customerName(so.customerId) + ')' : '') + ' — اعمل أمر تشغيل تكميلي، وإشعار اتبعت لمدير الإنتاج.')) : null,
+        h('ul', {}, h('li', {}, 'تم إنشاء فحص نهائي ', U.docLink(w2.qcId), ' وإشعار مسؤول الجودة.'), h('li', {}, 'بعد اعتماد الفحص يتعمل إذن استلام إنتاج تام لأمين مخزن المنتج التام' + (so ? '، وبعد الاستلام يتحجز لأمر البيع ' : '.'), so ? U.docLink(so.id) : null), h('li', {}, 'هوالك الأمر: ' + num(w2.scrapKg || 0, 1) + ' كجم — راحت مخزن الهوالك والمطحون W-07.'))),
+      foot: [h('button.btn.btn-ghost', { type: 'button', onclick: () => d.close() }, 'تم'),
+        short ? SA.btn({ label: 'أمر تشغيل تكميلي (' + num(short) + ')', icon: 'plus', kind: 'ghost', perm: 'mfg.workorders.create', onClick: () => { d.close(); openCreateWO({ itemId: w2.itemId, qty: short, soId: so && ['confirmed', 'in_production', 'partially_delivered'].indexOf(so.status) >= 0 ? so.id : '', priority: 'high', dueDate: so ? so.promisedDate : '' }); } }) : null,
+        SA.can('mfg.qc.view') ? SA.btn({ label: 'فتح فحص الجودة', icon: 'checkcircle', onClick: () => { d.close(); SA.nav('mfg/qc/' + w2.qcId); } }) : null] });
+    return d;
   }
   /** create work order modal (shared: dashboard, list, MPS suggestion) */
   function openCreateWO(pre) {
@@ -505,6 +657,11 @@
     const att = [];
     down.forEach((ln) => { const m = breakdownMwo(ln.id); att.push({ tone: 'danger', icon: 'alert', title: ln.name + ' متوقف — ' + (ln.downReason || ''), sub: 'منذ ' + durTxt(minsSince(ln.downSince)) + (m ? ' · ' + m.id + ' (' + SA.catalog.status.mwo[m.status][0] + ')' : ''), href: m ? '#/care/maintenance/' + m.id : '#/mfg/lines/' + ln.id, cta: m ? 'أمر الصيانة' : 'الخط' }); });
     wos.filter((w) => w.status === 'on_hold').forEach((w) => att.push({ tone: 'danger', icon: 'clipboard', title: w.id + ' متوقف — ' + ERP.itemName(w.itemId), sub: (w.holdReason || '') + (w.soId ? ' · ' + w.soId + ' ' + soCustomer(w.soId) + ' · تسليم ' + ERP.fmt.date(w.dueDate) : ''), href: '#/mfg/workorders/' + w.id }));
+    // completed with a shortfall (scrap left fewer units than ordered) — needs a top-up work order
+    wos.filter((w) => (w.shortfall || 0) > 0 && ['qc_pending', 'completed', 'closed'].indexOf(w.status) >= 0 && ts(w.actualEnd || w.completedAt) > Date.now() - 14 * 86400000).forEach((w) => att.push({ tone: 'danger', icon: 'alert', title: w.id + ' خلص بعجز ' + num(w.shortfall) + ' ' + uomOf(w.itemId) + ' بسبب الهوالك', sub: 'خرج ' + num(w.qtyDone || 0) + ' من ' + num(w.qty) + ' — ' + ERP.itemName(w.itemId) + (w.soId ? ' · لأمر البيع ' + w.soId + ' ' + soCustomer(w.soId) : '') + ' · محتاج أمر تشغيل تكميلي', href: '#/mfg/workorders/' + w.id, cta: 'الأمر' }));
+    // released, waiting for the raw-materials storekeeper to issue the MIR (إذن صرف للخلاطة)
+    wos.filter((w) => w.status === 'released' && !w.issued).forEach((w) => { const m = mirOf(w); const canM = m && SA.can('scm.issues.view');
+      att.push({ tone: 'warning', icon: 'inbox', title: w.id + ' بانتظار صرف الخامات' + (m ? ' — ' + m.id : ''), sub: ERP.itemName(w.itemId) + ' × ' + num(w.qty) + ' · ' + (m ? 'عند أمين مخزن الخامات منذ ' + SA.fmt.rel(m.requestedAt) : 'لا يوجد إذن صرف') + (w.soId ? ' · ' + w.soId + ' ' + soCustomer(w.soId) : ''), href: canM ? '#/scm/issues/' + m.id : '#/mfg/workorders/' + w.id, cta: canM ? 'إذن الصرف' : 'الأمر' }); });
     late.forEach((w) => att.push({ tone: 'warning', icon: 'clock', title: w.id + ' متأخر عن ' + (w.dueDate && w.dueDate < today() ? 'تاريخ الاستحقاق ' + ERP.fmt.date(w.dueDate) : 'نهاية الخطة ' + ERP.fmt.date(w.plannedEnd)), sub: ERP.itemName(w.itemId) + ' · ' + num(w.qtyDone || 0) + '/' + num(w.qty), href: '#/mfg/workorders/' + w.id }));
     qcp.forEach((w) => att.push({ tone: 'info', icon: 'checkcircle', title: w.id + ' بانتظار الفحص النهائي', sub: num(w.qtyDone) + ' ' + uomOf(w.itemId) + ' — ' + ERP.itemName(w.itemId) + (w.soId ? ' · ' + soCustomer(w.soId) : ''), href: w.qcId && SA.can('mfg.qc.view') ? '#/mfg/qc/' + w.qcId : '#/mfg/workorders/' + w.id, cta: 'الفحص' }));
     shorts.forEach((x) => att.push({ tone: 'warning', icon: 'layers', title: 'نقص ' + ERP.itemName(x.itemId) + ': ' + qtyU(x.short, x.itemId), sub: 'مطلوب لـ ' + x.wos.length + ' أمر مخطط · المتاح ' + qtyU(x.avail, x.itemId), href: '#/mfg/mrp', cta: 'MRP' }));
@@ -531,7 +688,7 @@
   }
   function dashRender(root, ctx) {
     ctx.setCrumbs([{ label: 'التصنيع والجودة' }, { label: 'لوحة التصنيع' }]);
-    return SA.live(root, dashBuild, ['lines', 'workOrders', 'downtime', 'maintenanceOrders', 'mfgShiftLog', 'machines']);
+    return SA.live(root, dashBuild, ['lines', 'workOrders', 'downtime', 'maintenanceOrders', 'mfgShiftLog', 'machines', 'issueRequests']);
   }
 
   /* ═════════════════════════ 2. mfg-planning ═════════════════════════ */
@@ -644,8 +801,9 @@
     function drawWo() {
       SA.clear(woHost); const list = get('workOrders').filter((w) => ['planned', 'released', 'in_progress', 'on_hold'].indexOf(w.status) >= 0).sort((a, b) => (a.plannedStart < b.plannedStart ? -1 : 1));
       woHost.append(SA.card({ title: 'احتياجات المواد لكل أمر تشغيل مفتوح' }, list.length ? list.map((w) => { const mats = F.woMaterials(w.id); const sh = mats.filter((m) => m.short > 0);
-        return h('details.mfg-details', {}, h('summary', {}, U.docLink(w.id), U.status('wo', w.status), h('span.mfg-grow', {}, ERP.itemName(w.itemId) + ' · ' + qtyU(remaining(w), w.itemId) + ' متبقي'), h('small.mfg-muted', {}, w.lineId + ' · ' + ERP.fmt.date(w.plannedStart)), w.issued ? SA.chip('صُرفت الخامات', 'info') : sh.length ? SA.chip('نقص ' + sh.length + ' خامة', 'danger') : SA.chip('الخامات متاحة', 'success')),
-          h('div', {}, w.issued ? h('p.mfg-muted', {}, 'تم صرف خامات الأمر عند الإطلاق' + (U.canCost() && w.issuedValue ? ' بقيمة ' + ERP.fmt.money(w.issuedValue) : '') + ' — الجدول يوضح احتياج الكمية المتبقية للمعلومية.') : null,
+        return h('details.mfg-details', {}, h('summary', {}, U.docLink(w.id), U.status('wo', w.status), h('span.mfg-grow', {}, ERP.itemName(w.itemId) + ' · ' + qtyU(remaining(w), w.itemId) + ' متبقي'), h('small.mfg-muted', {}, w.lineId + ' · ' + ERP.fmt.date(w.plannedStart)), w.issued ? SA.chip('صُرفت الخامات', 'info') : w.status === 'released' ? SA.chip('بانتظار صرف الخامات', 'warning') : sh.length ? SA.chip('نقص ' + sh.length + ' خامة', 'danger') : SA.chip('الخامات متاحة', 'success')),
+          h('div', {}, w.issued ? h('p.mfg-muted', {}, 'تم صرف خامات الأمر' + (w.mirId ? ' بإذن الصرف ' : ''), w.mirId ? U.docLink(w.mirId) : null, (U.canCost() && w.issuedValue ? ' بقيمة ' + ERP.fmt.money(w.issuedValue) : '') + ' — الجدول يوضح احتياج الكمية المتبقية للمعلومية.')
+            : w.status === 'released' ? h('p.mfg-muted', {}, 'إذن الصرف ', w.mirId ? U.docLink(w.mirId) : '—', ' عند أمين مخزن الخامات — المخزون يتحرك عند الصرف. الجدول يوضح الرصيد المتاح للصرف.') : null,
             miniTable(['الخامة', 'المطلوب', 'المتاح', 'الحالة'], mats.map((m) => h('tr' + (m.short > 0 && !w.issued ? '.is-short' : ''), {}, td(U.itemCell(m.itemId)), td(qtyU(m.need, m.itemId), 'num'), td(qtyU(m.avail, m.itemId), 'num'), td(m.short > 0 ? SA.chip('نقص ' + qtyU(m.short, m.itemId), 'danger') : SA.chip('متاح', 'success')))))));
       }) : SA.empty({ icon: 'clipboard', title: 'لا توجد أوامر مفتوحة' })));
     }
@@ -655,11 +813,20 @@
   }
 
   /* ═════════════════════════ 4. mfg-workorders ═════════════════════════ */
+  /** one-line stage hint under the progress meter (list) */
+  function woHint(w) {
+    if (!FX) return null;
+    if (w.status === 'released' && !w.issued) return h('small.mfg-wohint.is-warn', {}, 'بانتظار صرف الخامات' + (w.mirId ? ' — ' + w.mirId : ''));
+    if (['released', 'in_progress', 'on_hold'].indexOf(w.status) < 0 || !w.issued) return null;
+    const wip = FX.stageView(w).filter((s) => s.avail > 0); if (!wip.length) return null;
+    return h('small.mfg-wohint', {}, 'شغل منتظر في ' + wip.length + ' مرحلة: ' + wip.slice(0, 2).map((s) => stNm(s.stageId) + ' ' + s.avail).join('، ') + (wip.length > 2 ? '…' : ''));
+  }
   function woActions(w) {
     return [{ label: 'فتح أمر التشغيل', icon: 'eye', onClick: () => SA.nav('mfg/workorders/' + w.id) },
-      w.status === 'planned' ? { label: 'إطلاق وصرف الخامات', icon: 'play', disabled: lockReason('mfg.workorders.release') || false, onClick: () => uiRelease(w.id) } : null,
+      w.status === 'planned' ? { label: 'إطلاق وطلب صرف الخامات', icon: 'play', disabled: lockReason('mfg.workorders.release') || false, onClick: () => uiRelease(w.id) } : null,
+      w.status === 'released' && !w.issued && w.mirId ? { label: 'إذن الصرف ' + w.mirId + ' (بانتظار أمين المخزن)', icon: 'inbox', disabled: SA.can('scm.issues.view') ? false : 'ليست من صلاحياتك (scm.issues.view)', onClick: () => SA.nav('scm/issues/' + w.mirId) } : null,
       w.status === 'released' ? { label: 'بدء التشغيل', icon: 'play', disabled: lockReason('mfg.workorders.edit') || false, onClick: () => uiStart(w.id) } : null,
-      ['released', 'in_progress'].indexOf(w.status) >= 0 ? { label: 'تسجيل إنتاج', icon: 'activity', disabled: lockReason('mfg.shopfloor.report') || false, onClick: () => uiReport(w.id) } : null,
+      ['released', 'in_progress'].indexOf(w.status) >= 0 ? { label: 'تسجيل مرحلة', icon: 'activity', disabled: lockReason('mfg.shopfloor.report') || false, onClick: () => uiReport(w.id) } : null,
       ['in_progress', 'released', 'planned'].indexOf(w.status) >= 0 ? { label: 'إيقاف الأمر', icon: 'alert', disabled: lockReason('mfg.workorders.edit') || false, onClick: () => uiHold(w.id) } : null,
       w.status === 'on_hold' ? { label: 'استئناف', icon: 'play', disabled: lockReason('mfg.workorders.edit') || false, onClick: () => uiResume(w.id) } : null,
       w.qcId ? { label: 'فحص الجودة ' + w.qcId, icon: 'checkcircle', disabled: SA.can('mfg.qc.view') ? false : 'ليست من صلاحياتك (mfg.qc.view)', onClick: () => SA.nav('mfg/qc/' + w.qcId) } : null].filter(Boolean);
@@ -676,7 +843,7 @@
         { key: 'so', label: 'أمر البيع', options: [['none', 'إنتاج للمخزون']].concat(soOpts()), test: (r, v) => (v === 'none' ? !r.soId : r.soId === v) }],
       columns: [{ key: 'id', label: 'الأمر', sort: true, render: (r) => h('span', {}, U.docLink(r.id), h('small.mfg-muted', { style: { display: 'block' } }, r.lot || '')) },
         { key: 'item', label: 'المنتج', sort: true, value: (r) => ERP.itemName(r.itemId), render: (r) => U.itemCell(r.itemId) },
-        { key: 'qty', label: 'التقدم', sort: true, value: (r) => (r.qtyDone || 0) / r.qty, render: (r) => h('div.mfg-qcell', {}, h('span.num', {}, num(r.qtyDone || 0) + ' / ' + num(r.qty) + ' ' + uomOf(r.itemId)), CH.meter((r.qtyDone || 0) / r.qty, { tone: r.status === 'on_hold' ? 'danger' : 'primary' })) },
+        { key: 'qty', label: 'التقدم', sort: true, value: (r) => (r.qtyDone || 0) / r.qty, render: (r) => h('div.mfg-qcell', {}, h('span.num', {}, num(r.qtyDone || 0) + ' / ' + num(r.qty) + ' ' + uomOf(r.itemId)), CH.meter((r.qtyDone || 0) / r.qty, { tone: r.status === 'on_hold' ? 'danger' : 'primary' }), woHint(r)) },
         { key: 'lineId', label: 'الخط', sort: true, render: (r) => h('span.mfg-code', {}, r.lineId) },
         { key: 'soId', label: 'أمر البيع', sort: true, render: (r) => (r.soId ? h('span', {}, U.docLink(r.soId), h('small.mfg-muted', { style: { display: 'block' } }, soCustomer(r.soId))) : h('span.mfg-muted', {}, 'للمخزون')) },
         { key: 'status', label: 'الحالة', sort: true, value: (r) => WO_ORDER[r.status], render: (r) => h('span', { style: { display: 'inline-flex', gap: '4px', flexWrap: 'wrap' } }, U.status('wo', r.status), isLate(r) ? SA.chip('متأخر', 'danger') : atRisk(r) ? SA.chip('معرض للتأخير', 'warning') : null) },
@@ -688,7 +855,7 @@
     function drawStats() { SA.clear(statsHost); const w = get('workOrders'); const c = (f) => w.filter(f).length;
       statsHost.append(h('div.mfg-kpi-row', {}, stat('مفتوحة', num(c(isOpen))), stat('قيد التشغيل', num(c((x) => x.status === 'in_progress')), 'success'), stat('متوقفة', num(c((x) => x.status === 'on_hold')), c((x) => x.status === 'on_hold') ? 'danger' : null), stat('بانتظار الجودة', num(c((x) => x.status === 'qc_pending')), 'warning'), stat('متأخرة', num(c(isLate)), c(isLate) ? 'danger' : null), stat('مكتملة (30 يوم)', num(c((x) => ['completed', 'closed'].indexOf(x.status) >= 0 && ts(x.actualEnd || x.completedAt) > Date.now() - 30 * 86400000))))); }
     drawStats();
-    root.append(SA.pageHead({ title: 'أوامر التشغيل', desc: 'من أمر البيع إلى الإطلاق وصرف الخامات، التشغيل، تسجيل الإنتاج ثم الفحص النهائي.', actions: [SA.btn({ label: 'أمر تشغيل جديد', icon: 'plus', perm: 'mfg.workorders.create', onClick: () => openCreateWO() })] }), statsHost, tbl.el);
+    root.append(SA.pageHead({ title: 'أوامر التشغيل', desc: 'من أمر البيع ← الإطلاق وإذن صرف للخلاطة ← صرف أمين مخزن الخامات ← مراحل الضلفة والحلق ← الجودة والتغليف ← الفحص النهائي.', actions: [SA.btn({ label: 'أمر تشغيل جديد', icon: 'plus', perm: 'mfg.workorders.create', onClick: () => openCreateWO() })] }), statsHost, tbl.el);
     const offs = [st.subscribe('workOrders', () => { tbl.refresh(); drawStats(); }), st.subscribe('lines', () => tbl.refresh())];
     return () => offs.forEach((f) => f());
   }
@@ -697,10 +864,12 @@
     if (!wo) return SA.card({}, SA.empty({ icon: 'search', title: 'أمر التشغيل غير موجود', text: id, action: { label: 'كل أوامر التشغيل', icon: 'arrowright', onClick: () => SA.nav('mfg/workorders') } }));
     const it = item(wo.itemId); const ln = ERP.line(wo.lineId); const so = wo.soId ? ERP.find('salesOrders', wo.soId) : null; const qc = wo.qcId ? ERP.find('qcInspections', wo.qcId) : null;
     const mats = F.woMaterials(wo.id); const short = mats.filter((m) => m.short > 0); const lineDown = ln && ln.status === 'down';
+    const mir = mirOf(wo); const waitIssue = wo.status === 'released' && !wo.issued;
     const acts = [];
-    if (wo.status === 'planned') acts.push(SA.btn({ label: 'إطلاق وصرف الخامات', icon: 'play', perm: 'mfg.workorders.release', onClick: () => uiRelease(wo.id) }));
-    if (wo.status === 'released') acts.push(SA.btn({ label: 'بدء التشغيل', icon: 'play', perm: 'mfg.workorders.edit', reason: lineDown ? 'الخط متوقف — لا يمكن البدء' : '', onClick: () => uiStart(wo.id) }));
-    if (['released', 'in_progress'].indexOf(wo.status) >= 0) acts.push(SA.btn({ label: 'تسجيل إنتاج', icon: 'activity', kind: wo.status === 'in_progress' ? 'primary' : 'ghost', perm: 'mfg.shopfloor.report', reason: lineDown ? 'الخط متوقف' : '', onClick: () => uiReport(wo.id) }));
+    if (wo.status === 'planned') acts.push(SA.btn({ label: 'إطلاق وطلب صرف الخامات', icon: 'play', perm: 'mfg.workorders.release', onClick: () => uiRelease(wo.id) }));
+    if (waitIssue && mir && SA.can('scm.issues.view')) acts.push(SA.btn({ label: 'إذن الصرف ' + mir.id, icon: 'inbox', kind: 'ghost', onClick: () => SA.nav('scm/issues/' + mir.id) }));
+    if (wo.status === 'released') acts.push(SA.btn({ label: 'بدء التشغيل', icon: 'play', kind: waitIssue ? 'ghost' : 'primary', perm: 'mfg.workorders.edit', reason: lineDown ? 'الخط متوقف — لا يمكن البدء' : '', onClick: () => uiStart(wo.id) }));
+    if (['released', 'in_progress'].indexOf(wo.status) >= 0) acts.push(SA.btn({ label: 'تسجيل مرحلة', icon: 'activity', kind: wo.status === 'in_progress' ? 'primary' : 'ghost', perm: 'mfg.shopfloor.report', reason: lineDown ? 'الخط متوقف' : '', onClick: () => uiReport(wo.id) }));
     if (['planned', 'released', 'in_progress'].indexOf(wo.status) >= 0) acts.push(SA.btn({ label: 'إيقاف', icon: 'alert', kind: 'danger', perm: 'mfg.workorders.edit', onClick: () => uiHold(wo.id) }));
     if (wo.status === 'on_hold') acts.push(SA.btn({ label: 'استئناف التشغيل', icon: 'play', perm: 'mfg.workorders.edit', reason: lineDown ? 'الخط ' + ln.id + ' متوقف — أصلح العطل أولًا' : '', onClick: () => uiResume(wo.id) }));
     if (wo.status === 'qc_pending' && wo.qcId) acts.push(SA.btn({ label: 'فتح فحص الجودة', icon: 'checkcircle', perm: 'mfg.qc.view', onClick: () => SA.nav('mfg/qc/' + wo.qcId) }));
@@ -710,41 +879,119 @@
       lineDown ? h('span', {}, 'الخط ', lineLink(ln.id), ' ', U.status('line', 'down')) : null, so ? h('span', {}, 'تسليم ', U.docLink(so.id), ' في ' + ERP.fmt.date(so.promisedDate)) : null)) : null;
     const prog = (wo.qtyDone || 0) / wo.qty; const scrapRate = (wo.qtyScrap || 0) / Math.max(1, (wo.qtyDone || 0) + (wo.qtyScrap || 0));
     const headCard = SA.card({}, h('div.mfg-head', {}, imgOf(wo.itemId) ? h('img.mfg-img', { src: imgOf(wo.itemId), alt: ERP.families[it.family] || '' }) : h('div.mfg-img'),
-      h('div', {}, U.itemCell(wo.itemId), h('div.mfg-kpi-row', {}, stat('الكمية', qtyU(wo.qty, wo.itemId)), stat('المنجز', num(wo.qtyDone || 0), prog >= 1 ? 'success' : null), stat('الهالك', num(wo.qtyScrap || 0) + ' (' + pct(scrapRate, 1) + ')', scrapRate > 0.03 ? 'danger' : null), stat('المتبقي', num(remaining(wo)), remaining(wo) ? 'warning' : 'success')),
+      h('div', {}, U.itemCell(wo.itemId), h('div.mfg-kpi-row', {}, stat('الكمية', qtyU(wo.qty, wo.itemId)), stat('المنجز (مغلّف)', num(wo.qtyDone || 0), prog >= 1 ? 'success' : null), stat('الهالك (قطع)', num(wo.qtyScrap || 0) + ' (' + pct(scrapRate, 1) + ')', scrapRate > 0.03 ? 'danger' : null), stat('الهالك بالوزن', num(wo.scrapKg || 0, 1) + ' كجم'), stat(wo.shortfall ? 'عجز بسبب الهوالك' : 'المتبقي', num(wo.shortfall || remaining(wo)), wo.shortfall ? 'danger' : remaining(wo) ? 'warning' : 'success')),
         CH.meter(prog, { label: 'تقدم الأمر', text: pct(prog), tone: wo.status === 'on_hold' ? 'danger' : prog >= 1 ? 'success' : 'primary' }))),
       h('div', { style: { marginTop: '14px' } }, SA.kv([['الخط', lineLink(wo.lineId)], ['أمر البيع', so ? h('span', {}, U.docLink(so.id), ' — ' + ERP.customerName(so.customerId), so.export ? ' ' : null, so.export ? SA.chip('تصدير', 'info') : null) : 'إنتاج للمخزون'], ['اللوط', h('span.num', {}, wo.lot || '—')],
         ['الفترة المخططة', ERP.fmt.date(wo.plannedStart) + ' ← ' + ERP.fmt.date(wo.plannedEnd)], ['تاريخ الاستحقاق', h('span', {}, ERP.fmt.date(wo.dueDate), isLate(wo) ? ' ' : null, isLate(wo) ? SA.chip('متأخر', 'danger') : null)], ['الوردية', wo.shift ? SHIFTS.find((s) => s[0] === wo.shift)[1] : '—'],
         ['بدء فعلي', wo.actualStart ? SA.fmt.dt(wo.actualStart) : '—'], ['انتهاء فعلي', wo.actualEnd ? SA.fmt.dt(wo.actualEnd) : '—'], ['أُنشئ', SA.fmt.dt(wo.createdAt) + ' — ' + SA.userName(wo.createdBy)], wo.releasedAt ? ['أُطلق', SA.fmt.dt(wo.releasedAt) + ' — ' + SA.userName(wo.releasedBy)] : null])));
-    const matCard = SA.card({ title: 'فحص الخامات', tags: [wo.issued ? SA.chip('تم الصرف', 'info') : short.length ? SA.chip('نقص ' + short.length, 'danger') : SA.chip('متاحة', 'success')] },
-      wo.issued ? h('p.mfg-muted', {}, 'صُرفت الخامات عند الإطلاق' + (wo.releasedAt ? ' (' + SA.fmt.rel(wo.releasedAt) + ')' : '') + '. الجدول للكمية المتبقية:', ' ', U.canCost() && wo.issuedValue ? h('b', {}, 'قيمة الصرف ' + ERP.fmt.money(wo.issuedValue)) : null) : null,
-      mats.length ? miniTable(['الخامة', 'المطلوب', 'المتاح', 'الحالة'], mats.map((m) => h('tr' + (m.short > 0 && !wo.issued ? '.is-short' : ''), {}, td(U.itemCell(m.itemId)), td(qtyU(m.need, m.itemId), 'num'), td(qtyU(m.avail, m.itemId), 'num'), td(m.short > 0 ? SA.chip('نقص ' + qtyU(m.short, m.itemId), 'danger') : SA.chip('متاح', 'success'))))) : SA.empty({ icon: 'layers', title: 'لا توجد كمية متبقية' }),
-      !wo.issued && short.length ? h('div', { style: { marginTop: '10px' } }, SA.btn({ label: 'أنشئ طلبات شراء للنقص', icon: 'cart', kind: 'ghost', perm: 'scm.requisitions.create', onClick: () => openShortages(wo.id, short) })) : null);
-    const reps = wo.reports || [];
-    const repCard = SA.card({ title: 'سجل تسجيل الإنتاج', tags: [h('span.sap-count', {}, String(reps.length))] }, reps.length ? miniTable(['الوقت', 'بواسطة', 'الوردية', 'سليم', 'هالك'], reps.map((r) => h('tr', {}, td(SA.fmt.dt(r.at)), td(SA.userName(r.by)), td(r.shift ? 'وردية ' + r.shift : r.at ? 'وردية ' + shiftAt(r.at) : '—'), td(num(r.good), 'num'), td(r.scrap ? h('span', { style: { color: 'var(--color-danger)' } }, num(r.scrap)) : '0', 'num')))) : SA.empty({ icon: 'activity', title: 'لم يُسجَّل إنتاج بعد' }));
+    const matCard = materialsCard(wo, mats, short, mir);
+    const reps = wo.reports || []; const REP_MAX = 25;
+    const repCard = SA.card({ title: 'سجل تسجيل الإنتاج (المراحل)', tags: [h('span.sap-count', {}, String(reps.length))] }, reps.length ? h('div', {}, miniTable(['الوقت', 'المرحلة', 'بواسطة', 'الوردية', 'سليم', 'هالك', 'كجم'], reps.slice(0, REP_MAX).map((r) => h('tr', {}, td(SA.fmt.dt(r.at)), td(r.stage ? h('span', {}, h('b', {}, stNm(String(r.stage).split(':')[1] || r.stage)), String(r.stage).split(':')[0] !== 'main' ? h('small.mfg-muted', { style: { display: 'block' } }, trackLbl(String(r.stage).split(':')[0])) : null) : h('span.mfg-muted', {}, 'إجمالي')), td(SA.userName(r.by)), td(r.shift ? 'وردية ' + r.shift : r.at ? 'وردية ' + shiftAt(r.at) : '—'), td(num(r.good), 'num'), td(r.scrap ? h('span', { style: { color: 'var(--color-danger)' } }, num(r.scrap)) : '0', 'num'), td(r.kg ? h('span', { style: { color: 'var(--color-danger)' } }, num(r.kg, 1)) : '—', 'num')))),
+      reps.length > REP_MAX ? h('p.mfg-muted', { style: { marginTop: '6px' } }, 'آخر ' + REP_MAX + ' تسجيل من ' + reps.length + '.') : null) : SA.empty({ icon: 'activity', title: 'لم يُسجَّل إنتاج بعد' }));
     const qcCard = SA.card({ title: 'الجودة' }, qc ? h('div', {}, SA.kv([['الفحص النهائي', h('span', {}, SA.can('mfg.qc.view') ? U.docLink(qc.id) : qc.id, ' ', U.status('qc', qc.result))], ['العينة', num(qc.sample)], qc.result !== 'pending' ? ['المقبول / المرفوض', num(qc.acceptedQty) + ' / ' + num(qc.rejectedQty)] : ['ينتظر منذ', SA.fmt.rel(qc.createdAt)], qc.inspectorId ? ['المفتش', SA.userName(qc.inspectorId)] : null, wo.ncrId || qc.ncrId ? ['عدم مطابقة', U.docLink(wo.ncrId || qc.ncrId)] : null])) : h('p.mfg-muted', {}, 'يُنشأ الفحص النهائي تلقائيًا عند اكتمال الكمية.'));
-    let costCard;
+    let costCard; const scrLogs = get('scrapLogs').filter((l) => l.woId === wo.id);
     if (!U.canCost()) costCard = SA.card({ title: 'التكلفة المعيارية للأمر' }, h('div.mfg-locked-box', {}, SA.icon('lock'), h('span', {}, 'التكاليف الداخلية سرية — تحتاج صلاحية data.cost.view.')));
     else { const r = rollup(wo.itemId, wo.qty); costCard = SA.card({ title: 'التكلفة المعيارية للأمر', tags: [U.demo('معدلات التحويل تجريبية')] }, h('div.mfg-roll', {},
       h('div.mfg-roll-row', {}, h('span', {}, 'التكلفة المعيارية المعتمدة (' + num(wo.qty) + ' × ' + ERP.fmt.money(it.stdCost) + ')'), U.cost(r.std)),
       h('div.mfg-roll-row', {}, h('span', {}, 'خامات حسب BOM'), U.cost(r.matCost)), h('div.mfg-roll-row', {}, h('span', {}, 'عمالة مباشرة (' + num(r.mins) + ' دقيقة معيارية)'), U.cost(r.labour)), h('div.mfg-roll-row', {}, h('span', {}, 'أعباء صناعية'), U.cost(r.overhead)),
-      h('div.mfg-roll-row.is-total', {}, h('span', {}, 'تكلفة محسوبة من التركيبة'), U.cost(r.total)), wo.qtyScrap ? h('div.mfg-roll-row', {}, h('span', {}, 'تكلفة الهالك حتى الآن (' + num(wo.qtyScrap) + ')'), U.cost(wo.qtyScrap * (it.stdCost || 0))) : null,
+      h('div.mfg-roll-row.is-total', {}, h('span', {}, 'تكلفة محسوبة من التركيبة'), U.cost(r.total)),
+      scrLogs.length ? h('div.mfg-roll-row', {}, h('span', {}, 'تكلفة الهوالك المسجلة (' + scrLogs.length + ' تسجيل · ' + num(scrLogs.reduce((s, l) => s + (l.kg || 0), 0), 1) + ' كجم)'), U.cost(scrLogs.reduce((s, l) => s + (l.cost || 0), 0))) : wo.qtyScrap ? h('div.mfg-roll-row', {}, h('span', {}, 'تكلفة الهالك حتى الآن (' + num(wo.qtyScrap) + ')'), U.cost(wo.qtyScrap * (it.stdCost || 0))) : null,
+      scrLogs.length ? h('div.mfg-roll-row', {}, h('span', {}, 'منها قابل للاسترداد (طحن / بيع)'), U.cost(scrLogs.reduce((s, l) => s + (l.recoverable || 0), 0))) : null,
       h('p.mfg-muted', {}, 'الفرق بين المعتمد والمحسوب يُراجَع في دورة تحديث التكاليف المعيارية (المالية › تكاليف المنتجات).'))); }
     const trail = get('audit').filter((a) => a.target && a.target.id === wo.id).map((a) => ({ ts: a.ts, label: (SA.catalog.auditByCode[a.code] || {}).label || a.code, note: a.reason || '', who: a.actor ? a.actor.name : '' }));
     // history recorded on the document itself (seeded records have no audit rows) — shown when the audit has no row of the same moment
-    const docEv = [[wo.createdAt, 'إنشاء أمر التشغيل', wo.createdBy], [wo.releasedAt, 'إطلاق وصرف الخامات', wo.releasedBy], [wo.actualStart, 'بدء التشغيل على ' + wo.lineId, null], [wo.heldAt, 'إيقاف الأمر', wo.heldBy, wo.holdReason], [wo.resumedAt, 'استئناف التشغيل', wo.resumedBy], [wo.actualEnd, 'اكتمال الكمية', null]]
-      .concat((wo.reports || []).map((r) => [r.at, 'تسجيل إنتاج ' + num(r.good) + (r.scrap ? ' + هالك ' + num(r.scrap) : ''), r.by]))
+    const docEv = [[wo.createdAt, 'إنشاء أمر التشغيل', wo.createdBy], [wo.releasedAt, 'إطلاق وطلب صرف الخامات' + (wo.mirId ? ' (' + wo.mirId + ')' : ''), wo.releasedBy], [mir && mir.issuedAt, 'صرف الخامات للخلاطة ' + (mir ? mir.id : ''), mir && mir.issuedBy], [wo.actualStart, 'بدء التشغيل على ' + wo.lineId, null], [wo.heldAt, 'إيقاف الأمر', wo.heldBy, wo.holdReason], [wo.resumedAt, 'استئناف التشغيل', wo.resumedBy], [wo.actualEnd, wo.shortfall ? 'انتهاء المراحل — عجز ' + wo.shortfall : 'اكتمال الكمية', null]]
+      .concat((wo.reports || []).map((r) => [r.at, 'تسجيل ' + (r.stage ? stageLabel(r.stage) + ': ' : 'إنتاج ') + num(r.good) + (r.scrap ? ' + هالك ' + num(r.scrap) : '') + (r.kg ? ' (' + num(r.kg, 1) + ' كجم)' : ''), r.by]))
       .filter((e) => e[0] && !trail.some((t) => Math.abs(ts(t.ts) - ts(e[0])) < 2000)).map((e) => ({ ts: e[0], label: e[1], who: e[2] ? SA.userName(e[2]) : '', note: e[3] || '' }));
     const events = trail.concat(docEv).sort((a, b) => ts(b.ts) - ts(a.ts)).slice(0, 12);
     const trailCard = SA.card({ title: 'سجل الأحداث' }, events.length ? h('ul.mfg-timeline', {}, events.map((a) => h('li', {}, h('i'), h('div', {}, h('b', {}, a.label), a.note ? ' — ' + a.note : '', h('small', {}, (a.who ? a.who + ' · ' : '') + SA.fmt.rel(a.ts)))))) : h('p.mfg-muted', {}, 'لا أحداث مسجلة بعد.'));
     return h('div', {}, SA.pageHead({ title: wo.id, desc: ERP.itemName(wo.itemId) + ' — ' + (ln ? ln.name : wo.lineId), back: { label: 'أوامر التشغيل', href: '#/mfg/workorders' }, tags: [U.status('wo', wo.status), priChip(wo.priority)], actions: acts }),
       holdBox, so ? SA.card({ title: 'دورة أمر البيع ' + so.id }, U.chain(so.id)) : null,
+      stagesCard(wo),
       U.grid(2, h('div.mfg-col', {}, headCard, matCard), h('div.mfg-col', {}, qcCard, costCard, repCard, trailCard)));
+  }
+  /** «الخامات وإذن الصرف»: planned → availability check · released & !issued → waiting for the raw-materials storekeeper · issued → the MIR as issued */
+  function materialsCard(wo, mats, short, mir) {
+    const destCell = (l) => (l.dest ? h('span', {}, stNm(l.dest)) : '—');
+    const checkTable = () => (mats.length ? miniTable(['الخامة', 'المطلوب', 'المتاح', 'الحالة'], mats.map((m) => h('tr' + (m.short > 0 ? '.is-short' : ''), {}, td(U.itemCell(m.itemId)), td(qtyU(m.need, m.itemId), 'num'), td(qtyU(m.avail, m.itemId), 'num'), td(m.short > 0 ? SA.chip('نقص ' + qtyU(m.short, m.itemId), 'danger') : SA.chip('متاح', 'success'))))) : SA.empty({ icon: 'layers', title: 'لا توجد كمية متبقية' }));
+    const fmRow = (m) => (m && m.formulas && m.formulas.length ? h('div.mfg-st-meta', { style: { marginBottom: '10px' } }, m.formulas.map((f) => h('span', {}, U.docLink(f.formulaId), h('small', {}, trackLbl(f.track) + ' · ' + num(f.kg) + ' كجم · ' + f.batches + ' خلطة'))), m.regKg ? h('span', {}, SA.icon('recycle', 'icon-sm'), h('small', {}, 'منها مطحون إعادة تدوير ' + num(m.regKg) + ' كجم من W-07')) : null) : null);
+    let tag, body;
+    if (wo.status === 'planned' || (!mir && !wo.issued)) {
+      tag = short.length ? SA.chip('نقص ' + short.length, 'danger') : SA.chip('متاحة', 'success');
+      body = [h('p.mfg-muted', {}, 'عند الإطلاق يتعمل إذن صرف (MIR) لأمين مخزن الخامات حسب الخلطة — المخزون والقيد بيتحركوا لما يصرف للخلاطة.'), checkTable(),
+        short.length ? h('div', { style: { marginTop: '10px' } }, SA.btn({ label: 'أنشئ طلبات شراء للنقص', icon: 'cart', kind: 'ghost', perm: 'scm.requisitions.create', onClick: () => openShortages(wo.id, short) })) : null];
+    } else if (mir && !wo.issued) {
+      tag = U.status('mir', mir.status);
+      body = [SA.alert('warning', h('b', {}, 'بانتظار صرف الخامات من أمين مخزن الخامات'), h('div', { style: { marginTop: '4px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' } }, 'إذن الصرف ', U.docLink(mir.id), ' ', U.status('mir', mir.status), h('span', {}, ' · طُلب ' + SA.fmt.rel(mir.requestedAt) + ' — ' + SA.userName(mir.requestedBy)), mir.priority === 'high' || mir.note ? SA.chip(mir.note || 'أولوية', 'warning') : null)),
+        fmRow(mir),
+        miniTable(['الخامة', 'المطلوب', 'المتاح بالمخزن', 'يُصرف إلى'], (mir.lines || []).map((l) => { const av = K.available(l.itemId, l.whId); return h('tr' + (av < l.qty - 0.01 ? '.is-short' : ''), {}, td(U.itemCell(l.itemId)), td(qtyU(l.qty, l.itemId), 'num'), td(av < l.qty - 0.01 ? h('b', { style: { color: 'var(--color-danger)' } }, qtyU(av, l.itemId)) : qtyU(av, l.itemId), 'num'), td(destCell(l))); })),
+        h('p.mfg-muted', { style: { marginTop: '8px' } }, 'المراحل (الخلاطة ثم السحب) تبدأ بعد الصرف — لا حركة مخزون ولا قيد قبل كده.')];
+    } else if (mir) {
+      tag = U.status('mir', mir.status);
+      body = [SA.kv([['إذن الصرف', h('span', {}, U.docLink(mir.id), ' ', U.status('mir', mir.status))], ['صرفه', mir.issuedBy ? SA.userName(mir.issuedBy) + ' · ' + SA.fmt.rel(mir.issuedAt) : '—'], ['قيمة الصرف', U.cost(mir.value || wo.issuedValue || 0)], ['القيد', 'مخزون تحت التشغيل 1142 / مخزون خامات 1141']]),
+        h('div', { style: { marginTop: '10px' } }, fmRow(mir)),
+        miniTable(['الخامة', 'المطلوب', 'المنصرف', 'يُصرف إلى'], (mir.lines || []).map((l) => h('tr' + ((l.issuedQty || 0) < l.qty - 0.01 ? '.is-short' : ''), {}, td(U.itemCell(l.itemId)), td(qtyU(l.qty, l.itemId), 'num'), td(qtyU(l.issuedQty || 0, l.itemId), 'num'), td(destCell(l)))))];
+    } else {
+      tag = SA.chip('تم الصرف', 'info');
+      body = [h('p.mfg-muted', {}, 'تم صرف خامات الأمر' + (wo.issuedAt ? ' (' + SA.fmt.rel(wo.issuedAt) + ')' : '') + ' — الجدول لاحتياج الكمية المتبقية:', ' ', U.canCost() && wo.issuedValue ? h('b', {}, 'قيمة الصرف ' + ERP.fmt.money(wo.issuedValue)) : null), checkTable()];
+    }
+    return SA.card({ title: 'الخامات وإذن الصرف', tags: [tag] }, body);
+  }
+  /** «مراحل التشغيل» — doors: two lanes (الضلفة / الحلق) that meet at «الجودة والتغليف»; cladding / foam: one lane */
+  function stagesCard(wo) {
+    if (!FX) return null; const view = FX.stageView(wo); if (!view.length) return null;
+    const fam = famOf(wo.itemId); const door = fam === 'door'; const fin = FX.finishType(wo.itemId); const mir = mirOf(wo); const qc = wo.qcId ? ERP.find('qcInspections', wo.qcId) : null; const fgr = fgrOf(wo);
+    const canFlow = SA.can('mfg.flow.view'); const canScrap = SA.can('mfg.scrap.view');
+    const fms = FX.formulasFor(wo.itemId);
+    const meta = h('div.mfg-st-meta', {},
+      door ? h('span', {}, h('span.mfg-lbl', {}, 'التشطيب:'), SA.chip(FX.FINISH[fin], fin === 'plain' ? 'neutral' : 'info'), h('small', {}, fin === 'plain' ? 'السادة تعدّي من اللمينيشن للجودة على طول — بدون الديكور' : 'بعد اللمينيشن تمر على مرحلة الديكور' + (fin === 'raised' ? ' (بارز)' : ''))) : null,
+      fms.length ? h('span', {}, h('span.mfg-lbl', {}, 'الخلطات:'), fms.map((f) => { const fm = FX.formula(f.formulaId); return h('span', { style: { display: 'inline-flex', gap: '4px', alignItems: 'center' } }, U.docLink(f.formulaId), h('small', {}, (door ? trackLbl(f.track) + ' — ' : '') + (fm ? fm.name.replace(/^خلطة /, '') : ''))); })) : null,
+      h('span', {}, h('span.mfg-lbl', {}, 'إذن الصرف:'), mir ? [U.docLink(mir.id), ' ', U.status('mir', mir.status)] : h('small', {}, wo.status === 'planned' ? 'يتعمل عند الإطلاق' : wo.issued ? 'صُرفت الخامات' : '—')));
+    const notice = wo.status === 'planned' ? SA.alert('info', 'الأمر لسه مخطط — بعد الإطلاق يتعمل إذن صرف للخلاطة، وبعد ما أمين مخزن الخامات يصرف تبدأ المراحل من الخلاطة.')
+      : wo.status === 'released' && !wo.issued ? SA.alert('warning', h('b', {}, 'المراحل منتظرة صرف الخامات للخلاطة'), h('div', {}, 'إذن الصرف ', mir ? U.docLink(mir.id) : '—', ' عند أمين مخزن الخامات', mir ? ' — طُلب ' + SA.fmt.rel(mir.requestedAt) : '', '.'))
+        : wo.status === 'on_hold' ? SA.alert('danger', 'الأمر متوقف — التسجيل على المراحل مقفول لحد الاستئناف.') : null;
+    const canRepAny = wo.issued && isRunning(wo);
+    const tile = (s, i) => {
+      const rate = stageRate(wo, s); const over = (s.scrapKg || 0) > 0 && rate > s.std; const mcs = stageMachines(s); const mcId = s.machineId || (mcs.length === 1 ? mcs[0].id : null);
+      const fill = s.input > 0 ? Math.min(1, (s.good || 0) / s.input) : 0; const scrapTxt = [h('b.num', {}, num(s.scrap || 0)), ' ق · ', h('b.num', {}, num(s.scrapKg || 0, 1)), ' كجم'];
+      return h('div.mfg-st.is-' + s.status, { 'data-stage': s.key, title: FX.stage(s.stageId).desc || '' },
+        h('div.mfg-st-h', {}, h('span.mfg-st-n', {}, String(i + 1)), h('b', {}, stNm(s.stageId), s.stageId === 'ST-DECOR' ? h('small', {}, FX.FINISH[fin]) : null)),
+        U.status('stage', s.status),
+        h('div.mfg-st-q', {}, h('b', {}, num(s.good || 0)), h('span', {}, '/ ' + num(s.input || 0)), h('small', {}, 'سليم / وارد')),
+        h('div.mfg-st-bar', {}, h('i', { style: { width: Math.round(fill * 100) + '%' } })),
+        h('div.mfg-st-r' + (s.avail > 0 ? '.is-wait' : ''), {}, s.avail > 0 ? ['منتظر ', h('b.num', {}, num(s.avail))] : 'لا يوجد منتظر'),
+        h('div.mfg-st-r' + (over ? '.is-over' : ''), { title: 'هالك بالوزن ' + pct(rate, 1) + ' — المسموح ' + pct(s.std, 1) }, 'هالك ', canScrap && (s.scrapKg || s.scrap) ? h('a', { href: '#/mfg/scrap?q=' + wo.id }, scrapTxt) : scrapTxt, over ? h('small', { style: { width: '100%' } }, h('span.num', {}, pct(rate, 1)), ' · المسموح ', h('span.num', {}, pct(s.std, 1))) : null),
+        h('div.mfg-st-r', {}, SA.icon('wrench', 'icon-sm'), mcId ? h('a', { href: '#/care/assets/' + mcId, title: (ERP.machine(mcId) || {}).name || '' }, mcId) : h('span', {}, mcs.length ? mcs.length + ' ماكينات' : '—')),
+        canRepAny && s.avail > 0 ? SA.btn({ label: 'تسجيل', icon: 'activity', size: 'sm', kind: s.status === 'ready' ? 'primary' : 'ghost', perm: 'mfg.shopfloor.report', onClick: () => uiReport(wo.id, { stageKey: s.key }) }) : null);
+    };
+    const nextRow = () => h('div.mfg-next', {}, SA.icon('route', 'icon-sm'), h('span', {}, 'بعد التغليف ← الفحص النهائي'), qc ? [U.docLink(qc.id), U.status('qc', qc.result)] : h('span', {}, '(يتفتح تلقائيًا لما تخلص كل المراحل)'), h('span', {}, '← أمين مخزن المنتج التام'), fgr ? [U.docLink(fgr.id), U.status('fgr', fgr.status)] : null, wo.shortfall ? SA.chip('عجز ' + wo.shortfall + ' بسبب الهوالك', 'danger') : null);
+    const laneBox = (track, list, extra) => {
+      const last = list[list.length - 1]; const outLbl = track === 'leaf' ? 'ضلفة' : track === 'frame' ? 'حلق' : uomOf(wo.itemId);
+      return h('div.mfg-lane', { 'data-track': track }, h('div.mfg-lane-h', {}, h('b', {}, SA.icon(track === 'frame' ? 'grid' : 'layers', 'icon-sm'), door ? trackLbl(track) : 'مسار ' + (ERP.families[fam] || 'المنتج')), h('small', {}, list.length + ' مراحل · خرج ' + num((last && last.good) || 0) + ' ' + outLbl + ' من ' + num(wo.qty))),
+        h('div.mfg-lane-tiles', {}, list.map(tile)), extra || null);
+    };
+    let flow;
+    if (door) {
+      const leaf = view.filter((s) => s.track === 'leaf'), frame = view.filter((s) => s.track === 'frame'); const qp = view.find((s) => s.merge) || view.find((s) => s.stageId === 'ST-QP');
+      const rate = qp ? stageRate(wo, qp) : 0; const over = qp && (qp.scrapKg || 0) > 0 && rate > qp.std; const vars = { '--a': '5fr', '--b': '2fr' }; // ≈ 5 leaf tiles per row beside 2 frame tiles → both lanes end up two rows high
+      const merge = qp ? h('div.mfg-merge.is-' + qp.status, { 'data-stage': qp.key },
+        h('div.mfg-merge-t', {}, h('span', {}, SA.icon('checkcircle')), h('div', {}, h('b', {}, 'الجودة والتغليف'), h('small', {}, 'الضلفة + الحلق بيتقابلوا هنا = باب كامل · فحص كل قطعة وتغليفها'), U.status('stage', qp.status))),
+        h('div.mfg-merge-v', {}, h('small', {}, 'مغلّف / باب كامل وصل'), h('b.num', {}, num(qp.good || 0), ' ', h('span', {}, '/ ' + num(qp.input || 0)))),
+        h('div.mfg-merge-v', {}, h('small', {}, 'منتظر تغليف'), h('b.num', {}, num(qp.avail || 0))),
+        h('div.mfg-merge-v' + (over ? '.is-over' : ''), {}, h('small', {}, 'هالك الجودة والتغليف'), h('b.num', {}, num(qp.scrap || 0), ' ', h('span', {}, 'ق · ' + num(qp.scrapKg || 0, 1) + ' كجم'))),
+        canRepAny && qp.avail > 0 ? SA.btn({ label: 'تسجيل تغليف', icon: 'activity', kind: 'primary', perm: 'mfg.shopfloor.report', onClick: () => uiReport(wo.id, { stageKey: qp.key }) }) : h('span'),
+        nextRow()) : null;
+      flow = h('div', {}, h('div.mfg-lanes', { style: vars }, laneBox('leaf', leaf), laneBox('frame', frame)), h('div.mfg-join', { style: vars, 'aria-hidden': 'true' }, h('span'), h('span', {}, h('i'))), merge);
+    } else flow = h('div.mfg-lanes.is-one', {}, laneBox('main', view, nextRow()));
+    const qpS = view.find((s) => s.stageId === 'ST-QP') || {};
+    return SA.card({ title: 'مراحل التشغيل', class: 'mfg-flowcard', tags: [SA.chip('مغلّف ' + num(qpS.good || 0) + ' / ' + num(wo.qty), (qpS.good || 0) >= wo.qty ? 'success' : 'info')],
+      actions: [canFlow ? SA.btn({ label: 'مسار المصنع اللحظي', icon: 'flow', kind: 'ghost', size: 'sm', onClick: () => SA.nav('mfg/flow') }) : null] }, meta, notice, flow);
   }
   function woRender(root, ctx) {
     const id = ctx.path && ctx.path[0];
     if (!id) return woListRender(root, ctx);
     ctx.setCrumbs([{ label: 'التصنيع والجودة' }, { label: 'أوامر التشغيل', href: '#/mfg/workorders' }, { label: id }]);
-    return SA.live(root, () => woDetailBuild(id), ['workOrders', 'qcInspections', 'lines', 'stock', 'maintenanceOrders']);
+    return SA.live(root, () => woDetailBuild(id), ['workOrders', 'qcInspections', 'lines', 'stock', 'maintenanceOrders', 'issueRequests', 'fgReceipts', 'scrapLogs']);
   }
 
   /* ═════════════════════════ 5. mfg-shopfloor ═════════════════════════ */
@@ -763,6 +1010,14 @@
         let r; try { r = await SA.api(() => reportBreakdownCore({ lineId, machineId: fM.get(), title, note: fN.get(), holdWo: running.length ? fHold.get() : false })); } catch (e) { return SA.fail(e); }
         md.close(); SA.toast('تم البلاغ ' + r.mwo.id + ' — الصيانة والإنتاج تم إشعارهم' + (r.held.length ? '، وتم إيقاف ' + r.held.join('، ') : ''), 'success'); } }, SA.icon('alert'), 'إرسال البلاغ')] });
   }
+  /** pieces waiting at the stages that run on a line (every issued open WO) → [{w, s, locked, multi}] */
+  function lineWip(lineId, mainId) {
+    if (!FX) return []; const out = [];
+    get('workOrders').filter((w) => w.issued && ['released', 'in_progress', 'on_hold'].indexOf(w.status) >= 0).forEach((w) => FX.stageView(w).forEach((s) => { if (s.lineId === lineId && s.avail > 0) out.push({ w, s, locked: w.status === 'on_hold' }); }));
+    const ids = {}; out.forEach((x) => { ids[x.w.id] = 1; }); const many = Object.keys(ids).length > 1;
+    out.forEach((x) => { x.multi = many || (!!mainId && x.w.id !== mainId); });
+    return out.sort((a, b) => (a.locked ? 1 : 0) - (b.locked ? 1 : 0));
+  }
   function shopBuild() {
     if (!sfShift) sfShift = shiftNow();
     const lines = get('lines'); const canRep = SA.can('mfg.shopfloor.report'); const canBd = SA.can('mfg.shopfloor.report') || SA.can('care.maintenance.create');
@@ -776,17 +1031,26 @@
       if (ln.status === 'down') body.push(h('div.mfg-tile-down', {}, h('b.mfg-elapsed.num', { 'data-mfg-since': ln.downSince || '' }, durTxt(minsSince(ln.downSince))), h('div', {}, ln.downReason || 'عطل'), mwo ? h('div', {}, 'أمر الصيانة ', mwoLink(mwo.id), ' — ', SA.catalog.status.mwo[mwo.status][0]) : null));
       body.push(w ? h('div.mfg-tile-wo', {}, U.itemCell(w.itemId), h('span', {}, U.docLink(w.id), ' ', U.status('wo', w.status))) : feed ? h('div.mfg-tile-wo', {}, h('span', {}, 'يبثق بروفايلات لـ ', U.docLink(feed.id)), U.itemCell(feed.itemId)) : h('div.mfg-tile-wo', {}, h('span.mfg-muted', {}, 'لا يوجد أمر على الخط')));
       body.push(h('div.mfg-big', {}, h('div', {}, h('b', {}, num(shiftOut)), h('small', {}, 'منتج الوردية ' + sfShift)), h('div', {}, h('b', {}, num(tgt)), h('small', {}, 'المستهدف/وردية')), h('div.is-scrap', {}, h('b', {}, num(o.scrap)), h('small', {}, 'هالك اليوم'))));
-      if (w) body.push(CH.meter((w.qtyDone || 0) / w.qty, { label: 'تقدم ' + w.id, text: num(w.qtyDone || 0) + ' / ' + num(w.qty), tone: w.status === 'on_hold' ? 'danger' : 'primary' }));
+      if (w) body.push(CH.meter((w.qtyDone || 0) / w.qty, { label: 'تقدم ' + w.id + ' (مغلّف)', text: num(w.qtyDone || 0) + ' / ' + num(w.qty), tone: w.status === 'on_hold' ? 'danger' : 'primary' }));
+      if (w && w.status === 'released' && !w.issued) body.push(h('div.mfg-tile-down', { style: { background: 'var(--color-warning-tint)', color: 'var(--color-warning)' } }, h('div', {}, 'بانتظار صرف الخامات للخلاطة — إذن الصرف ', w.mirId ? U.docLink(w.mirId) : '—', ' عند أمين مخزن الخامات')));
+      // WIP waiting at this line's stages (all open work orders) — tap a chip to report that stage
+      const wip = lineWip(ln.id, (w || feed || {}).id); const firstWip = wip.find((x) => !x.locked) || null;
+      if (wip.length) body.push(h('div.mfg-wips', {}, h('small', {}, 'شغل منتظر على مراحل الخط'), h('div', {}, wip.map((x) => h('button.mfg-wip' + (x.locked ? '.is-locked' : ''), { type: 'button', 'data-stage': x.s.key, 'data-wo': x.w.id, title: x.w.id + ' — ' + stageLabel(x.s.key) + ' — منتظر ' + x.s.avail + (x.locked ? ' (الأمر متوقف)' : ''),
+        onclick: () => { if (x.locked) return SA.toast(x.w.id + ' متوقف — ' + (x.w.holdReason || ''), 'warn'); if (!canRep) return SA.toast('ليست من صلاحياتك (mfg.shopfloor.report)', 'warn'); uiReport(x.w.id, { stageKey: x.s.key, shift: sfShift }); } },
+        x.multi ? h('small', {}, x.w.id.replace(/^WO-\d{4}-/, '#')) : null, h('span', {}, withTrack(x.s.stageId, x.s.track, ' · ')), h('b', {}, num(x.s.avail)))))));
       body.push(h('div.mfg-muted', {}, 'إجمالي اليوم ' + num(o.good) + ' ' + (ERP.uom[ln.uom] || '') + (o.last ? ' · آخر قراءة ' + SA.fmt.rel(o.last) : '')));
-      const repBtn = w && ['released', 'in_progress'].indexOf(w.status) >= 0 ? SA.btn({ label: 'سجّل إنتاج', icon: 'activity', size: 'lg', perm: 'mfg.shopfloor.report', reason: ln.status === 'down' ? 'الخط متوقف' : '', onClick: () => uiReport(w.id, { shift: sfShift }) })
-        : w && w.status === 'on_hold' ? SA.btn({ label: 'الأمر متوقف', icon: 'lock', size: 'lg', kind: 'ghost', reason: w.holdReason || 'متوقف', onClick: () => {} })
-          : SA.btn({ label: 'سجّل إنتاج', icon: 'activity', size: 'lg', kind: 'ghost', reason: canRep ? 'لا يوجد أمر تشغيل جارٍ على الخط' : '', perm: 'mfg.shopfloor.report', onClick: () => {} });
-      const startBtn = w && w.status === 'released' ? SA.btn({ label: 'ابدأ التشغيل', icon: 'play', size: 'lg', kind: 'ghost', perm: 'mfg.workorders.edit', reason: ln.status === 'down' ? 'الخط متوقف' : '', onClick: () => uiStart(w.id) }) : null;
+      const keyOn = (wo) => { const s = FX ? FX.stageView(wo).find((x) => x.lineId === ln.id && x.avail > 0) : null; return s ? s.key : null; };
+      const repBtn = w && ['released', 'in_progress'].indexOf(w.status) >= 0 ? SA.btn({ label: 'سجّل إنتاج', icon: 'activity', size: 'lg', perm: 'mfg.shopfloor.report', reason: ln.status === 'down' ? 'الخط متوقف' : '', onClick: () => uiReport(w.id, { shift: sfShift, stageKey: keyOn(w) }) })
+        : firstWip ? SA.btn({ label: 'سجّل إنتاج', icon: 'activity', size: 'lg', perm: 'mfg.shopfloor.report', reason: ln.status === 'down' ? 'الخط متوقف' : '', onClick: () => uiReport(firstWip.w.id, { shift: sfShift, stageKey: firstWip.s.key }) })
+          : w && w.status === 'on_hold' ? SA.btn({ label: 'الأمر متوقف', icon: 'lock', size: 'lg', kind: 'ghost', reason: w.holdReason || 'متوقف', onClick: () => {} })
+            : SA.btn({ label: 'سجّل إنتاج', icon: 'activity', size: 'lg', kind: 'ghost', reason: canRep ? 'لا يوجد شغل منتظر على مراحل الخط' : '', perm: 'mfg.shopfloor.report', onClick: () => {} });
+      const startBtn = w && w.status === 'released' && !firstWip && SA.can('mfg.workorders.edit') ? SA.btn({ label: 'ابدأ التشغيل', icon: 'play', size: 'lg', kind: 'ghost', perm: 'mfg.workorders.edit', reason: ln.status === 'down' ? 'الخط متوقف' : '', onClick: () => uiStart(w.id) }) : null;
       const bdBtn = ln.status === 'down' ? SA.btn({ label: 'الخط في الصيانة', icon: 'wrench', size: 'lg', kind: 'ghost', onClick: () => SA.nav(mwo ? 'care/maintenance/' + mwo.id : 'mfg/lines/' + ln.id) })
         : SA.btn({ label: 'بلّغ عن عطل', icon: 'alert', size: 'lg', kind: 'danger', reason: canBd ? '' : 'ليست من صلاحياتك (mfg.shopfloor.report)', onClick: () => uiBreakdown(ln.id) });
       return h('section.mfg-tile.is-' + ln.status, { 'aria-label': ln.name }, h('div.mfg-tile-band', {}, h('div', {}, h('b', {}, ln.id + ' · ' + ln.name), h('small', {}, ERP.families[ln.family])), h('span.mfg-tile-state', {}, SA.catalog.status.line[ln.status][0])), h('div.mfg-tile-body', {}, body), h('div.mfg-tile-acts', {}, startBtn || repBtn, bdBtn));
     }));
-    return h('div', {}, SA.pageHead({ title: 'أرضية المصنع (لحظي)', desc: 'شاشة المشغلين: أزرار كبيرة للتسجيل والبلاغ — تصلح للتابلت عند الخط.', tags: [U.demo('عدّادات تجريبية')] }), top, tiles);
+    return h('div', {}, SA.pageHead({ title: 'أرضية المصنع (لحظي)', desc: 'شاشة المشغلين: سجّل كل مرحلة (سليم + هالك بالسبب والوزن) والبلاغ عن الأعطال — تصلح للتابلت عند الخط.', tags: [U.demo('عدّادات تجريبية')],
+      actions: [SA.can('mfg.flow.view') ? SA.btn({ label: 'مسار التصنيع والمراحل', icon: 'flow', kind: 'ghost', onClick: () => SA.nav('mfg/flow') }) : null] }), top, tiles);
   }
   function shopRender(root, ctx) {
     ctx.setCrumbs([{ label: 'التصنيع والجودة' }, { label: 'التنفيذ' }, { label: 'أرضية المصنع' }]);
@@ -924,5 +1188,7 @@
   /* search provider */
   if (SA.search && SA.search.register) SA.search.register({ id: 'mfg-wo', label: 'أوامر التشغيل', perm: 'mfg.workorders.view', query(q) { q = String(q || '').toLowerCase(); if (q.length < 2) return []; return get('workOrders').filter((w) => (w.id + ' ' + ERP.itemName(w.itemId) + ' ' + (w.soId || '') + ' ' + (w.lot || '')).toLowerCase().indexOf(q) >= 0).slice(0, 6).map((w) => ({ title: w.id + ' — ' + ERP.itemName(w.itemId), sub: (SA.catalog.status.wo[w.status] || [w.status])[0] + ' · ' + w.lineId + (w.soId ? ' · ' + w.soId : ''), icon: 'clipboard', route: 'mfg/workorders/' + w.id })); } });
 
-  ERP.mfg = { outToday, currentWO, shortages, rollup, openCreateWO, reportBreakdown: reportBreakdownCore, setLineStatus: setLineStatusCore, holdWO: holdCore, resumeWO: resumeCore, reschedule: rescheduleCore, runMRP: runMRPCore, updateBomLine: updateBomLineCore, ui: { report: uiReport, release: uiRelease, start: uiStart, hold: uiHold, resume: uiResume, breakdown: uiBreakdown, lineStatus: uiLineStatus } };
+  ERP.mfg = { outToday, currentWO, shortages, rollup, openCreateWO, reportBreakdown: reportBreakdownCore, setLineStatus: setLineStatusCore, holdWO: holdCore, resumeWO: resumeCore, reschedule: rescheduleCore, runMRP: runMRPCore, updateBomLine: updateBomLineCore,
+    lineWip, stagesCard: (woId) => { const w = ERP.find('workOrders', woId); return w ? stagesCard(w) : null; },
+    ui: { report: uiReport, release: uiRelease, start: uiStart, hold: uiHold, resume: uiResume, breakdown: uiBreakdown, lineStatus: uiLineStatus } };
 })();

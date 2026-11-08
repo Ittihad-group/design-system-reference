@@ -1356,6 +1356,12 @@
       SA.alert('info', 'معدلات العمالة والمصاريف والطاقة لكل دقيقة قيم تجريبية لكل خط (Open) — تُستبدل بمعدلات مراكز التكلفة الفعلية. فرق كبير بين التكلفة المحسوبة والمعيارية = مراجعة BOM أو التكلفة المعيارية مع المصنع.'));
     SA.drawer({ title: 'تكلفة ' + c.it.name, subtitle: c.it.code + ' · ' + (ERP.families[c.it.family] || ''), body, size: 'lg' });
   }
+  /** الهوالك في التكلفة (mod-scrap / ERP.factory): 5204 فاقد وهوالك التشغيل + 4201 إيرادات بيع خردة — آخر 30 يوم من الأستاذ العام */
+  function scrapKpi() {
+    const from = ERP.day(-29), to = today(); const loss = GL.balance('5204', from, to), rev = GL.balance('4201', from, to);
+    let route = null; try { const m = SA.router.parse('#/mfg/scrap').module; if (m && SA.canOpen(m)) route = 'mfg/scrap'; } catch (e) { /* noop */ }
+    return { label: 'فاقد وهوالك التشغيل (5204) — 30 يوم', value: SH(loss), sub: 'بعد المسترد لمخزون الهوالك 1145 · إيراد بيع خردة (4201) ' + SH(rev), icon: 'recycle', tone: loss > 0 ? 'warning' : null, href: route ? '#/' + route : null };
+  }
   function costingScreen(root) {
     const S0 = { fam: 'all', q: '' };
     return SA.live(root, () => {
@@ -1365,7 +1371,7 @@
       const fams = ['door', 'clad', 'foam'];
       const avg = (list, k) => (list.length ? sum(list, (c) => c[k]) / list.length : 0);
       const famStats = fams.map((f) => { const l = costs.filter((c) => c.it.family === f); return { f, l, mList: avg(l, 'mList'), mDealer: avg(l, 'mDealer'), mat: avg(l, 'material'), lab: avg(l, 'labour'), ovh: avg(l, 'overhead'), en: avg(l, 'energy'), full: avg(l, 'full'), varc: avg(l, 'variance') }; });
-      const kpis = kpiRow(famStats.map((s) => ({ label: ERP.families[s.f], value: SH(s.full) + ' / وحدة', sub: canProfit() ? 'هامش القائمة ' + pct(s.mList, 1) + ' · التاجر ' + pct(s.mDealer, 1) : 'متوسط التكلفة الكاملة · الهوامش سرية', icon: s.f === 'door' ? 'box' : s.f === 'clad' ? 'layers' : 'grid', tone: canProfit() && s.mDealer < 0.1 ? 'danger' : null })).concat([{ label: 'فرق عن التكلفة المعيارية', value: pct(avg(costs, 'variance'), 1), sub: costs.filter((c) => Math.abs(c.variance) > 0.15).length + ' صنف بفرق أكبر من 15% — مراجعة', icon: 'compare', tone: 'warning' }]));
+      const kpis = kpiRow(famStats.map((s) => ({ label: ERP.families[s.f], value: SH(s.full) + ' / وحدة', sub: canProfit() ? 'هامش القائمة ' + pct(s.mList, 1) + ' · التاجر ' + pct(s.mDealer, 1) : 'متوسط التكلفة الكاملة · الهوامش سرية', icon: s.f === 'door' ? 'box' : s.f === 'clad' ? 'layers' : 'grid', tone: canProfit() && s.mDealer < 0.1 ? 'danger' : null })).concat([{ label: 'فرق عن التكلفة المعيارية', value: pct(avg(costs, 'variance'), 1), sub: costs.filter((c) => Math.abs(c.variance) > 0.15).length + ' صنف بفرق أكبر من 15% — مراجعة', icon: 'compare', tone: 'warning' }, scrapKpi()]));
       const struct = CH.columns({ labels: famStats.map((s) => ERP.families[s.f]), stacked: true, height: 210, fmt: (v) => Math.round(v) + '%', legend: true, series: [['material', 'مواد خام'], ['lab', 'عمالة'], ['ovh', 'مصاريف صناعية'], ['en', 'طاقة']].map((k) => ({ name: k[1], color: COST_COL[k[0] === 'lab' ? 'labour' : k[0] === 'ovh' ? 'overhead' : k[0] === 'en' ? 'energy' : 'material'], values: famStats.map((s) => (s.full ? ((k[0] === 'material' ? s.mat : s[k[0]]) / s.full) * 100 : 0)) })), title: 'هيكل التكلفة' });
       const marg = canProfit() ? h('div', {}, CH.bars(famStats.reduce((a, s) => a.concat([{ label: ERP.families[s.f], sub: 'سعر القائمة', value: Math.max(0, s.mList * 100), color: ERP.palette[0] }, { label: ERP.families[s.f], sub: 'سعر التاجر', value: Math.max(0, s.mDealer * 100), color: s.mDealer < 0.1 ? '#b9141b' : '#7d9cd1' }]), []), { fmt: (v) => v.toFixed(1) + '%', max: 100 }),
         famStats.some((s) => s.mDealer < 0) ? SA.alert('danger', 'هامش سالب بسعر التاجر في: ' + famStats.filter((s) => s.mDealer < 0).map((s) => ERP.families[s.f]).join('، ') + ' — راجع قائمة أسعار التجار أو التركيبة.') : null) : lockedCard('data.profit.view', 'الهوامش سرية', 'هوامش الربح تظهر لمن يملك صلاحية الأرباح (data.profit.view).');
