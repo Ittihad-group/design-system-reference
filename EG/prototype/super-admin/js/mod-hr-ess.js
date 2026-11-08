@@ -1162,9 +1162,9 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
     const IDLE = 15; const S = { view: 'idle', method: 'code', digits: '', pin: '', emp: null, msg: null, secs: IDLE, fails: {}, rep: { type: null, loc: null }, tmp: null };
     let disposed = false; let clockEl = null, barEl = null, dateEl = null;
     const actorOf = (e) => ({ id: e.userId || e.id, name: e.name, roleId: (userOfEmp(e) || {}).roleId || null });
-    const dept = () => (S.emp ? deptName(S.emp.departmentId) : 'خط الألومنيوم');
+    const dept = () => (S.emp ? deptName(S.emp.departmentId) : 'خط بثق الأبواب');
     function topbar() {
-      return h('div.sap-ksk-top', {}, h('span', {}, SA.icon('scan'), KIOSK.id + ' · ' + 'خط الألومنيوم'), h('span', {}, SA.icon(SA.sim.offline ? 'wifioff' : 'wifi'), SA.sim.offline ? 'غير متصل — البصمة تُحفظ محليًا' : 'متصل'), h('span', {}, SA.icon('battery'), 'البطارية ' + KIOSK.battery + '% (تجريبي)'), h('span', {}, 'آخر نبضة ' + hm(new Date())));
+      return h('div.sap-ksk-top', {}, h('span', {}, SA.icon('scan'), KIOSK.id + ' · ' + 'خط بثق الأبواب'), h('span', {}, SA.icon(SA.sim.offline ? 'wifioff' : 'wifi'), SA.sim.offline ? 'غير متصل — البصمة تُحفظ محليًا' : 'متصل'), h('span', {}, SA.icon('battery'), 'البطارية ' + KIOSK.battery + '% (تجريبي)'), h('span', {}, 'آخر نبضة ' + hm(new Date())));
     }
     function safety() {
       const when = (i) => new Date(i.occurredAt || i.date || i.at || i.createdAt || '').getTime(); const inj = L('incidents').filter((i) => (i.type === 'injury' || i.kind === 'injury' || i.category === 'injury') && isFinite(when(i))).sort((a, b) => when(b) - when(a))[0]; const days = inj ? Math.max(0, Math.floor((Date.now() - when(inj)) / 86400000)) : 128;
@@ -1302,7 +1302,7 @@ button.sap-ess2-row{cursor:pointer}button.sap-ess2-row:hover{box-shadow:var(--sa
       } else if (tab === 'devices') {
         const q = L('essQueue'); const kq = L('kioskQueue'); const nq = (a, s) => a.filter((x) => x.status === s).length;
         view.append(h('div.sap-mss-sum', {}, [['أجهزة الكشك', '1 (تجريبي)'], ['بصمات كشك بالطابور', nq(kq, 'queued')], ['مسودات خدماتي بالطابور', nq(q, 'queued')], ['تعارضات مزامنة', nq(kq, 'conflict') + nq(q, 'conflict')]].map((s) => h('div', {}, h('span', {}, s[0]), h('b.num', {}, s[1])))),
-          SA.card({ title: 'حالة الأجهزة (نبضة الجهاز)' }, SA.kv([['الجهاز', KIOSK.id + ' — خط الألومنيوم'], ['الشبكة', SA.sim.offline ? SA.chip('غير متصل', 'danger') : SA.chip('متصل', 'success')], ['البطارية', KIOSK.battery + '% (تجريبي)'], ['آخر نبضة', SA.fmt.dt(new Date().toISOString())], ['إنذار انقطاع الكشك أثناء الوردية', SA.openValue('15 دقيقة — Pending (N-49)')]])),
+          SA.card({ title: 'حالة الأجهزة (نبضة الجهاز)' }, SA.kv([['الجهاز', KIOSK.id + ' — خط بثق الأبواب'], ['الشبكة', SA.sim.offline ? SA.chip('غير متصل', 'danger') : SA.chip('متصل', 'success')], ['البطارية', KIOSK.battery + '% (تجريبي)'], ['آخر نبضة', SA.fmt.dt(new Date().toISOString())], ['إنذار انقطاع الكشك أثناء الوردية', SA.openValue('15 دقيقة — Pending (N-49)')]])),
           SA.card({ title: 'طابور المزامنة', flush: true }, (kq.length + q.length) ? h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['الرقم', 'النوع', 'الموظف', 'وقت الجهاز', 'الحالة'].map((x) => h('th', {}, x)))), h('tbody', {}, kq.map((r) => h('tr', {}, h('td', {}, r.id), h('td', {}, 'بصمة كشك — ' + (r.dir === 'in' ? 'حضور' : 'انصراف')), h('td', {}, (empById(r.employeeId) || {}).name), h('td', {}, SA.fmt.dt(r.deviceTs)), h('td', {}, chipOf(r.status === 'synced' ? 'applied' : r.status)))).concat(q.map((r) => h('tr', {}, h('td', {}, r.id), h('td', {}, r.label), h('td', {}, (empById(r.employeeId) || {}).name), h('td', {}, SA.fmt.dt(r.createdAtClient)), h('td', {}, chipOf(r.status === 'synced' ? 'applied' : r.status)))))))) : SA.empty({ icon: 'activity', title: 'الطابور فاضي', text: 'فعّل «Offline» من وضع الاختبار وسجّل بصمة على الكشك لتشوف الطابور.' })));
       } else {
         const act = L('employees').filter((e) => e.status !== 'terminated'); const docs = L('policyDocs');

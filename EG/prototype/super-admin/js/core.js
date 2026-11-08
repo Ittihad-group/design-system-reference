@@ -109,7 +109,7 @@
 
   /* ───────────────────────── store ───────────────────────── */
   const LS_KEY = 'eg.sa.proto.v1';
-  const SEED_VERSION = 4;
+  const SEED_VERSION = 6;
   let state = null, memCopy = null, saveTimer = null;
   const subs = [];
   let pendingCbs = new Set(), flushQueued = false;
@@ -210,13 +210,16 @@
     { id: 'system', title: 'النظام', order: 8 }
   ];
   /** Apps ("المساحات"): sa = Super Admin, hr = الموارد البشرية. Modules register with app:'sa'|'hr'. */
-  C.apps = [{ id: 'sa', title: 'Super Admin', icon: 'shield', short: 'الإدارة' }, { id: 'hr', title: 'الموارد البشرية', icon: 'id', short: 'HR' }];
+  C.apps = [{ id: 'sa', title: 'Super Admin', icon: 'shield', short: 'الإدارة', home: 'overview' }, { id: 'hr', title: 'الموارد البشرية', icon: 'id', short: 'HR', home: 'hr-dashboard', moduleKey: 'hr' }];
+  /** ERP apps (erp-core.js) push into C.apps and C.appGroups. */
+  C.appById = (id) => C.apps.find((a) => a.id === id) || null;
   /** HR nav groups (docs/hr/README.md §5). Module `group` for HR modules ∈ these ids. */
   C.hrGroups = [
     { id: 'hr-dash', title: 'لوحة HR', order: 1 }, { id: 'hr-hire', title: 'التوظيف', order: 2 }, { id: 'hr-emp', title: 'الموظفون', order: 3 }, { id: 'hr-time', title: 'الوقت', order: 4 },
     { id: 'hr-pay', title: 'المرتبات', order: 5 }, { id: 'hr-dev', title: 'التطوير والحماية', order: 6 }, { id: 'hr-exit', title: 'الإنهاء', order: 7 }, { id: 'hr-docs', title: 'المستندات والتقارير', order: 8 }, { id: 'hr-set', title: 'الإعدادات', order: 9 }
   ];
-  C.groupsOf = (app) => (app === 'hr' ? C.hrGroups : C.groups);
+  C.appGroups = { sa: C.groups, hr: C.hrGroups };
+  C.groupsOf = (app) => C.appGroups[app] || C.groups;
   C.actions = [['view', 'عرض'], ['create', 'إضافة'], ['edit', 'تعديل'], ['delete', 'حذف'], ['approve', 'اعتماد'], ['export', 'تصدير']];
   C.scopes = [['own', 'ذاتي'], ['team', 'الفريق'], ['department', 'القسم'], ['all', 'الكل']];
   C.scopeHelp = { own: 'سجلاته هو فقط', team: 'سجلاته وسجلات مرؤوسيه (حسب المدير المباشر)', department: 'كل سجلات قسمه', all: 'كل السجلات' };
@@ -296,17 +299,19 @@
     hp('compliance', 'الامتثال والإعدادات القانونية', 'hr-set', VE, 'HR-30'), hp('settings', 'سياسات HR والإشعارات', 'hr-set', VE, 'HR-33'), hp('acl', 'صلاحيات HR والسرية', 'hr-set', V, 'HR-31'),
     hp('ess', 'خدماتي (خدمة ذاتية للموظف)', 'hr-dash', [['use', 'استخدام']], 'HR-32'), hp('mss', 'فريقي (المشرف)', 'hr-dash', [['use', 'استخدام']], 'HR-32')
   );
-  C.permKeys = []; C.perms.forEach((p) => p.actions.forEach((a) => C.permKeys.push((p.app === 'hr' ? 'hr.' : 'sa.') + p.res + '.' + a[0])));
+  C.rebuildPermKeys = () => { C.permKeys = []; C.perms.forEach((p) => p.actions.forEach((a) => C.permKeys.push((p.app || 'sa') + '.' + p.res + '.' + a[0]))); return C.permKeys; };
+  C.rebuildPermKeys();
   C.permsOf = (app) => C.perms.filter((p) => (p.app || 'sa') === app);
   /** Sensitive keys that other docs spell differently map to ONE key. data.wages.view (SA catalogue) ≡ hr.salary.view (HR contract). */
   C.alias = { 'data.wages.view': 'hr.salary.view' };
   C.canon = (k) => C.alias[k] || k;
   C.permLabel = (key) => {
-    const m = /^(sa|hr)\.(.+)\.([a-z_]+)$/.exec(key); if (!m) return key;
+    const m = /^([a-z]+)\.(.+)\.([a-z_]+)$/.exec(key); if (!m) return key;
     const p = C.perms.find((x) => x.res === m[2] && (x.app || 'sa') === m[1]); if (!p) return key;
     m[2] = m[3];
     const a = p.actions.find((x) => x[0] === m[2]);
-    return (p.app === 'hr' ? 'HR · ' : '') + p.label + ' — ' + (a ? a[1] : m[2]);
+    const ap = p.app && p.app !== 'sa' ? C.appById(p.app) : null;
+    return (ap ? ap.short + ' · ' : '') + p.label + ' — ' + (a ? a[1] : m[2]);
   };
   /** Audit-event catalogue (docs/00). severity: info|medium|high|critical */
   const AE = [
@@ -433,7 +438,7 @@
       code, target: o.target || null, before: o.before === undefined ? null : o.before, after: o.after === undefined ? null : o.after,
       reason: o.reason || '', severity: o.severity || (cat && cat.severity) || 'info', result: o.result || 'success',
       ip: o.ip || dev.ip, device: o.device || dev.ua, via: o.via || 'web', count: 1,
-      area: code.indexOf('HR.') === 0 ? 'hr' : (o.area || 'sa'),
+      area: code.indexOf('HR.') === 0 ? 'hr' : (o.area || (C.auditAreaOf ? C.auditAreaOf(code) : null) || 'sa'),
       stepUp: !!(SA.lastStepUp && Date.now() - SA.lastStepUp() < 120000 && code.indexOf('AUTH.') !== 0)
     };
     // ACCESS.DENIED is aggregated (same actor + same target within 10 minutes → count++), BR in docs/00 UC-GLB-04
@@ -459,7 +464,7 @@
   SA.notifications = {
     forMe() {
       const u = SA.session.user; if (!u) return [];
-      return (SA.store.get('notifications') || []).filter((n) => (!n.to.length && !n.toUsers.length) || n.to.indexOf(u.roleId) >= 0 || n.toUsers.indexOf(u.id) >= 0);
+      const ext = SA.isPortal && SA.isPortal(); return (SA.store.get('notifications') || []).filter((n) => (!n.to.length && !n.toUsers.length && !ext) || n.to.indexOf(u.roleId) >= 0 || n.toUsers.indexOf(u.id) >= 0);
     },
     isRead(n) { const u = SA.session.user; return !!u && n.readBy.indexOf(u.id) >= 0; },
     unread(level) { return this.forMe().filter((n) => !this.isRead(n) && (!level || n.level === level)).length; },
@@ -503,7 +508,7 @@
   SA.register = function (def) {
     if (!def || !def.id || !def.route || typeof def.render !== 'function') { console.error('[SA.register] invalid module', def); return null; }
     const i = modules.findIndex((m) => m.id === def.id); if (i >= 0) modules.splice(i, 1);
-    def.app = def.app || (def.route.indexOf('hr/') === 0 || def.route === 'hr' ? 'hr' : 'sa'); def.nav = def.nav !== false; def.order = def.order == null ? 50 : def.order; def._segs = def.route.split('/').filter(Boolean);
+    if (!def.app) { const s0 = def.route.split('/')[0]; def.app = C.apps.some((a) => a.id === s0 && a.id !== 'sa') ? s0 : 'sa'; } def.nav = def.nav !== false; def.order = def.order == null ? 50 : def.order; def._segs = def.route.split('/').filter(Boolean);
     modules.push(def); SA.emit('modules'); return def;
   };
   Object.defineProperty(SA, 'modules', { get() { return modules.slice().sort((a, b) => a.order - b.order); } });
@@ -541,9 +546,11 @@
     audit: (q) => '#/audit' + (q ? '?' + q : ''), dealer: (id) => '#/dealers/requests/' + id
   };
   /** Is the HR/SA area switched on in the `modules` collection (SA-09)? */
-  SA.appEnabled = function (app) { if (app !== 'hr') return true; const m = (SA.store.get('modules') || []).find((x) => x.key === 'hr'); return !m || m.enabled; };
-  /** Modules the user can see in the nav (permission-filtered), optionally for one app ('sa'|'hr'). */
-  SA.navModules = function (app) { return SA.modules.filter((m) => m.nav && (!app || m.app === app) && (!m.perm || SA.can(m.perm)) && SA.appEnabled(m.app)); };
+  /** Is a business module (SA-09 `modules` collection key) switched on? Unknown keys count as on. */
+  SA.moduleOn = function (key) { if (!key) return true; const m = (SA.store.get('modules') || []).find((x) => x.key === key); return !m || m.enabled; };
+  SA.appEnabled = function (app) { const a = C.appById(app); return SA.moduleOn(a && a.moduleKey); };
+  /** Modules the user can see in the nav (permission-filtered), optionally for one app. */
+  SA.navModules = function (app) { return SA.modules.filter((m) => m.nav && (!app || m.app === app) && (!m.perm || SA.can(m.perm)) && SA.appEnabled(m.app) && SA.moduleOn(m.moduleKey)); };
   /** Apps (areas) the logged-in user can enter. ESS-only personas (hr.ess.use without anything else) only get 'hr'. */
   SA.appsFor = function () { return C.apps.filter((a) => SA.navModules(a.id).length > 0); };
   SA.isEss = function () { const u = SA.session.user; if (!u) return false; const hasEss = SA.can('hr.ess.use'); return hasEss && SA.navModules('sa').length === 0 && SA.navModules('hr').filter((m) => m.id !== 'hr-ess').length === 0; };
@@ -553,11 +560,14 @@
     const pref = SA.store.get('ui.app'); const apps = SA.appsFor(); if (pref && apps.some((a) => a.id === pref)) return pref;
     const r = SA.session.role; const home = (r && r.homeApp) || 'sa'; return apps.some((a) => a.id === home) ? home : (apps[0] ? apps[0].id : 'sa');
   };
+  /** Dealer portal persona: only portal.* screens (external account, shell mode 'portal'). */
+  SA.isPortal = function () { const u = SA.session.user; if (!u) return false; const ap = SA.appsFor().map((a) => a.id); return ap.length === 1 && ap[0] === 'portal'; };
   SA.homeRoute = function (app) {
     if (SA.isEss() && !arguments.length) return 'hr/ess';
+    if (SA.isPortal() && !arguments.length) { const pl = SA.navModules('portal'); return pl.length ? pl[0].route : ''; }
     if (!app) { const r = SA.session.role; const ap = SA.appsFor().map((x) => x.id); app = r && r.homeApp && ap.indexOf(r.homeApp) >= 0 ? r.homeApp : ap[0] || 'sa'; }
     const order = [app].concat(C.apps.map((a) => a.id).filter((x) => x !== app));
-    for (const a of order) { const list = SA.navModules(a); if (!list.length) continue; const pref = list.find((m) => m.id === (a === 'hr' ? (SA.isEss() ? 'hr-ess' : 'hr-dashboard') : 'overview')); return (pref || list[0]).route; }
+    for (const a of order) { const list = SA.navModules(a); if (!list.length) continue; const ad = C.appById(a); const pref = list.find((m) => m.id === (a === 'hr' && SA.isEss() ? 'hr-ess' : (ad && ad.home) || 'overview')); return (pref || list[0]).route; }
     return '';
   };
   /** Switch area: remembers it and opens that area's home. */
@@ -587,7 +597,7 @@
   };
   /** Toggle an SA key honouring view prerequisite per resource. */
   R.setSaKey = function (perms, key, value) {
-    const m = /^((?:sa|hr)\.(.+))\.([a-z_]+)$/.exec(key); const base = m[1]; const act = m[3]; const set = new Set(perms.sa); const cleared = [];
+    const m = /^([a-z]+\.(.+))\.([a-z_]+)$/.exec(key); const base = m[1]; const act = m[3]; const set = new Set(perms.sa); const cleared = [];
     if (value) { set.add(key); if (act !== 'view' && C.permKeys.indexOf(base + '.view') >= 0) set.add(base + '.view'); }
     else { set.delete(key); if (act === 'view') { Array.from(set).forEach((k) => { if (k.indexOf(base + '.') === 0 && k !== key) { set.delete(k); cleared.push(k); } }); } }
     perms.sa = Array.from(set); return { cleared };

@@ -316,7 +316,7 @@
       docs, dependants: deps, emergency: [{ id: 'EM1', name: (female ? 'أحمد ' : 'منى ') + e.name.split(' ').slice(-1)[0], relation: female ? 'زوج' : idx % 2 ? 'زوجة' : 'أخ', phone: '+20 100 000 ' + (2000 + idx), priority: 1 }],
       bank: { type: 'bank', bankName: BANKS[idx % BANKS.length], last4: e.bankLast4, holder: e.name, status: 'active', pending: null },
       insurance: fresh ? { status: 'pending', insuranceNo: null, exportedAt: null, submittedAt: null, confirmedAt: null } : { status: 'confirmed', insuranceNo: 'DEMO-' + (100000 + idx * 13), exportedAt: d(300), submittedAt: d(298), confirmedAt: d(290) },
-      skills: prod ? [{ id: 'SK1', name: 'تشغيل ' + ['خط البثق', 'ماكينة القطع', 'خط التجميع', 'ماكينة الدهان'][idx % 4], level: 1 + idx % 4, cert: 'شهادة تشغيل داخلية', expiresOn: dp(60 + (idx % 6) * 70) }, { id: 'SK2', name: 'السلامة المهنية الأساسية', level: 2 + idx % 3, cert: 'شهادة توعية السلامة', expiresOn: null }] : [],
+      skills: prod ? [{ id: 'SK1', name: 'تشغيل ' + ['خط البثق', 'ماكينة القطع', 'خط التجميع', 'ماكينة اللامينيشن'][idx % 4], level: 1 + idx % 4, cert: 'شهادة تشغيل داخلية', expiresOn: dp(60 + (idx % 6) * 70) }, { id: 'SK2', name: 'السلامة المهنية الأساسية', level: 2 + idx % 3, cert: 'شهادة توعية السلامة', expiresOn: null }] : [],
       notes: { medical: idx === 1020 ? [{ id: 'NM1', date: d(120), text: 'لياقة مشروطة: لا عمل على ارتفاع أكثر من 2 متر (ملاحظة تجريبية).' }] : [], discipline: idx === 1023 ? [{ id: 'ND1', date: d(200), text: 'إنذار شفهي — تأخير متكرر (ملاحظة تجريبية).' }] : [], legal: idx === 1026 ? [{ id: 'NL1', date: d(60), text: 'قضية عمالية قيد النظر — مرجع داخلي {Open} (ملاحظة تجريبية).' }] : [] },
       sizes: prod ? { shoe: String(39 + idx % 6), overall: ['M', 'L', 'XL', 'XXL'][idx % 4], glove: ['M', 'L', 'XL'][idx % 3], helmet: 'قياس واحد', shirt: ['M', 'L', 'XL'][idx % 3] } : {}, checklist: {} };
   }
@@ -347,7 +347,7 @@
     const plans = [], probs = [];
     const p31 = newPlan(emp('E-1031'), 'prod', d(40), 'ONB-2026-0001');
     p31.tasks.forEach((t) => { t.status = 'done'; t.doneBy = t.owner === 'OHS' ? 'U-28' : 'U-25'; t.doneAt = new Date(Date.now() - 38 * DAY).toISOString(); });
-    p31.induction = { status: 'done', area: 'خط الألومنيوم', topics: INDUCTION_TOPICS.slice(0, 5), result: 'pass', conductedBy: 'U-28', signedAt: new Date(Date.now() - 38 * DAY).toISOString(), validUntil: null, attempts: [] };
+    p31.induction = { status: 'done', area: 'خط بثق الأبواب', topics: INDUCTION_TOPICS.slice(0, 5), result: 'pass', conductedBy: 'U-28', signedAt: new Date(Date.now() - 38 * DAY).toISOString(), validUntil: null, attempts: [] };
     p31.buddy = { buddyEmpId: 'E-1017', introAt: new Date(Date.now() - 39 * DAY).toISOString() }; p31.signoff = { by: 'U-27', at: new Date(Date.now() - 37 * DAY).toISOString() };
     const p33 = newPlan(emp('E-1033'), 'prod', d(2), 'ONB-2026-0002');
     const tk = (k) => p33.tasks.find((t) => t.id === k);

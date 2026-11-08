@@ -182,7 +182,7 @@
   }
 
   /* ───────────────────────── "sa" keys tab ───────────────────────── */
-  const pk = (p, act) => (p.app === 'hr' ? 'hr.' : 'sa.') + p.res + '.' + act;
+  const pk = (p, act) => (p.app || 'sa') + '.' + p.res + '.' + act;
   function renderSaKeys(role, d, ro) {
     const wrap = h('div.sap-sakeys', {}, h('p.t-muted', {}, 'مفاتيح الدخول لشاشات Super Admin والموارد البشرية وإجراءاتها (', h('code', {}, 'sa.<resource>.<action>'), ' · ', h('code', {}, 'hr.<resource>.<action>'), '). «عرض» شرط لباقي إجراءات نفس الشاشة. المفاتيح الحساسة (الأجور…) في تبويب «الصلاحيات الحساسة».'));
     C.apps.forEach((app) => {
