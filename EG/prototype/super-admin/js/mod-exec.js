@@ -49,6 +49,10 @@ a.exec-hstat:hover { background: rgba(255,255,255,.16); }
 .exec-line-head small { color: var(--color-text-muted); font: 600 11.5px var(--font-en); }
 .exec-line-mid { display: flex; align-items: center; gap: 12px; }
 .exec-line-mid .erp-gauge-wrap { flex: none; width: 112px; }
+.exec-line { container-type: inline-size; }
+@container (max-width: 330px) { .exec-line-mid { flex-direction: column; align-items: stretch; } .exec-line-mid .erp-gauge-wrap { align-self: center; } }
+.erp-kpis.exec-kpis { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+@media (max-width: 600px) { .erp-kpis.exec-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .exec-kpis .erp-kpi { padding: 12px; } .exec-kpis .erp-kpi-mid > :not(.erp-kpi-v) { display: none; } .exec-kpis .erp-kpi-v { font-size: 1.25rem; } .exec-kpis .erp-kpi-bot { min-width: 0; } .exec-kpis .erp-kpi-bot small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } }
 .exec-line-wo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 1.5; }
 .exec-line-wo small { color: var(--color-text-muted); }
 .exec-line-alert { font-size: 12.5px; color: var(--color-danger); background: var(--color-danger-tint); border-radius: 8px; padding: 6px 10px; line-height: 1.6; }
@@ -293,7 +297,7 @@ a.exec-hstat:hover { background: rgba(255,255,255,.16); }
     const oo = M.openOrders(); const late = M.lateOrders().length; const pl = M.prodLast(); const dates = M.prodDates().slice(-15);
     const prodTrend = dates.map((d) => M.prodDay(d).good); const prev7 = prodTrend.slice(-8, -1); const avg7 = prev7.length ? prev7.reduce((a, b) => a + b, 0) / prev7.length : 0;
     const lines = get('lines'); const down = lines.filter((l) => l.status === 'down'); const fpy = M.fpy(60); const canCost = ERP.ui.canCost();
-    return ERP.ui.kpis([
+    const el = ERP.ui.kpis([
       ERP.ui.kpi({ label: 'المبيعات منذ بداية الشهر', value: fm.short(mtd), icon: 'cart', trend: sm.slice(0, 11).map((x) => x.value), delta: M.delta(mtd, prev), sub: 'مقابل نفس الفترة من ' + ERP.monthLabel(M.prevKey()).split(' ')[0], href: hrefIf('crm/reports') || hrefIf('fin/invoices') }),
       ERP.ui.kpi({ label: 'التحصيلات منذ بداية الشهر', value: fm.short(cMtd), icon: 'receipt', trend: cm.slice(0, 11).map((x) => x.value), delta: M.delta(cMtd, cPrev), sub: 'سندات القبض', href: hrefIf('fin/receipts') }),
       ERP.ui.kpi({ label: 'السيولة (بنوك + خزائن)', value: fm.short(cash), icon: 'coins', trend: M.cashTrend(6), delta: M.delta(cash, cashPrev), sub: 'مقابل نهاية الشهر الماضي', href: hrefIf('fin/banks') }),
@@ -303,7 +307,7 @@ a.exec-hstat:hover { background: rgba(255,255,255,.16); }
       ERP.ui.kpi({ label: 'خطوط الإنتاج العاملة', value: M.running() + ' / ' + lines.length, icon: 'activity', tone: down.length ? 'danger' : 'success', sub: down.length ? down.map((l) => l.id + ' متوقف ' + (l.downSince ? 'منذ ' + durAr((Date.now() - new Date(l.downSince).getTime()) / 60000) : '')).join(' · ') : 'كل الخطوط تعمل', href: hrefIf('mfg/lines') }),
       ERP.ui.kpi({ label: 'قيمة المخزون (بالتكلفة)', value: canCost ? fm.short(K.value()) : h('span.erp-locked', { title: 'تحتاج صلاحية data.cost.view' }, SA.icon('lock', 'icon-sm'), 'سري'), icon: 'warehouse', sub: canCost ? 'كل المخازن · تكلفة معيارية' : 'التكاليف لمن يملك الصلاحية فقط', href: hrefIf('scm/stock') }),
       ERP.ui.kpi({ label: 'جودة من أول مرة (FPY)', value: fpy.value == null ? '—' : fm.pct(fpy.value, 1), icon: 'checkcircle', tone: fpy.value != null && fpy.value < 0.95 ? 'warning' : null, sub: 'آخر 60 يوم · NCR مفتوحة: ' + M.openNcrs().length, href: hrefIf('mfg/quality') })
-    ]);
+    ]); el.classList.add('exec-kpis'); return el;
   }
   function lineCard(ln) {
     const wo = ln.currentWoId ? ERP.find('workOrders', ln.currentWoId) : null; const isDown = ln.status === 'down'; const oee = M.oee(ln);

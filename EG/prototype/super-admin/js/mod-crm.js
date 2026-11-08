@@ -80,7 +80,19 @@
 .crm-totals .is-total { font-weight: 800; font-size: 1.08rem; color: var(--eg-navy); border-top: 1px solid var(--color-border); padding-top: 9px; }
 .crm-builder { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
 .crm-sticky { position: sticky; top: 76px; display: flex; flex-direction: column; gap: 14px; }
-@media (max-width: 1100px) { .crm-builder { grid-template-columns: 1fr; } .crm-sticky { position: static; } }
+/* proto.css gives .num {display:inline-block} which breaks <td class="num">/<th class="num"> out of the table grid (cells stack) — keep numeric cells as table cells
+   (sap-table keeps its own mobile card layout ≤700px). Suggested to move into proto.css. */
+table:not(.sap-table) td.num, table:not(.sap-table) th.num { display: table-cell; }
+@media (min-width: 701px) { .sap-table td.num, .sap-table th.num { display: table-cell; } }
+.crm-builder > * { min-width: 0; }
+.crm-lcards { display: none; list-style: none; margin: 0 0 12px; padding: 0; flex-direction: column; gap: 10px; } .crm-lcards li { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid var(--color-border); border-radius: 12px; }
+@media (max-width: 600px) { .crm-lcards { display: flex; } .crm-ltbl { display: none; } }
+.erp-kpis.crm-k3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+@media (max-width: 600px) { .erp-kpis.crm-k3 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .crm-k3 .erp-kpi { padding: 12px; } .crm-k3 .erp-kpi-mid > :not(.erp-kpi-v) { display: none; } .crm-k3 .erp-kpi-v { font-size: 1.2rem; } .crm-k3 .erp-kpi-bot small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } }
+.crm-exec { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
+.crm-exec-r { display: grid; grid-template-columns: 42px minmax(50px, 1fr) auto; gap: 6px; align-items: center; } .crm-exec-r small { font-size: 11.5px; color: var(--color-text-muted); }
+.crm-exec-t { height: 5px; border-radius: 3px; background: var(--color-neutral-tint); overflow: hidden; } .crm-exec-t i { display: block; height: 100%; background: var(--eg-navy); border-radius: 3px; } .crm-exec-t i.is-full { background: var(--color-success); }
+@media (max-width: 1100px) { .crm-builder { grid-template-columns: minmax(0, 1fr); } .crm-sticky { position: static; } }
 .crm-fgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2px 16px; }
 .crm-fgrid .crm-wide { grid-column: 1 / -1; }
 .crm-form { display: flex; flex-direction: column; gap: 10px; }
@@ -246,7 +258,7 @@
   const leadProb = (l) => (l.probability != null ? l.probability : PROB[l.stage] || 0);
   const weightedOf = (ls) => sum(ls.filter((l) => OPEN_STAGES.indexOf(l.stage) >= 0), (l) => (l.value || 0) * leadProb(l));
   const bookedAt = (so) => String(so.confirmedAt || so.createdAt || '');
-  function needsApproval(so) { const t = F.totals(so); const L = F.limits; if ((so.discountPct || 0) > L.gmDiscountPct) return 'خصم ' + so.discountPct + '% أعلى من ' + L.gmDiscountPct + '%'; if (t.net > L.orderValue) return 'قيمة ' + short(t.net) + ' أعلى من ' + short(L.orderValue); if ((so.discountPct || 0) > L.discountPct) return 'خصم ' + so.discountPct + '% أعلى من حد المندوب ' + L.discountPct + '%'; return ''; }
+  function needsApproval(so) { const t = F.totals(so); const L = F.limits; if (so.preApprovedPct != null && (so.discountPct || 0) <= so.preApprovedPct && t.net <= L.orderValue) return ''; if ((so.discountPct || 0) > L.gmDiscountPct) return 'خصم ' + so.discountPct + '% أعلى من ' + L.gmDiscountPct + '%'; if (t.net > L.orderValue) return 'قيمة ' + short(t.net) + ' أعلى من ' + short(L.orderValue); if ((so.discountPct || 0) > L.discountPct) return 'خصم ' + so.discountPct + '% أعلى من حد المندوب ' + L.discountPct + '%'; return ''; }
   function approvalChainFor(so) { const t = F.totals(so); const L = F.limits; const gm = (so.discountPct || 0) > L.gmDiscountPct || t.net > L.orderValue; return gm ? 'مدير المبيعات ← المدير العام' : 'مدير المبيعات'; }
   const deliverable = (so) => sum(so.lines, (l) => Math.max(0, (l.reservedQty || 0) - (l.deliveredQty || 0) - F.pendingDnQty(so.id, l.itemId)));
   const invoiceable = (so) => so.lines.some((l) => (l.deliveredQty || 0) > (l.invoicedQty || 0));
@@ -342,6 +354,14 @@
         context: [['العميل المحتمل', q62.prospect || ''], ['قيمة العرض', ERP.fmt.money(total)], ['الخصم المطلوب', q62.discountPct + '%'], ['حد خصم المندوب', F.limits.discountPct + '% (تجريبي — بند 33 Open)'], ['البنود', '2,700 قطعة تجاليد K71 (K71-1 / K71-4)'], ['ملاحظة المندوبة', 'منافس قدّم سعرًا أقل 5% — العميل يطلب 6% لإغلاق الصفقة']], ref: { type: 'quotation', id: 'QT-2026-0062' } });
       if (S.notifications) { S.notifications.push({ id: 'N-C1', ts: c.ago(60 * 26), title: 'طلب اعتماد خصم على عرض سعر', body: 'QT-2026-0062 — مقاولات الرحاب (خصم 6%).', level: 'action', to: ['R-03', 'R-01'], toUsers: [], link: '#/crm/quotes/QT-2026-0062', readBy: [] }); S.notifications.sort((a, b) => (a.ts < b.ts ? 1 : -1)); }
     }
+    /* the base seed gives the sales-order approvals a fixed «مدير المبيعات ← المدير العام» chain; align it with the (demo) ERP limits so the inbox
+       behaves like ERP.flow.submitOrder: discount ≤ gmDiscountPct and net ≤ orderValue → sales manager only (approving it confirms the order). */
+    (S.approvals || []).forEach((a) => {
+      if (a.type !== 'sales_order' || a.status !== 'pending' || !a.ref || a.currentStep !== 1 || !a.chain || a.chain.length < 2) return;
+      const so = S.salesOrders.find((x) => x.id === a.ref.id); if (!so) return;
+      const net = so.lines.reduce((s, l) => s + l.qty * l.price, 0) * (1 - (so.discountPct || 0) / 100);
+      if ((so.discountPct || 0) <= F.limits.gmDiscountPct && net <= F.limits.orderValue) a.chain = a.chain.filter((x) => x.roleId !== 'R-02');
+    });
     /* a 2nd dealer-portal order waiting for the confirmation call (one unanswered attempt → SLA breached) */
     const seq = S.meta && S.meta.erpSeq; const c5 = (S.customers || []).find((x) => x.id === 'C-005');
     if (seq && c5 && S.items && !S.salesOrders.some((o) => o.customerId === 'C-005' && o.source === 'portal' && o.status === 'pending_review')) {
@@ -641,7 +661,7 @@
         U.kpi({ label: 'أوامر مفتوحة', value: short(sum(openO, (o) => F.totals(o).total)), icon: 'cart', tone: late.length ? 'danger' : '', sub: openO.length + ' أمر' + (late.length ? ' · ' + late.length + ' متأخر' : ' · لا متأخرات'), href: '#/crm/orders' }),
         U.kpi({ label: 'عروض أسعار معلّقة', value: String(pendQ.length), icon: 'receipt', sub: short(sum(pendQ, (q) => F.totals(q).total)) + (pendQ.some((q) => q.status === 'pending_approval') ? ' · منها بانتظار اعتماد خصم' : ''), href: '#/crm/quotes' }),
         U.kpi({ label: 'طلبات تجار بانتظار الاتصال', value: String(dealer.length), icon: 'phone', tone: dealer.length ? 'warning' : 'success', sub: dealer.length ? 'أقدمها ' + SA.fmt.rel(dealer.map((o) => o.submittedAt || o.createdAt).sort()[0]) : 'لا يوجد', href: '#/crm/dealer-orders' })
-      ]);
+      ]); kp.classList.add('crm-k3');
       const trend = SA.card({ title: 'اتجاه المبيعات — آخر 12 شهرًا', actions: [h('span.crm-muted', {}, 'صافي الفواتير مقابل التحصيلات')] }, CH.line({ labels: mk.map(monthShort), series: [{ name: 'صافي المبيعات (مفوتر)', values: mk.map((k) => netBy[k] || 0) }, { name: 'التحصيلات', values: mk.map((k) => colBy[k] || 0), dashed: true, color: ERP.palette[3] }], area: true, height: 230, title: 'المبيعات الشهرية' }));
       const funnel = SA.card({ title: 'مسار الفرص', actions: [h('a.sap-linkbtn', { href: '#/crm/pipeline' }, 'لوحة المسار')] }, CH.funnel(['new', 'contacted', 'qualified', 'proposal', 'negotiation', 'won'].map((s) => { const l = ls.filter((x) => x.stage === s); return { label: stageLabel(s), value: sum(l, (x) => x.value), sub: l.length + ' فرصة' + (s !== 'won' ? ' · مرجّح ' + short(sum(l, (x) => (x.value || 0) * leadProb(x))) : '') }; }), { fmt: short }));
       const repsCard = SA.card({ title: scopeMode() === 'own' ? 'أدائي مقابل الهدف' : 'المندوبون مقابل الهدف (الشهر)', actions: [h('a.sap-linkbtn', { href: '#/crm/targets' }, 'الأهداف')] },
@@ -650,7 +670,7 @@
       invs.filter((i) => i.issueDate >= from90).forEach((i) => (i.lines || []).forEach((l) => { const it = ERP.item(l.itemId) || {}; const v = l.qty * l.price * (1 - (i.discountPct || 0) / 100); fam[it.family || 'acc'] = (fam[it.family || 'acc'] || 0) + v; byItem[l.itemId] = (byItem[l.itemId] || 0) + v; }));
       const famCard = SA.card({ title: 'المبيعات حسب العائلة (90 يومًا)' }, Object.keys(fam).length ? CH.donut(Object.keys(fam).map((k, i) => ({ label: FAM[k] || k, value: Math.round(fam[k]), color: ERP.palette[i] })), { fmt: short, center: short(sum(Object.values(fam))).replace(' ج.م', ''), sub: 'ج.م' }) : SA.empty({ icon: 'pie', title: 'لا مبيعات في الفترة' }));
       const top = Object.keys(byItem).map((k) => ({ id: k, v: byItem[k] })).sort((a, b) => b.v - a.v).slice(0, 6);
-      const topCard = SA.card({ title: 'الأصناف الأعلى مبيعًا (90 يومًا)', actions: SA.can('crm.reports.view') ? [h('a.sap-linkbtn', { href: '#/crm/reports' }, 'التقارير')] : null }, top.length ? CH.bars(top.map((x, i) => { const it = ERP.item(x.id) || {}; return { label: it.name || x.id, sub: it.code, value: Math.round(x.v), color: ERP.palette[i % 3] }; }), { fmt: short }) : SA.empty({ icon: 'chart', title: 'لا مبيعات' }));
+      const topCard = SA.card({ title: 'الأصناف الأعلى مبيعًا (90 يومًا)', actions: SA.can('crm.reports.view') ? [h('a.sap-linkbtn', { href: '#/crm/reports' }, 'التقارير')] : null }, top.length ? CH.bars(top.map((x, i) => { const it = ERP.item(x.id) || {}; return { label: ({ door: 'باب', clad: 'تجاليد', foam: 'فوم' }[it.family] || '') + ' ' + (it.code || x.id), value: Math.round(x.v), color: ERP.palette[i % 3] }; }), { fmt: short }) : SA.empty({ icon: 'chart', title: 'لا مبيعات' }));
       const todo = dashTodo();
       const ins = U.insights('crm', 3); const aiList = ins.length ? ins : localInsights().map((x) => U.aiCard(x));
       return h('div.crm-page', {},
@@ -902,15 +922,22 @@
       try { await SA.api(() => st.patch('quotations', q.id, { customerId: cid }), { ms: 50 }); } catch (e) { return SA.fail(e); }
       q = ERP.find('quotations', q.id);
     }
-    const d = { customerId: q.customerId, lines: q.lines, discountPct: q.discountPct || 0 };
-    const r = await SA.confirm({ title: 'قبول العرض وتحويله لأمر بيع', text: q.id + ' — ' + custName(q.customerId) + ' · ' + money(F.totals(q).total), impact: ['يُنشأ أمر بيع بنفس البنود والأسعار والخصم (' + (q.discountPct || 0) + '%).', 'يُرسل الأمر فورًا: اعتماد إن تجاوز الحدود، أو تأكيد وحجز مخزون وأوامر تشغيل.', q.leadId ? 'الفرصة المرتبطة تصبح «مكسوب».' : null].filter(Boolean), extra: predictBox(d), confirmLabel: 'قبول وإنشاء أمر البيع' });
+    /* a discount already approved on the quote (AP for type 'quotation') is not re-approved on the order — only the value limit still applies */
+    const qap = q.approvalId ? ERP.find('approvals', q.approvalId) : null; const preApproved = !!(qap && qap.status === 'approved' && (q.discountPct || 0) > 0);
+    const d = { customerId: q.customerId, lines: q.lines, discountPct: q.discountPct || 0, preApprovedPct: preApproved ? q.discountPct : null };
+    const skip = preApproved && !needsApproval(d);
+    const r = await SA.confirm({ title: 'قبول العرض وتحويله لأمر بيع', text: q.id + ' — ' + custName(q.customerId) + ' · ' + money(F.totals(q).total), impact: ['يُنشأ أمر بيع بنفس البنود والأسعار والخصم (' + (q.discountPct || 0) + '%).', skip ? 'الخصم معتمد مسبقًا على العرض (' + qap.id + ') — يتأكد الأمر مباشرة ويُحجز المخزون وتُنشأ أوامر التشغيل.' : 'يُرسل الأمر فورًا: اعتماد إن تجاوز الحدود، أو تأكيد وحجز مخزون وأوامر تشغيل.', q.leadId ? 'الفرصة المرتبطة تصبح «مكسوب».' : null].filter(Boolean), extra: predictBox(d), confirmLabel: 'قبول وإنشاء أمر البيع' });
     if (!r.ok) return; let so, res;
     try { await SA.api(() => {
       st.patch('quotations', q.id, { status: 'accepted', acceptedAt: nowIso() });
       SA.audit('QUOTE.ACCEPTED', { target: { type: 'quotation', id: q.id, label: custName(q.customerId) }, after: { total: F.totals(q).total } });
       so = F.createOrder({ customerId: q.customerId, lines: q.lines.map((l) => ({ itemId: l.itemId, qty: l.qty, price: l.price })), discountPct: q.discountPct || 0, quoteId: q.id, leadId: q.leadId || null, repId: q.repId, notes: 'من عرض السعر ' + q.id, source: 'rep' });
       st.patch('quotations', q.id, { soId: so.id });
-      res = F.submitOrder(so.id);
+      if (skip) {
+        st.patch('salesOrders', so.id, { discountApprovalId: qap.id, submittedAt: nowIso() });
+        SA.audit('SO.SUBMITTED', { target: { type: 'sales_order', id: so.id, label: custName(q.customerId) }, after: { discountPct: q.discountPct, approval: qap.id }, reason: 'الخصم معتمد مسبقًا على عرض السعر ' + q.id });
+        res = F.confirmOrder(so.id);
+      } else res = F.submitOrder(so.id);
       if (q.leadId) { const l = ERP.find('leads', q.leadId); if (l && l.stage !== 'won') setStage(l.id, 'won', 'قبول العرض ' + q.id); }
     }); } catch (e) { return SA.fail(e); }
     showOutcome(so.id, res, 'تم قبول العرض وإنشاء أمر البيع');
@@ -1173,12 +1200,18 @@
         h('p.crm-muted', {}, 'موعد التسليم المتفق ' + fm.date(so.promisedDate) + (ship ? ' · الشحنة ' + ship.id + ' تغادر ' + fm.date(ship.etd) : '') + ' — يُنصح بإبلاغ العميل بالموقف ومتابعة وصول قطعة الغيار.'));
     });
   }
+  function execCell(l) {
+    return h('div.crm-exec', {}, [['محجوز', l.reservedQty], ['مُسلَّم', l.deliveredQty], ['مُفوتر', l.invoicedQty]].map((x) => { const r = l.qty ? Math.min(1, (x[1] || 0) / l.qty) : 0;
+      return h('div.crm-exec-r', { title: x[0] + ' ' + fm.num(x[1] || 0) + ' من ' + fm.num(l.qty) }, h('small', {}, x[0]), h('span.crm-exec-t', {}, h('i', { class: r >= 1 ? 'is-full' : null, style: { width: Math.round(r * 100) + '%' } })), h('small.num', {}, fm.num(x[1] || 0))); }));
+  }
   function soLinesTable(so) {
     const canP = U.canProfit();
-    return h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'الصنف'), h('th.num', {}, 'الكمية'), h('th.num', {}, 'السعر'), h('th.num', {}, 'الإجمالي'), h('th', {}, 'محجوز'), h('th', {}, 'مُسلَّم'), h('th', {}, 'مُفوتر'), h('th', {}, 'التكلفة / الهامش'))),
+    const cards = h('ul.crm-lcards', {}, so.lines.map((l) => { const it = ERP.item(l.itemId) || {}; const lt = l.qty * l.price; const net = lt * (1 - (so.discountPct || 0) / 100); const cost = (it.stdCost || 0) * l.qty;
+      return h('li', {}, U.itemCell(l.itemId), h('div.crm-between', {}, h('span.crm-muted', {}, fm.qty(l.qty, it.uom) + ' × ' + money(l.price)), h('b.num', {}, money(lt))), execCell(l), h('div.crm-between', {}, h('small.crm-muted', {}, 'التكلفة / الهامش'), h('span.crm-row', {}, U.cost(cost), U.cost(net - cost, 'data.profit.view')))); }));
+    return h('div', {}, cards, h('div.table-wrap.crm-ltbl', {}, h('table.table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'الصنف'), h('th.num', {}, 'الكمية'), h('th.num', {}, 'السعر'), h('th.num', {}, 'الإجمالي'), h('th', {}, 'التنفيذ'), h('th', {}, 'التكلفة / الهامش'))),
       h('tbody', {}, so.lines.map((l) => { const it = ERP.item(l.itemId) || {}; const lt = l.qty * l.price; const net = lt * (1 - (so.discountPct || 0) / 100); const cost = (it.stdCost || 0) * l.qty;
-        return h('tr', {}, h('td', {}, U.itemCell(l.itemId)), h('td.num', {}, fm.qty(l.qty, it.uom)), h('td.num', {}, money(l.price)), h('td.num', {}, h('b', {}, money(lt))), h('td', {}, prog(l.reservedQty, l.qty)), h('td', {}, prog(l.deliveredQty, l.qty)), h('td', {}, prog(l.invoicedQty, l.qty)),
-          h('td', {}, h('span.crm-cell', {}, U.cost(cost), h('small', {}, 'هامش ', U.cost(net - cost, 'data.profit.view'), canP && net ? ' (' + fm.pct((net - cost) / net) + ')' : '')))); }))));
+        return h('tr', {}, h('td', {}, U.itemCell(l.itemId)), h('td.num', {}, fm.qty(l.qty, it.uom)), h('td.num', {}, money(l.price)), h('td.num', {}, h('b', {}, money(lt))), h('td', {}, execCell(l)),
+          h('td', {}, h('span.crm-cell', {}, U.cost(cost), h('small', {}, 'هامش ', U.cost(net - cost, 'data.profit.view'), canP && net ? ' (' + fm.pct((net - cost) / net) + ')' : '')))); })))));
   }
   function orderDetail(root, ctx, id) {
     return SA.live(root, () => {
@@ -1212,11 +1245,11 @@
       ].concat(impactBlocks(so, wos)).filter(Boolean);
       const linesCard = SA.card({ title: 'البنود', tags: U.canCost() ? null : h('span.crm-locknote', {}, SA.icon('lock', 'icon-sm'), 'التكلفة والهامش سرية — data.cost.view') }, soLinesTable(so), h('div', { style: { maxWidth: '420px', marginInlineStart: 'auto', width: '100%' } }, totalsBox(so)));
       const custCard = SA.card({ title: 'العميل', actions: [h('a.sap-linkbtn', { href: '#/crm/customers/' + c.id }, 'العميل 360°')] }, h('div.crm-hero', {}, h('span.crm-hero-ico', {}, SA.fmt.initials(c.name || '?')), h('div.crm-cell', {}, h('b', {}, custLink(c.id)), h('small', {}, (c.code || '') + ' · ' + (SEG[c.segment] || '') + ' · ' + (c.city || '') + (c.region ? ' · ' + c.region : '')), h('span.crm-row', {}, tierChip(c.tier), c.export ? exportFlag() : null))),
-        h('div.crm-kv-tight', {}, SA.kv([['المندوب', repCell(so.repId)], ['قائمة الأسعار', (ERP.find('priceLists', c.priceListId) || {}).name || '—'], ['شروط السداد', c.termsDays ? c.termsDays + ' يومًا' : 'نقدي'], ['المصدر', srcChip(so.source)], quote ? ['عرض السعر', U.docLink(quote.id)] : null, so.leadId ? ['الفرصة', U.docLink(so.leadId)] : null])), creditBox(c.id, 0));
+        h('div.crm-kv-tight', {}, SA.kv([['المندوب', repCell(so.repId)], ['قائمة الأسعار', (ERP.find('priceLists', c.priceListId) || {}).name || '—'], ['شروط السداد', c.termsDays ? c.termsDays + ' يومًا' : 'نقدي'], ['المصدر', srcChip(so.source)], quote ? ['عرض السعر', U.docLink(quote.id)] : null, so.discountApprovalId ? ['اعتماد الخصم', h('span.crm-row', {}, U.docLink(so.discountApprovalId), h('small.crm-muted', {}, 'معتمد على عرض السعر'))] : null, so.leadId ? ['الفرصة', U.docLink(so.leadId)] : null])), creditBox(c.id, 0));
       const apCard = ap ? SA.card({ title: 'سلسلة الاعتماد', actions: [U.docLink(ap.id), SA.statusChip('approval', ap.status)] }, stepChain(ap), h('div.crm-row', {}, decideButtons(ap))) : null;
       const callCard = so.call ? SA.card({ title: 'مكالمات التأكيد مع التاجر' }, h('div.crm-qcontact', {}, h('a.crm-phone', { href: 'tel:' + String(so.call.phone || '').replace(/\s/g, '') }, SA.icon('phone', 'icon-sm'), h('span.num', { dir: 'ltr' }, so.call.phone || '—')), h('span', {}, SA.icon('clock', 'icon-sm'), 'المفضل: ', h('b', {}, so.call.preferredTime || '—'))), (so.call.log || []).length ? callLog(so.call.log) : h('p.crm-muted', { style: { margin: 0 } }, 'لم تُسجّل مكالمات بعد.')) : null;
-      const woCard = SA.card({ title: 'أوامر التشغيل (' + wos.length + ')' }, wos.length ? h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['أمر التشغيل', 'الصنف', 'الخط', 'الإنجاز', 'الحالة', 'نهاية مخططة'].map((x) => h('th', {}, x)))),
-        h('tbody', {}, wos.map((w) => { const ln = lineOf(w.lineId); const risk = w.plannedEnd && so.promisedDate && w.plannedEnd > so.promisedDate; return h('tr', {}, h('td', {}, U.docLink(w.id)), h('td', {}, U.itemCell(w.itemId)), h('td', {}, h('span.crm-cell', {}, U.docLink(ln.id || w.lineId, ln.code || w.lineId), ln.status && ln.status !== 'running' ? U.status('line', ln.status) : null)), h('td', {}, prog(w.qtyDone, w.qty)), h('td', {}, U.status('wo', w.status)), h('td', {}, h('span', { class: risk ? 'crm-late' : null }, fm.date(w.plannedEnd)))); })))) : h('p.crm-muted', { style: { margin: 0 } }, ['draft', 'pending_review', 'pending_approval'].indexOf(so.status) >= 0 ? 'تُنشأ أوامر التشغيل تلقائيًا عند التأكيد للكميات غير المتاحة.' : 'لا توجد — كل الكميات من المخزون.'));
+      const woCard = SA.card({ title: 'أوامر التشغيل (' + wos.length + ')' }, wos.length ? h('div.table-wrap', {}, h('table.table', {}, h('thead', {}, h('tr', {}, ['أمر التشغيل', 'الصنف', 'الخط', 'الإنجاز', 'نهاية مخططة'].map((x) => h('th', {}, x)))),
+        h('tbody', {}, wos.map((w) => { const ln = lineOf(w.lineId); const risk = w.plannedEnd && so.promisedDate && w.plannedEnd > so.promisedDate; return h('tr', {}, h('td', {}, h('span.crm-cell', { style: { gap: '4px', alignItems: 'flex-start' } }, U.docLink(w.id), U.status('wo', w.status))), h('td', {}, U.itemCell(w.itemId)), h('td', {}, h('span.crm-cell', {}, U.docLink(ln.id || w.lineId, ln.code || w.lineId), ln.status && ln.status !== 'running' ? U.status('line', ln.status) : null)), h('td', {}, prog(w.qtyDone, w.qty)), h('td', {}, h('span', { class: risk ? 'crm-late' : null }, fm.date(w.plannedEnd)))); })))) : h('p.crm-muted', { style: { margin: 0 } }, ['draft', 'pending_review', 'pending_approval'].indexOf(so.status) >= 0 ? 'تُنشأ أوامر التشغيل تلقائيًا عند التأكيد للكميات غير المتاحة.' : 'لا توجد — كل الكميات من المخزون.'));
       const docsCard = SA.card({ title: 'التسليم والفوترة' },
         dns.length ? h('div', {}, U.sub('أذون التسليم'), h('ul.crm-todo', {}, dns.map((d) => h('li', {}, h('span.crm-todo-ico', {}, SA.icon('truck', 'icon-sm')), h('div.crm-todo-body', {}, h('b', {}, U.docLink(d.id), ' ', U.status('dn', d.status)), h('small', {}, d.lines.map((l) => (ERP.item(l.itemId) || {}).code + ' × ' + fm.num(l.qty)).join(' · ') + ' · مخطط ' + fm.date(d.plannedDate))))))) : h('p.crm-muted', { style: { margin: 0 } }, 'لا أذون تسليم بعد.'),
         invs.length ? h('div', {}, U.sub('الفواتير'), h('ul.crm-todo', {}, invs.map((i) => h('li', {}, h('span.crm-todo-ico', {}, SA.icon('receipt', 'icon-sm')), h('div.crm-todo-body', {}, h('b', {}, U.docLink(i.id), ' ', U.status('inv', F.invoiceStatus(i))), h('small', {}, money(i.total) + ' · مدفوع ' + money(i.paid) + ' · استحقاق ' + fm.date(i.dueDate) + (i.taxDemo ? ' · ضريبة تجريبية' : ''))))))) : null);

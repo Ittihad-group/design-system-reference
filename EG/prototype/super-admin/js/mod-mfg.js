@@ -41,20 +41,29 @@
     if (document.querySelector('style[data-mod="mfg"]')) return;
     const s = document.createElement('style'); s.setAttribute('data-mod', 'mfg');
     s.textContent = `
-.mfg-lines { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); margin-block: 16px; }
-.mfg-lc { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-top: 4px solid var(--color-success); }
+.mfg-lines { display: grid; gap: 14px; grid-template-columns: 1fr; margin-block: 16px; }
+@media (min-width: 700px) { .mfg-lines { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1380px) { .mfg-lines { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.mfg-lc { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-top: 4px solid var(--color-success); min-width: 0; }
 .mfg-lc.is-down { border-top-color: var(--color-danger); background: linear-gradient(180deg, #fff5f5, #fff 55%); }
 .mfg-lc.is-setup { border-top-color: var(--color-warning); } .mfg-lc.is-idle { border-top-color: var(--color-border-strong); }
 .mfg-lc-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.mfg-lc-head > div { min-width: 0; } .mfg-lc-head > .chip, .mfg-lc-head > span:last-child { flex: none; }
 .mfg-lc-head b { font-size: var(--text-dense); } .mfg-lc-head small { display: block; color: var(--color-text-muted); font-size: 12px; margin-top: 2px; }
 .mfg-code { font: 700 11.5px var(--font-en); color: var(--eg-navy); background: var(--color-primary-tint); border-radius: 6px; padding: 1px 7px; white-space: nowrap; }
-.mfg-lc-mid { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: center; }
-.mfg-lc-wo { font-size: 12.5px; display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.mfg-lc-wo .erp-item b { font-size: 12.5px; }
+.mfg-lc-mid { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.mfg-lc-mid .erp-gauge-wrap svg { width: 96px; height: auto; }
+.mfg-lc-out { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.mfg-lc-out small { color: var(--color-text-muted); font-size: 12px; font-weight: 600; }
+.mfg-lc-out > b { font: 700 1.35rem var(--font-en); color: var(--color-text); line-height: 1.1; } .mfg-lc-out > b span { font-size: 12.5px; color: var(--color-text-muted); font-weight: 600; }
+.mfg-lc-wo { font-size: 12.5px; display: flex; flex-direction: column; gap: 6px; min-width: 0; background: var(--color-bg-alt); border-radius: 10px; padding: 9px 10px; }
+.mfg-lc-wo > .mfg-lc-wo-top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.mfg-lc-wo .chip { white-space: normal; }
+.mfg-lc-wo .erp-item { min-width: 0; } .mfg-lc-wo .erp-item b { font-size: 12.5px; }
 .mfg-apq { display: flex; gap: 10px; font: 600 11.5px var(--font-en); color: var(--color-text-muted); flex-wrap: wrap; }
 .mfg-down-note { font-size: 12.5px; color: var(--color-danger); display: flex; gap: 6px; align-items: flex-start; font-weight: 600; line-height: 1.6; }
 .mfg-down-note svg { flex: none; margin-top: 3px; }
-.mfg-lc-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; border-top: 1px solid var(--color-border); padding-top: 8px; margin-top: auto; }
+.mfg-lc-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; border-top: 1px solid var(--color-border); padding-top: 8px; margin-top: auto; flex-wrap: wrap; }
 .mfg-muted { color: var(--color-text-muted); font-size: 12.5px; }
 .mfg-attn { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .mfg-attn li { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--color-border); }
@@ -66,7 +75,8 @@
 .mfg-chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
 .mfg-qcell { display: flex; flex-direction: column; gap: 4px; min-width: 110px; }
 .mfg-qcell .erp-meter-t { height: 6px; }
-.mfg-mini { width: 100%; } .mfg-mini td, .mfg-mini th { font-size: 13px; }
+.mfg-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.mfg-mini { width: 100%; min-width: 440px; } .mfg-mini td, .mfg-mini th { font-size: 13px; }
 .mfg-mini .is-short td { background: #fff7f7; }
 .mfg-kpi-row { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-block: 12px; }
 .mfg-stat { background: var(--color-bg-alt); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
@@ -157,7 +167,7 @@
 .mfg-details[open] > summary { border-bottom: 1px solid var(--color-border); }
 .mfg-details > div { padding: 10px 14px; }
 .mfg-grow { flex: 1; }
-@media (max-width: 760px) { .mfg-head { grid-template-columns: 1fr; } .mfg-lc-mid { grid-template-columns: 1fr; justify-items: center; } .mfg-big b { font-size: 26px; } }`;
+@media (max-width: 760px) { .mfg-head { grid-template-columns: 1fr; } .mfg-big b { font-size: 26px; } }`;
     document.head.appendChild(s);
   })();
 
@@ -177,6 +187,7 @@
   const fmtD = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
   const addDays = (ds, n) => { const d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return fmtD(d); };
   const dayIdx = (from, ds) => Math.round((new Date(ds + 'T12:00:00') - new Date(from + 'T12:00:00')) / 86400000);
+  const shiftAt = (iso) => { const hr = new Date(iso).getHours(); return hr >= 7 && hr < 15 ? 'A' : hr >= 15 && hr < 23 ? 'B' : 'C'; };
   const shiftNow = () => { const hr = new Date().getHours(); return hr >= 7 && hr < 15 ? 'A' : hr >= 15 && hr < 23 ? 'B' : 'C'; };
   const minsSince = (iso) => Math.max(0, Math.round((Date.now() - ts(iso)) / MIN));
   const durTxt = (m) => (m < 60 ? m + ' دقيقة' : Math.floor(m / 60) + ' س' + (m % 60 ? ' ' + (m % 60) + ' د' : ''));
@@ -482,7 +493,7 @@
       else outHost.append(CH.line({ labels: days14.map(shortDate), height: 230, fmt: (v) => Math.round(v) + '%', series: lines.map((ln) => ({ name: ln.id, color: LINE_COLOR[ln.id], values: days14.map((d) => { const r = pd.find((x) => x.date === d && x.lineId === ln.id); return r ? Math.round((r.good / r.planned) * 100) : null; }) })) }));
     }; drawOut();
     const outCard = SA.card({ title: 'الإنتاج آخر 14 يومًا حسب الخط', actions: [SA.segmented([['qty', 'الكمية'], ['plan', '% من الخطة']], outMode, (v) => { outMode = v; drawOut(); })] }, outHost, h('p.mfg-muted', {}, 'الكمية بوحدة كل خط (باب / قطعة تجاليد / لوح). مصدر البيانات: سجل الإنتاج اليومي.'));
-    const scrapCard = SA.card({ title: 'اتجاه نسبة الهالك' }, CH.line({ labels: days14.map(shortDate), height: 210, area: true, fmt: (v) => v.toFixed(1) + '%', series: [{ name: 'هالك المصنع', values: days14.map((d) => { const r = pd.filter((x) => x.date === d); const g = r.reduce((s, x) => s + x.good + x.scrap, 0); return g ? Math.round((r.reduce((s, x) => s + x.scrap, 0) / g) * 1000) / 10 : null; }) }, { name: 'المستهدف 2.5%', dashed: true, color: '#b9141b', values: days14.map(() => 2.5) }] }));
+    const scrapCard = SA.card({ title: 'اتجاه نسبة الهالك' }, CH.line({ labels: days14.map(shortDate), height: 210, area: true, fmt: (v) => (v == null ? '—' : v.toFixed(1) + '%'), series: [{ name: 'هالك المصنع', values: days14.map((d) => { const r = pd.filter((x) => x.date === d); const g = r.reduce((s, x) => s + x.good + x.scrap, 0); return g ? Math.round((r.reduce((s, x) => s + x.scrap, 0) / g) * 1000) / 10 : null; }) }, { name: 'المستهدف 2.5%', dashed: true, color: '#b9141b', values: days14.map(() => 2.5) }] }));
     const cats = {}; get('downtime').forEach((d) => { const m = d.end ? d.minutes || 0 : minsSince(d.start); const c = cats[d.category] || (cats[d.category] = { min: 0, n: 0, reasons: {} }); c.min += m; c.n++; c.reasons[d.reason] = (c.reasons[d.reason] || 0) + m; });
     const catRows = Object.keys(cats).map((k) => ({ k, min: cats[k].min, n: cats[k].n, top: Object.keys(cats[k].reasons).sort((a, b) => cats[k].reasons[b] - cats[k].reasons[a])[0] })).sort((a, b) => b.min - a.min); const totDt = catRows.reduce((s, r) => s + r.min, 0) || 1; let cum = 0;
     const paretoCard = SA.card({ title: 'باريتو التوقفات حسب السبب' }, catRows.length ? CH.bars(catRows.map((r) => { cum += r.min; return { label: DT_CAT[r.k] || r.k, sub: r.n + ' حالة · ' + r.top + ' · تراكمي ' + Math.round((cum / totDt) * 100) + '%', value: r.min / 60, color: r.k === 'breakdown' ? 'var(--color-danger)' : ERP.palette[1] }; }), { fmt: (v) => num(v, 1) + ' س' }) : SA.empty({ icon: 'checkcircle', title: 'لا توقفات مسجلة' }), h('p.mfg-muted', { style: { marginTop: '8px' } }, 'من سجل التوقفات (آخر 30 يومًا) — التوقف الجاري محسوب حتى الآن.'));
@@ -506,14 +517,16 @@
   }
   function lineCard(ln, o) {
     const w = currentWO(ln); const feed = !w ? feedsFor(ln) : null; const plan = planToday(ln); const exp = Math.round(plan * dayFraction(ln)); const m = ln.status === 'down' ? breakdownMwo(ln.id) : null; const oe = ln.oee || {};
-    const woBlock = w ? h('div.mfg-lc-wo', {}, h('span', {}, U.docLink(w.id), ' ', U.status('wo', w.status)), U.itemCell(w.itemId), CH.meter((w.qtyDone || 0) / w.qty, { label: 'تقدم الأمر', text: num(w.qtyDone || 0) + ' / ' + num(w.qty) }), w.soId ? h('small.mfg-muted', {}, 'لـ ', U.docLink(w.soId), ' ' + soCustomer(w.soId)) : null)
-      : feed ? h('div.mfg-lc-wo', {}, h('small.mfg-muted', {}, 'يبثق بروفايلات الأبواب لـ'), h('span', {}, U.docLink(feed.id), ' على ' + feed.lineId), U.itemCell(feed.itemId)) : h('div.mfg-lc-wo', {}, h('span.mfg-muted', {}, 'لا يوجد أمر جارٍ'), nextWOs(ln.id)[0] ? h('small', {}, 'التالي: ', U.docLink(nextWOs(ln.id)[0].id)) : null);
+    const woBlock = w ? h('div.mfg-lc-wo', {}, h('div.mfg-lc-wo-top', {}, U.docLink(w.id), U.status('wo', w.status)), U.itemCell(w.itemId), CH.meter((w.qtyDone || 0) / w.qty, { label: 'تقدم الأمر', text: num(w.qtyDone || 0) + ' / ' + num(w.qty) }), w.soId ? h('small.mfg-muted', {}, 'لـ ', U.docLink(w.soId), ' ' + soCustomer(w.soId)) : null)
+      : feed ? h('div.mfg-lc-wo', {}, h('small.mfg-muted', {}, 'يبثق بروفايلات الأبواب لـ'), h('div.mfg-lc-wo-top', {}, U.docLink(feed.id), h('span', {}, 'على ' + feed.lineId)), U.itemCell(feed.itemId)) : h('div.mfg-lc-wo', {}, h('span.mfg-muted', {}, 'لا يوجد أمر جارٍ'), nextWOs(ln.id)[0] ? h('small', {}, 'التالي: ', U.docLink(nextWOs(ln.id)[0].id)) : null);
     return h('div.card.mfg-lc.is-' + ln.status, {},
       h('div.mfg-lc-head', {}, h('div', {}, h('span.mfg-code', {}, ln.id), ' ', h('b', {}, ln.name), h('small', {}, ERP.families[ln.family] + ' · ' + (ln.shifts || []).length + ' ورديات · ' + num(ln.capacityPerShift) + ' ' + (ERP.uom[ln.uom] || '') + '/وردية')), U.status('line', ln.status)),
       ln.status === 'down' ? h('div.mfg-down-note', {}, SA.icon('alert', 'icon-sm'), h('span', {}, 'متوقف منذ ' + durTxt(minsSince(ln.downSince)) + ' — ' + (ln.downReason || 'عطل'), m ? h('span', {}, ' · ', mwoLink(m.id)) : null)) : null,
-      h('div.mfg-lc-mid', {}, CH.gauge(oeeOf(ln), { label: 'OEE', size: 112, good: 0.75, warn: 0.6 }), woBlock),
-      h('div.mfg-apq.num', {}, h('span', {}, 'A ' + pct(oe.a)), h('span', {}, 'P ' + pct(oe.p)), h('span', {}, 'Q ' + pct(oe.q))),
-      CH.meter(exp ? o.good / exp : ln.status === 'down' ? 0 : 1, { label: 'إنتاج اليوم مقابل المتوقع حتى الآن', text: num(o.good) + ' / ' + num(exp), tone: ln.status === 'down' ? 'danger' : undefined }),
+      h('div.mfg-lc-mid', {}, CH.gauge(oeeOf(ln), { label: 'OEE', size: 112, good: 0.75, warn: 0.6 }),
+        h('div.mfg-lc-out', {}, h('small', {}, 'إنتاج اليوم'), h('b.num', {}, num(o.good), ' ', h('span', {}, '/ ' + num(exp) + ' متوقع')),
+          CH.meter(exp ? o.good / exp : ln.status === 'down' ? 0 : 1, { tone: ln.status === 'down' ? 'danger' : undefined }),
+          h('div.mfg-apq.num', {}, h('span', {}, 'A ' + pct(oe.a)), h('span', {}, 'P ' + pct(oe.p)), h('span', {}, 'Q ' + pct(oe.q))))),
+      woBlock,
       h('div.mfg-lc-foot', {}, h('span.mfg-muted', {}, 'خطة اليوم ' + num(plan) + ' · هالك ' + num(o.scrap)), h('a.erp-doc', { href: '#/mfg/lines/' + ln.id }, 'تفاصيل الخط')));
   }
   function dashRender(root, ctx) {
@@ -707,7 +720,7 @@
       mats.length ? miniTable(['الخامة', 'المطلوب', 'المتاح', 'الحالة'], mats.map((m) => h('tr' + (m.short > 0 && !wo.issued ? '.is-short' : ''), {}, td(U.itemCell(m.itemId)), td(qtyU(m.need, m.itemId), 'num'), td(qtyU(m.avail, m.itemId), 'num'), td(m.short > 0 ? SA.chip('نقص ' + qtyU(m.short, m.itemId), 'danger') : SA.chip('متاح', 'success'))))) : SA.empty({ icon: 'layers', title: 'لا توجد كمية متبقية' }),
       !wo.issued && short.length ? h('div', { style: { marginTop: '10px' } }, SA.btn({ label: 'أنشئ طلبات شراء للنقص', icon: 'cart', kind: 'ghost', perm: 'scm.requisitions.create', onClick: () => openShortages(wo.id, short) })) : null);
     const reps = wo.reports || [];
-    const repCard = SA.card({ title: 'سجل تسجيل الإنتاج', tags: [h('span.sap-count', {}, String(reps.length))] }, reps.length ? miniTable(['الوقت', 'بواسطة', 'الوردية', 'سليم', 'هالك'], reps.map((r) => h('tr', {}, td(SA.fmt.dt(r.at)), td(SA.userName(r.by)), td(r.shift || '—'), td(num(r.good), 'num'), td(r.scrap ? h('span', { style: { color: 'var(--color-danger)' } }, num(r.scrap)) : '0', 'num')))) : SA.empty({ icon: 'activity', title: 'لم يُسجَّل إنتاج بعد' }));
+    const repCard = SA.card({ title: 'سجل تسجيل الإنتاج', tags: [h('span.sap-count', {}, String(reps.length))] }, reps.length ? miniTable(['الوقت', 'بواسطة', 'الوردية', 'سليم', 'هالك'], reps.map((r) => h('tr', {}, td(SA.fmt.dt(r.at)), td(SA.userName(r.by)), td(r.shift ? 'وردية ' + r.shift : r.at ? 'وردية ' + shiftAt(r.at) : '—'), td(num(r.good), 'num'), td(r.scrap ? h('span', { style: { color: 'var(--color-danger)' } }, num(r.scrap)) : '0', 'num')))) : SA.empty({ icon: 'activity', title: 'لم يُسجَّل إنتاج بعد' }));
     const qcCard = SA.card({ title: 'الجودة' }, qc ? h('div', {}, SA.kv([['الفحص النهائي', h('span', {}, SA.can('mfg.qc.view') ? U.docLink(qc.id) : qc.id, ' ', U.status('qc', qc.result))], ['العينة', num(qc.sample)], qc.result !== 'pending' ? ['المقبول / المرفوض', num(qc.acceptedQty) + ' / ' + num(qc.rejectedQty)] : ['ينتظر منذ', SA.fmt.rel(qc.createdAt)], qc.inspectorId ? ['المفتش', SA.userName(qc.inspectorId)] : null, wo.ncrId || qc.ncrId ? ['عدم مطابقة', U.docLink(wo.ncrId || qc.ncrId)] : null])) : h('p.mfg-muted', {}, 'يُنشأ الفحص النهائي تلقائيًا عند اكتمال الكمية.'));
     let costCard;
     if (!U.canCost()) costCard = SA.card({ title: 'التكلفة المعيارية للأمر' }, h('div.mfg-locked-box', {}, SA.icon('lock'), h('span', {}, 'التكاليف الداخلية سرية — تحتاج صلاحية data.cost.view.')));
@@ -716,11 +729,16 @@
       h('div.mfg-roll-row', {}, h('span', {}, 'خامات حسب BOM'), U.cost(r.matCost)), h('div.mfg-roll-row', {}, h('span', {}, 'عمالة مباشرة (' + num(r.mins) + ' دقيقة معيارية)'), U.cost(r.labour)), h('div.mfg-roll-row', {}, h('span', {}, 'أعباء صناعية'), U.cost(r.overhead)),
       h('div.mfg-roll-row.is-total', {}, h('span', {}, 'تكلفة محسوبة من التركيبة'), U.cost(r.total)), wo.qtyScrap ? h('div.mfg-roll-row', {}, h('span', {}, 'تكلفة الهالك حتى الآن (' + num(wo.qtyScrap) + ')'), U.cost(wo.qtyScrap * (it.stdCost || 0))) : null,
       h('p.mfg-muted', {}, 'الفرق بين المعتمد والمحسوب يُراجَع في دورة تحديث التكاليف المعيارية (المالية › تكاليف المنتجات).'))); }
-    const trail = get('audit').filter((a) => a.target && a.target.id === wo.id).slice(0, 10);
-    const trailCard = SA.card({ title: 'سجل الأحداث' }, trail.length ? h('ul.mfg-timeline', {}, trail.map((a) => h('li', {}, h('i'), h('div', {}, h('b', {}, (SA.catalog.auditByCode[a.code] || {}).label || a.code), a.reason ? ' — ' + a.reason : '', h('small', {}, (a.actor ? a.actor.name : '') + ' · ' + SA.fmt.rel(a.ts)))))) : h('p.mfg-muted', {}, 'لا أحداث مسجلة بعد.'));
+    const trail = get('audit').filter((a) => a.target && a.target.id === wo.id).map((a) => ({ ts: a.ts, label: (SA.catalog.auditByCode[a.code] || {}).label || a.code, note: a.reason || '', who: a.actor ? a.actor.name : '' }));
+    // history recorded on the document itself (seeded records have no audit rows) — shown when the audit has no row of the same moment
+    const docEv = [[wo.createdAt, 'إنشاء أمر التشغيل', wo.createdBy], [wo.releasedAt, 'إطلاق وصرف الخامات', wo.releasedBy], [wo.actualStart, 'بدء التشغيل على ' + wo.lineId, null], [wo.heldAt, 'إيقاف الأمر', wo.heldBy, wo.holdReason], [wo.resumedAt, 'استئناف التشغيل', wo.resumedBy], [wo.actualEnd, 'اكتمال الكمية', null]]
+      .concat((wo.reports || []).map((r) => [r.at, 'تسجيل إنتاج ' + num(r.good) + (r.scrap ? ' + هالك ' + num(r.scrap) : ''), r.by]))
+      .filter((e) => e[0] && !trail.some((t) => Math.abs(ts(t.ts) - ts(e[0])) < 2000)).map((e) => ({ ts: e[0], label: e[1], who: e[2] ? SA.userName(e[2]) : '', note: e[3] || '' }));
+    const events = trail.concat(docEv).sort((a, b) => ts(b.ts) - ts(a.ts)).slice(0, 12);
+    const trailCard = SA.card({ title: 'سجل الأحداث' }, events.length ? h('ul.mfg-timeline', {}, events.map((a) => h('li', {}, h('i'), h('div', {}, h('b', {}, a.label), a.note ? ' — ' + a.note : '', h('small', {}, (a.who ? a.who + ' · ' : '') + SA.fmt.rel(a.ts)))))) : h('p.mfg-muted', {}, 'لا أحداث مسجلة بعد.'));
     return h('div', {}, SA.pageHead({ title: wo.id, desc: ERP.itemName(wo.itemId) + ' — ' + (ln ? ln.name : wo.lineId), back: { label: 'أوامر التشغيل', href: '#/mfg/workorders' }, tags: [U.status('wo', wo.status), priChip(wo.priority)], actions: acts }),
       holdBox, so ? SA.card({ title: 'دورة أمر البيع ' + so.id }, U.chain(so.id)) : null,
-      U.grid(2, h('div', {}, headCard, matCard), h('div', {}, qcCard, costCard, repCard, trailCard)));
+      U.grid(2, h('div.mfg-col', {}, headCard, matCard), h('div.mfg-col', {}, qcCard, costCard, repCard, trailCard)));
   }
   function woRender(root, ctx) {
     const id = ctx.path && ctx.path[0];
